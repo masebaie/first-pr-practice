@@ -19,5 +19,5 @@ python add.py
 python -m unittest test_add.py
 ```
 
-This project is intentionally small so it's easy to recieve your first pull
+This project is intentionally small so it's easy to receive your first pull
 request end to end without worrying about a big codebase.
