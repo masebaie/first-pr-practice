@@ -7,117 +7,157 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="تعقّب الجيم" />
-<meta name="theme-color" content="#11151B" />
+<meta name="theme-color" content="#0F1216" />
 <style>
   :root{
     color-scheme: light dark;
-    --ink:#161B22;
-    --paper:#EEF1EF;
-    --steel:#69737C;
+    --ink:#15181F;
+    --paper:#EFF1EF;
+    --steel:#6B7580;
     --accent:#D6431F;
+    --accent-2:#F2A73B;
     --accent-ink:#FFFFFF;
     --accent-tint:rgba(214,67,31,0.08);
-    --good:#1F8F52;
-    --line:rgba(22,27,34,0.12);
+    --hero-glow:rgba(214,67,31,0.32);
+    --line:rgba(21,24,31,0.10);
     --surface:#FFFFFF;
-    --surface-2:#E3E7E5;
-    --shadow:rgba(22,27,34,0.10);
+    --surface-2:#E7EAE8;
+    --shadow-1:0 1px 2px rgba(21,24,31,0.06);
+    --shadow-2:0 10px 24px -12px rgba(21,24,31,0.22), 0 2px 6px rgba(21,24,31,0.08);
+    --font-display: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
     --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Tahoma, Arial, sans-serif;
     --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --ink:#ECEEF0;
-      --paper:#11151B;
-      --steel:#8B95A1;
+      --ink:#EDEFF1;
+      --paper:#0F1216;
+      --steel:#8B94A0;
       --accent:#FF7A52;
-      --accent-ink:#151A20;
+      --accent-2:#FFC46B;
+      --accent-ink:#17110D;
       --accent-tint:rgba(255,122,82,0.14);
-      --good:#3FCB7C;
-      --line:rgba(236,238,240,0.14);
-      --surface:#1B2129;
-      --surface-2:#212831;
-      --shadow:rgba(0,0,0,0.40);
+      --hero-glow:rgba(255,122,82,0.35);
+      --line:rgba(237,239,241,0.12);
+      --surface:#1A1F27;
+      --surface-2:#212832;
+      --shadow-1:0 1px 2px rgba(0,0,0,0.3);
+      --shadow-2:0 14px 30px -14px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
     }
   }
   :root[data-theme="dark"]{
-    --ink:#ECEEF0;
-    --paper:#11151B;
-    --steel:#8B95A1;
+    --ink:#EDEFF1;
+    --paper:#0F1216;
+    --steel:#8B94A0;
     --accent:#FF7A52;
-    --accent-ink:#151A20;
+    --accent-2:#FFC46B;
+    --accent-ink:#17110D;
     --accent-tint:rgba(255,122,82,0.14);
-    --good:#3FCB7C;
-    --line:rgba(236,238,240,0.14);
-    --surface:#1B2129;
-    --surface-2:#212831;
-    --shadow:rgba(0,0,0,0.40);
+    --hero-glow:rgba(255,122,82,0.35);
+    --line:rgba(237,239,241,0.12);
+    --surface:#1A1F27;
+    --surface-2:#212832;
+    --shadow-1:0 1px 2px rgba(0,0,0,0.3);
+    --shadow-2:0 14px 30px -14px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; height:100%; }
-  body{ background:var(--paper); color:var(--ink); font-family:var(--font-ui); }
+  body{ background:var(--paper); color:var(--ink); font-family:var(--font-ui); -webkit-font-smoothing:antialiased; }
   .hidden{ display:none !important; }
   .app{ max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column;
-        padding: max(20px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
-  .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:12px; color:var(--steel); margin:0 0 4px; font-weight:600; }
-  h1{ font-size:clamp(22px,6vw,28px); margin:0 0 20px; font-weight:800; text-wrap:balance; letter-spacing:-0.01em; }
+        padding: max(22px, env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom)); }
 
-  .stats{ display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:8px; margin-bottom:24px; }
-  .stat{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px;
-         display:flex; flex-direction:column; gap:4px; align-items:center; text-align:center; box-shadow:0 1px 2px var(--shadow); }
-  .stat-accent{ background:var(--accent); border-color:var(--accent); }
-  .stat-accent .stat-label, .stat-accent .stat-value{ color:var(--accent-ink); }
-  .stat-label{ font-size:11px; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
-  .stat-value{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:clamp(18px,5vw,22px); font-weight:700; direction:ltr; }
+  .eyebrow{ display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.1em; font-size:11px;
+            color:var(--steel); margin:0 0 6px; font-weight:700; font-family:var(--font-display); }
+  .eyebrow::before{ content:''; width:16px; height:3px; border-radius:3px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); }
+  h1{ font-family:var(--font-display); font-size:clamp(24px,7vw,30px); margin:0 0 22px; font-weight:800;
+      text-wrap:balance; letter-spacing:-0.015em; }
 
-  .section-head{ margin-bottom:10px; }
-  .section-head h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0 0 3px; }
+  .hero{ background:linear-gradient(150deg, var(--accent), var(--accent-2)); color:var(--accent-ink); border-radius:22px;
+         padding:22px 20px; text-align:center; box-shadow:0 16px 32px -16px var(--hero-glow), var(--shadow-1); margin-bottom:12px; }
+  .hero-label{ font-family:var(--font-display); font-size:12px; text-transform:uppercase; letter-spacing:0.1em;
+               font-weight:700; margin:0 0 6px; opacity:0.92; }
+  .hero-value{ font-family:var(--font-display); font-weight:800; font-size:clamp(38px,13vw,52px); line-height:1;
+               letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin:0; direction:ltr; display:inline-flex;
+               align-items:baseline; gap:6px; }
+  .hero-unit{ font-size:0.36em; font-weight:700; opacity:0.85; }
+  .hero-sub{ font-size:12px; margin:8px 0 0; opacity:0.85; font-weight:600; }
+
+  .mini-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:26px; }
+  .mini-stat{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:13px 12px;
+              text-align:center; box-shadow:var(--shadow-1); }
+  .mini-value{ display:block; font-family:var(--font-display); font-weight:800; font-size:clamp(19px,5.5vw,23px);
+               font-variant-numeric:tabular-nums; direction:ltr; letter-spacing:-0.01em; }
+  .mini-label{ display:block; font-size:11px; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em;
+               font-weight:600; margin-top:3px; }
+
+  .section-head{ margin-bottom:12px; }
+  .section-head h2{ font-family:var(--font-display); font-size:14px; letter-spacing:-0.005em; color:var(--ink);
+                     font-weight:700; margin:0 0 3px; }
   .section-sub{ font-size:12px; color:var(--steel); margin:0; }
 
-  .payments{ margin-bottom:28px; }
+  .payments{ margin-bottom:30px; }
   .pay-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .pay-field{ display:flex; flex-direction:column; gap:6px; background:var(--surface); border:1px solid var(--line);
-              border-radius:12px; padding:12px; }
-  .pay-label{ font-size:11px; color:var(--steel); font-weight:600; line-height:1.3; }
-  .pay-field input{ border:1px solid var(--line); border-radius:8px; padding:10px; font-size:16px; background:var(--paper);
-                     color:var(--ink); font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr;
-                     text-align:left; width:100%; }
-  .pay-field input:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+  .pay-field{ display:flex; flex-direction:column; gap:8px; background:var(--surface); border:1px solid var(--line);
+              border-radius:16px; padding:13px; box-shadow:var(--shadow-1); }
+  .pay-label{ font-size:11px; color:var(--steel); font-weight:600; line-height:1.35; }
+  .pay-input-row{ display:flex; align-items:center; gap:6px; background:var(--paper); border:1px solid var(--line);
+                  border-radius:11px; padding:2px 10px; transition:border-color .15s ease, box-shadow .15s ease; }
+  .pay-input-row:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-tint); }
+  .pay-field input{ border:none; background:transparent; padding:9px 0; font-size:16px; color:var(--ink);
+                     font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; text-align:left;
+                     width:100%; min-width:0; }
+  .pay-field input:focus{ outline:none; }
+  .pay-suffix{ font-size:11px; color:var(--steel); font-weight:700; white-space:nowrap; }
 
-  .days{ margin-bottom:28px; }
-  .day-hint{ font-size:11px; color:var(--steel); margin:0 0 12px; }
-  .day-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
-  .month-divider{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700;
-                   padding:10px 2px 2px; }
+  .days{ margin-bottom:30px; }
+  .day-hint{ font-size:11.5px; color:var(--steel); margin:0 0 14px; line-height:1.5; }
+  .day-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
+  .month-divider{ font-family:var(--font-display); font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
+                   color:var(--steel); font-weight:700; padding:12px 3px 3px; }
   .month-divider:first-child{ padding-top:0; }
   .day-row{ appearance:none; width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
-            background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:11px 14px;
-            cursor:pointer; text-align:right; color:var(--ink); }
+            background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 15px;
+            cursor:pointer; text-align:right; color:var(--ink); box-shadow:var(--shadow-1);
+            transition:background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
   .day-row.is-attended{ background:var(--accent-tint); border-color:var(--accent); }
   .day-row.is-today{ box-shadow: inset 0 0 0 2px var(--accent); }
   .day-row:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  @media (hover:hover){ .day-row:hover{ border-color:var(--accent); } }
   .day-info{ display:flex; flex-direction:column; gap:2px; align-items:flex-start; }
   .day-weekday{ font-size:11px; color:var(--steel); font-weight:600; }
-  .day-date{ font-size:15px; font-weight:700; }
-  .day-today-tag{ font-size:10px; color:var(--accent); font-weight:700; }
-  .day-check{ width:26px; height:26px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center;
-              justify-content:center; color:var(--accent-ink); flex-shrink:0; }
-  .day-check.is-checked{ background:var(--accent); border-color:var(--accent); }
+  .day-date{ font-family:var(--font-display); font-size:15px; font-weight:700; }
+  .day-today-tag{ font-size:10px; color:var(--accent); font-weight:800; }
+  .day-check{ width:28px; height:28px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center;
+              justify-content:center; color:var(--accent-ink); flex-shrink:0;
+              transition:background-color .18s ease, border-color .18s ease; }
+  .day-check.is-checked{ background:linear-gradient(150deg,var(--accent),var(--accent-2)); border-color:transparent; }
 
-  .backup{ border-top:1px solid var(--line); padding-top:16px; margin-top:auto; }
-  .backup-note{ font-size:12px; color:var(--steel); line-height:1.5; margin:0 0 12px; }
+  .backup{ border-top:1px solid var(--line); padding-top:18px; margin-top:auto; }
+  .backup-note{ font-size:12px; color:var(--steel); line-height:1.55; margin:0 0 14px; }
   .backup-actions{ display:flex; gap:8px; flex-wrap:wrap; }
-  .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-size:15px; font-weight:700;
-        cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center; }
-  .btn-outline{ background:transparent; border:1px solid var(--line); color:var(--ink); }
+  .btn{ appearance:none; border:none; border-radius:14px; padding:14px 16px; font-size:14.5px; font-weight:700;
+        cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center;
+        font-family:var(--font-ui); }
+  .btn-outline{ background:var(--surface); border:1px solid var(--line); color:var(--ink); box-shadow:var(--shadow-1); }
   .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-  .backup-actions .btn{ flex:1; min-width:140px; }
+  .backup-actions .btn{ flex:1; min-width:150px; }
 
-  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper);
-          padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:0 4px 16px var(--shadow); }
+  .toast{ position:fixed; bottom:22px; left:50%; z-index:10; background:var(--ink); color:var(--paper);
+          padding:11px 20px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:var(--shadow-2);
+          opacity:0; transform:translate(-50%,10px); pointer-events:none; transition:opacity .25s ease, transform .25s ease; }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+
   @media (prefers-reduced-motion:no-preference){
-    .day-row, .btn{ transition: transform 0.1s ease, opacity 0.15s ease; }
+    .day-row, .btn, .pay-input-row{ transition-duration:.18s; }
     .day-row:active, .btn:active{ transform:scale(0.97); }
+    @keyframes riseIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
+    @keyframes popIn{ 0%{ transform:scale(0); } 65%{ transform:scale(1.2); } 100%{ transform:scale(1); } }
+    .hero{ animation:riseIn .45s ease both; }
+    .mini-stat:nth-child(1){ animation:riseIn .45s ease both; animation-delay:.05s; }
+    .mini-stat:nth-child(2){ animation:riseIn .45s ease both; animation-delay:.1s; }
+    .day-row-item{ animation:riseIn .4s ease both; animation-delay:calc(var(--i,0) * 14ms); }
+    .day-check.is-checked svg{ animation:popIn .32s cubic-bezier(.34,1.56,.64,1); }
   }
 </style>
 </head>
@@ -128,31 +168,39 @@
     <h1>كام حصة وبكام</h1>
   </header>
 
-  <section class="stats" aria-label="ملخص">
-    <div class="stat">
-      <span class="stat-label">الحصص</span>
-      <span class="stat-value" id="statSessions">0</span>
-    </div>
-    <div class="stat stat-accent">
-      <span class="stat-label">تكلفة الحصة</span>
-      <span class="stat-value" id="statCost">—</span>
-    </div>
-    <div class="stat">
-      <span class="stat-label">إجمالي المدفوع</span>
-      <span class="stat-value" id="statTotal">0.00</span>
-    </div>
+  <section class="hero" aria-label="تكلفة الحصة">
+    <p class="hero-label">تكلفة الحصة</p>
+    <p class="hero-value"><span id="statCost">—</span><span class="hero-unit">د.إ</span></p>
+    <p class="hero-sub" id="heroSub">إجمالي المدفوعات ÷ عدد الحصص</p>
   </section>
+
+  <div class="mini-row">
+    <div class="mini-stat">
+      <span class="mini-value" id="statSessions">0</span>
+      <span class="mini-label">الحصص</span>
+    </div>
+    <div class="mini-stat">
+      <span class="mini-value" id="statTotal">0.00</span>
+      <span class="mini-label">إجمالي المدفوع</span>
+    </div>
+  </div>
 
   <section class="payments">
     <div class="section-head"><h2>المدفوعات</h2></div>
     <div class="pay-grid">
       <label class="pay-field">
         <span class="pay-label">اشتراك الجيم الشهري</span>
-        <input type="number" inputmode="decimal" step="0.01" min="0" id="inputSubscription" placeholder="0.00" />
+        <span class="pay-input-row">
+          <input type="number" inputmode="decimal" step="0.01" min="0" id="inputSubscription" placeholder="0.00" />
+          <span class="pay-suffix">د.إ</span>
+        </span>
       </label>
       <label class="pay-field">
         <span class="pay-label">أجرة المدرب</span>
-        <input type="number" inputmode="decimal" step="0.01" min="0" id="inputTrainer" placeholder="0.00" />
+        <span class="pay-input-row">
+          <input type="number" inputmode="decimal" step="0.01" min="0" id="inputTrainer" placeholder="0.00" />
+          <span class="pay-suffix">د.إ</span>
+        </span>
       </label>
     </div>
   </section>
@@ -177,7 +225,7 @@
     </div>
   </section>
 
-  <div id="toast" class="toast hidden"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </div>
 
 <script>
@@ -189,6 +237,7 @@
   const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
   let state = load();
+  const rowRefs = Object.create(null);
 
   function load(){
     try {
@@ -240,6 +289,9 @@
     document.getElementById('statSessions').textContent = count;
     document.getElementById('statTotal').textContent = money(total);
     document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
+    document.getElementById('heroSub').textContent = count > 0
+      ? `${money(total)} د.إ ÷ ${count} حصة`
+      : 'سجّل حصة وادفع عشان تشوف التكلفة';
   }
 
   function toggleSession(dateStr){
@@ -251,9 +303,19 @@
       state.sessions.splice(idx, 1);
       showToast('اتشالت حصة يوم ' + formatDate(dateStr));
     }
+    updateRow(dateStr);
     renderStats();
-    renderDays();
     persist();
+  }
+
+  function updateRow(dateStr){
+    const ref = rowRefs[dateStr];
+    if(!ref) return;
+    const attended = state.sessions.includes(dateStr);
+    ref.row.classList.toggle('is-attended', attended);
+    ref.row.setAttribute('aria-pressed', attended ? 'true' : 'false');
+    ref.check.classList.toggle('is-checked', attended);
+    ref.check.innerHTML = attended ? CHECK_SVG : '';
   }
 
   function renderDays(){
@@ -261,6 +323,7 @@
     list.innerHTML = '';
     const today = todayISO();
     let lastMonth = null;
+    let i = 0;
     CAL_DATES.forEach(dateStr => {
       const dObj = new Date(dateStr + 'T00:00:00');
       const monthIdx = dObj.getMonth();
@@ -274,6 +337,8 @@
       const attended = state.sessions.includes(dateStr);
       const isToday = dateStr === today;
       const li = document.createElement('li');
+      li.className = 'day-row-item';
+      li.style.setProperty('--i', i++);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'day-row' + (attended ? ' is-attended' : '') + (isToday ? ' is-today' : '');
@@ -289,6 +354,7 @@
       btn.addEventListener('click', () => toggleSession(dateStr));
       li.appendChild(btn);
       list.appendChild(li);
+      rowRefs[dateStr] = {row: btn, check: btn.querySelector('.day-check')};
     });
   }
 
@@ -296,9 +362,9 @@
   function showToast(msg){
     const t = document.getElementById('toast');
     t.textContent = msg;
-    t.classList.remove('hidden');
+    t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.add('hidden'), 2000);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
   }
 
   const inputSubscription = document.getElementById('inputSubscription');
