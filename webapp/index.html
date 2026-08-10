@@ -58,13 +58,34 @@
         padding: max(20px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
   .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:12px; color:var(--steel); margin:0 0 4px; font-weight:600; }
   h1{ font-size:clamp(22px,6vw,28px); margin:0 0 20px; font-weight:800; text-wrap:balance; letter-spacing:-0.01em; }
-  .stats{ display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:8px; margin-bottom:20px; }
+  .stats{ display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:8px; margin-bottom:24px; }
   .stat{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px;
          display:flex; flex-direction:column; gap:4px; align-items:center; text-align:center; box-shadow:0 1px 2px var(--shadow); }
   .stat-accent{ background:var(--accent); border-color:var(--accent); }
   .stat-accent .stat-label, .stat-accent .stat-value{ color:var(--accent-ink); }
   .stat-label{ font-size:11px; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
   .stat-value{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:clamp(18px,5vw,22px); font-weight:700; direction:ltr; }
+
+  .section-head{ margin-bottom:10px; }
+  .section-head h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0 0 3px; }
+  .section-sub{ font-size:12px; color:var(--steel); margin:0; }
+
+  .calendar{ margin-bottom:28px; }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
+  .cal-weekdays span{ text-align:center; font-size:11px; color:var(--steel); font-weight:600; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+  .cal-cell{ aspect-ratio:1; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+             display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; padding:0;
+             font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
+  .cal-cell-pad{ visibility:hidden; border:none; background:none; }
+  .cal-day{ font-size:14px; font-weight:700; }
+  .cal-month{ font-size:8px; color:var(--steel); text-transform:uppercase; letter-spacing:0.02em; }
+  .cal-cell.is-today{ box-shadow: inset 0 0 0 2px var(--accent); }
+  .cal-cell.is-attended{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .cal-cell.is-attended .cal-month{ color:var(--accent-ink); opacity:0.85; }
+  .cal-cell:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .cal-hint{ font-size:11px; color:var(--steel); margin:10px 0 0; }
+
   .actions{ display:flex; flex-direction:column; gap:8px; margin-bottom:28px; }
   .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-size:15px; font-weight:700;
         cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center; }
@@ -80,7 +101,6 @@
   .inline-form input{ flex:1; min-width:120px; border:1px solid var(--line); border-radius:8px; padding:10px;
                        font-size:15px; background:var(--paper); color:var(--ink); }
   .log{ margin-bottom:24px; }
-  .log h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0 0 10px; }
   .list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
   .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--surface);
         border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
@@ -100,8 +120,8 @@
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper);
           padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:0 4px 16px var(--shadow); }
   @media (prefers-reduced-motion:no-preference){
-    .btn, .row-del, .btn-tiny{ transition: transform 0.1s ease, opacity 0.15s ease; }
-    .btn:active{ transform:scale(0.97); }
+    .btn, .row-del, .btn-tiny, .cal-cell{ transition: transform 0.1s ease, opacity 0.15s ease; }
+    .btn:active, .cal-cell:active{ transform:scale(0.94); }
   }
 </style>
 </head>
@@ -127,15 +147,19 @@
     </div>
   </section>
 
-  <section class="actions">
-    <button id="btnLogToday" class="btn btn-primary" type="button">سجّل حصة النهارده</button>
-    <button id="btnToggleDate" class="btn-link" type="button">سجّل حصة بتاريخ تاني</button>
-    <form id="formDate" class="inline-form hidden">
-      <input type="date" id="inputDate" required />
-      <button type="submit" class="btn btn-small">تسجيل</button>
-      <button type="button" class="btn-link" id="cancelDate">إلغاء</button>
-    </form>
+  <section class="calendar">
+    <div class="section-head">
+      <h2>علّم الأيام اللي رحت فيها</h2>
+      <p class="section-sub" id="calRange"></p>
+    </div>
+    <div class="cal-weekdays">
+      <span>ح</span><span>ن</span><span>ث</span><span>ر</span><span>خ</span><span>ج</span><span>س</span>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <p class="cal-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت، ودوس تاني عشان تشيل العلامة.</p>
+  </section>
 
+  <section class="actions">
     <button id="btnTogglePayment" class="btn btn-secondary" type="button">إضافة دفعة</button>
     <form id="formPayment" class="inline-form hidden">
       <input type="number" inputmode="decimal" step="0.01" min="0.01" id="inputAmount" placeholder="المبلغ" required />
@@ -146,13 +170,7 @@
   </section>
 
   <section class="log">
-    <h2>سجل الحصص</h2>
-    <ul id="listSessions" class="list"></ul>
-    <p id="emptySessions" class="empty hidden">لسه معملتش تسجيل حصص.</p>
-  </section>
-
-  <section class="log">
-    <h2>سجل المدفوعات</h2>
+    <div class="section-head"><h2>سجل المدفوعات</h2></div>
     <ul id="listPayments" class="list"></ul>
     <p id="emptyPayments" class="empty hidden">لسه معملتش تسجيل مدفوعات.</p>
   </section>
@@ -174,6 +192,10 @@
 <script>
 (function(){
   const STORAGE_KEY = 'gymTrackerData';
+  const RANGE_START = '2026-08-09';
+  const RANGE_END = '2026-09-08';
+  const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
   let state = load();
 
   function load(){
@@ -187,7 +209,13 @@
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
   function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
-  function todayISO(){ return new Date().toISOString().slice(0,10); }
+  function toISO(d){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+  function todayISO(){ return toISO(new Date()); }
 
   function formatDate(iso){
     const d = new Date(iso + 'T00:00:00');
@@ -197,11 +225,71 @@
     return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  function buildCalendarDates(){
+    const dates = [];
+    const cur = new Date(RANGE_START + 'T00:00:00');
+    const end = new Date(RANGE_END + 'T00:00:00');
+    while(cur <= end){
+      dates.push(toISO(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    return dates;
+  }
+  const CAL_DATES = buildCalendarDates();
+
   function computeStats(){
     const count = state.sessions.length;
     const total = state.payments.reduce((s,p) => s + p.amount, 0);
     const cost = count > 0 ? total / count : null;
     return {count, total, cost};
+  }
+
+  function toggleSession(dateStr){
+    const idx = state.sessions.indexOf(dateStr);
+    if(idx === -1){
+      state.sessions.push(dateStr);
+      showToast('اتسجّلت حصة يوم ' + formatDate(dateStr));
+    } else {
+      state.sessions.splice(idx, 1);
+      showToast('اتشالت حصة يوم ' + formatDate(dateStr));
+    }
+    render();
+  }
+
+  function renderCalendar(){
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    const startDate = new Date(RANGE_START + 'T00:00:00');
+    const leadPad = startDate.getDay();
+    for(let i = 0; i < leadPad; i++){
+      const pad = document.createElement('div');
+      pad.className = 'cal-cell cal-cell-pad';
+      grid.appendChild(pad);
+    }
+    const today = todayISO();
+    CAL_DATES.forEach(dateStr => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'cal-cell';
+      const attended = state.sessions.includes(dateStr);
+      if(attended) btn.classList.add('is-attended');
+      if(dateStr === today) btn.classList.add('is-today');
+      const dObj = new Date(dateStr + 'T00:00:00');
+      const dayNum = dObj.getDate();
+      const monthLabel = dayNum === 1 ? `<span class="cal-month">${MONTHS_AR[dObj.getMonth()]}</span>` : '';
+      btn.innerHTML = `<span class="cal-day">${dayNum}</span>${monthLabel}`;
+      btn.setAttribute('aria-pressed', attended ? 'true' : 'false');
+      btn.setAttribute('aria-label', `${formatDate(dateStr)}${attended ? ' — تم الحضور' : ''}`);
+      btn.addEventListener('click', () => toggleSession(dateStr));
+      grid.appendChild(btn);
+    });
+    const endDate = new Date(RANGE_END + 'T00:00:00');
+    const trailPad = 6 - endDate.getDay();
+    for(let i = 0; i < trailPad; i++){
+      const pad = document.createElement('div');
+      pad.className = 'cal-cell cal-cell-pad';
+      grid.appendChild(pad);
+    }
   }
 
   let confirmingId = null;
@@ -237,11 +325,9 @@
     document.getElementById('statSessions').textContent = count;
     document.getElementById('statTotal').textContent = money(total);
     document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
+    document.getElementById('calRange').textContent = `${formatDate(RANGE_START)} – ${formatDate(RANGE_END)}`;
 
-    renderList('listSessions', 'emptySessions',
-      [...state.sessions].sort((a,b) => b.date.localeCompare(a.date)),
-      item => `<span class="row-main">${formatDate(item.date)}</span>`,
-      deleteSession);
+    renderCalendar();
 
     renderList('listPayments', 'emptyPayments',
       [...state.payments].sort((a,b) => b.date.localeCompare(a.date)),
@@ -251,14 +337,8 @@
     persist();
   }
 
-  function deleteSession(id){ state.sessions = state.sessions.filter(s => s.id !== id); render(); }
   function deletePayment(id){ state.payments = state.payments.filter(p => p.id !== id); render(); }
 
-  function addSession(dateStr){
-    state.sessions.push({id: uid(), date: dateStr});
-    render();
-    showToast('تم تسجيل الحصة');
-  }
   function addPayment(amount, desc, dateStr){
     state.payments.push({id: uid(), amount, desc, date: dateStr});
     render();
@@ -273,23 +353,6 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.add('hidden'), 2000);
   }
-
-  document.getElementById('btnLogToday').addEventListener('click', () => addSession(todayISO()));
-
-  const formDate = document.getElementById('formDate');
-  document.getElementById('btnToggleDate').addEventListener('click', () => {
-    formDate.classList.toggle('hidden');
-    if(!formDate.classList.contains('hidden')) document.getElementById('inputDate').value = todayISO();
-  });
-  document.getElementById('cancelDate').addEventListener('click', () => formDate.classList.add('hidden'));
-  formDate.addEventListener('submit', e => {
-    e.preventDefault();
-    const val = document.getElementById('inputDate').value;
-    if(!val) return;
-    addSession(val);
-    formDate.classList.add('hidden');
-    formDate.reset();
-  });
 
   const formPayment = document.getElementById('formPayment');
   document.getElementById('btnTogglePayment').addEventListener('click', () => formPayment.classList.toggle('hidden'));
