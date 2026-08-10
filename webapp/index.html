@@ -72,6 +72,28 @@
   .section-head{ margin-bottom:10px; }
   .section-head h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0; }
 
+  .payments{ margin-bottom:26px; }
+  .pay-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+  .pay-field{ display:flex; flex-direction:column; gap:8px; background:var(--surface); border:1px solid var(--line);
+              border-radius:14px; padding:12px; box-shadow:var(--shadow); }
+  .pay-label{ font-size:11px; color:var(--steel); font-weight:600; line-height:1.35; }
+  .pay-input-row{ display:flex; align-items:center; gap:6px; background:var(--paper); border:1px solid var(--line);
+                  border-radius:10px; padding:2px 10px; transition:border-color .15s ease; }
+  .pay-input-row:focus-within{ border-color:var(--accent); }
+  .pay-field input{ border:none; background:transparent; padding:9px 0; font-size:16px; color:var(--ink);
+                     font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; text-align:left;
+                     width:100%; min-width:0; }
+  .pay-field input:focus{ outline:none; }
+  .pay-suffix{ font-size:11px; color:var(--steel); font-weight:700; white-space:nowrap; }
+  .pay-result{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--accent-tint);
+               border:1px solid var(--accent); border-radius:14px; padding:12px 16px; }
+  .pay-result-text{ display:flex; flex-direction:column; gap:2px; }
+  .pay-result-label{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .pay-result-sub{ font-size:11px; color:var(--steel); }
+  .pay-result-value{ font-weight:800; font-size:20px; color:var(--accent); font-variant-numeric:tabular-nums;
+                      direction:ltr; display:inline-flex; align-items:baseline; gap:4px; white-space:nowrap; }
+  .pay-result-unit{ font-size:11px; font-weight:700; opacity:0.85; }
+
   .days{ margin-bottom:26px; }
   .day-hint{ font-size:12px; color:var(--steel); margin:0 0 14px; line-height:1.5; }
   .day-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
@@ -129,6 +151,33 @@
     <p class="hero-sub" id="heroSub"></p>
   </section>
 
+  <section class="payments">
+    <div class="section-head"><h2>المدفوعات</h2></div>
+    <div class="pay-grid">
+      <label class="pay-field">
+        <span class="pay-label">اشتراك الجيم</span>
+        <span class="pay-input-row">
+          <input type="number" inputmode="decimal" step="0.01" min="0" id="inputGym" placeholder="0.00" />
+          <span class="pay-suffix">د.إ</span>
+        </span>
+      </label>
+      <label class="pay-field">
+        <span class="pay-label">اشتراك المدرب الخصوصي</span>
+        <span class="pay-input-row">
+          <input type="number" inputmode="decimal" step="0.01" min="0" id="inputTrainer" placeholder="0.00" />
+          <span class="pay-suffix">د.إ</span>
+        </span>
+      </label>
+    </div>
+    <div class="pay-result">
+      <span class="pay-result-text">
+        <span class="pay-result-label">قيمة الحصة</span>
+        <span class="pay-result-sub" id="costSub"></span>
+      </span>
+      <span class="pay-result-value"><span id="statCost">—</span><span class="pay-result-unit">د.إ</span></span>
+    </div>
+  </section>
+
   <section class="days">
     <div class="section-head"><h2>الأسابيع</h2></div>
     <p class="day-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت الجيم، ودوس تاني عشان تشيل العلامة.</p>
@@ -163,12 +212,17 @@
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return {sessions:[]};
+      if(!raw) return {sessions:[], gymFee:0, trainerFee:0};
       const parsed = JSON.parse(raw);
-      return {sessions: Array.isArray(parsed.sessions) ? parsed.sessions : []};
-    } catch(e){ return {sessions:[]}; }
+      return {
+        sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+        gymFee: typeof parsed.gymFee === 'number' ? parsed.gymFee : 0,
+        trainerFee: typeof parsed.trainerFee === 'number' ? parsed.trainerFee : 0
+      };
+    } catch(e){ return {sessions:[], gymFee:0, trainerFee:0}; }
   }
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function toISO(d){
     const y = d.getFullYear();
     const m = String(d.getMonth()+1).padStart(2,'0');
@@ -202,6 +256,13 @@
     document.getElementById('statSessions').textContent = count;
     document.getElementById('progressFill').style.width = `${Math.min(100, (count / CAL_DATES.length) * 100)}%`;
     document.getElementById('heroSub').textContent = `من ${CAL_DATES.length} يوم (${formatDateFull(RANGE_START)} – ${formatDateFull(RANGE_END)})`;
+
+    const total = (state.gymFee || 0) + (state.trainerFee || 0);
+    const cost = count > 0 ? total / count : null;
+    document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
+    document.getElementById('costSub').textContent = count > 0
+      ? `${money(total)} د.إ ÷ ${count} حصة`
+      : 'سجّل حصة عشان تشوف القيمة';
   }
 
   function toggleSession(dateStr){
@@ -276,6 +337,23 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
   }
 
+  const inputGym = document.getElementById('inputGym');
+  const inputTrainer = document.getElementById('inputTrainer');
+  inputGym.value = state.gymFee || '';
+  inputTrainer.value = state.trainerFee || '';
+  inputGym.addEventListener('input', () => {
+    const val = parseFloat(inputGym.value);
+    state.gymFee = isNaN(val) ? 0 : val;
+    renderStats();
+    persist();
+  });
+  inputTrainer.addEventListener('input', () => {
+    const val = parseFloat(inputTrainer.value);
+    state.trainerFee = isNaN(val) ? 0 : val;
+    renderStats();
+    persist();
+  });
+
   document.getElementById('btnExport').addEventListener('click', async () => {
     const data = JSON.stringify(state, null, 2);
     const filename = `gym-tracker-backup-${todayISO()}.json`;
@@ -300,7 +378,13 @@
       try {
         const parsed = JSON.parse(reader.result);
         if(!Array.isArray(parsed.sessions)) throw new Error('bad shape');
-        state = {sessions: parsed.sessions};
+        state = {
+          sessions: parsed.sessions,
+          gymFee: typeof parsed.gymFee === 'number' ? parsed.gymFee : 0,
+          trainerFee: typeof parsed.trainerFee === 'number' ? parsed.trainerFee : 0
+        };
+        inputGym.value = state.gymFee || '';
+        inputTrainer.value = state.trainerFee || '';
         renderStats();
         renderDays();
         persist();
