@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>تعقّب الجيم</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="تعقّب الجيم" />
+<meta name="theme-color" content="#11151B" />
+<style>
+  :root{
+    color-scheme: light dark;
+    --ink:#161B22;
+    --paper:#EEF1EF;
+    --steel:#69737C;
+    --accent:#D6431F;
+    --accent-ink:#FFFFFF;
+    --good:#1F8F52;
+    --line:rgba(22,27,34,0.12);
+    --surface:#FFFFFF;
+    --surface-2:#E3E7E5;
+    --shadow:rgba(22,27,34,0.10);
+    --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Tahoma, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#ECEEF0;
+      --paper:#11151B;
+      --steel:#8B95A1;
+      --accent:#FF7A52;
+      --accent-ink:#151A20;
+      --good:#3FCB7C;
+      --line:rgba(236,238,240,0.14);
+      --surface:#1B2129;
+      --surface-2:#212831;
+      --shadow:rgba(0,0,0,0.40);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#ECEEF0;
+    --paper:#11151B;
+    --steel:#8B95A1;
+    --accent:#FF7A52;
+    --accent-ink:#151A20;
+    --good:#3FCB7C;
+    --line:rgba(236,238,240,0.14);
+    --surface:#1B2129;
+    --surface-2:#212831;
+    --shadow:rgba(0,0,0,0.40);
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; }
+  body{ background:var(--paper); color:var(--ink); font-family:var(--font-ui); }
+  .hidden{ display:none !important; }
+  .app{ max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column;
+        padding: max(20px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
+  .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:12px; color:var(--steel); margin:0 0 4px; font-weight:600; }
+  h1{ font-size:clamp(22px,6vw,28px); margin:0 0 20px; font-weight:800; text-wrap:balance; letter-spacing:-0.01em; }
+  .stats{ display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:8px; margin-bottom:20px; }
+  .stat{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px;
+         display:flex; flex-direction:column; gap:4px; align-items:center; text-align:center; box-shadow:0 1px 2px var(--shadow); }
+  .stat-accent{ background:var(--accent); border-color:var(--accent); }
+  .stat-accent .stat-label, .stat-accent .stat-value{ color:var(--accent-ink); }
+  .stat-label{ font-size:11px; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em; font-weight:600; }
+  .stat-value{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:clamp(18px,5vw,22px); font-weight:700; direction:ltr; }
+  .actions{ display:flex; flex-direction:column; gap:8px; margin-bottom:28px; }
+  .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-size:15px; font-weight:700;
+        cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center; }
+  .btn-primary{ background:var(--accent); color:var(--accent-ink); }
+  .btn-secondary{ background:var(--surface-2); color:var(--ink); }
+  .btn-outline{ background:transparent; border:1px solid var(--line); color:var(--ink); }
+  .btn-small{ padding:10px 14px; min-height:40px; border-radius:10px; background:var(--ink); color:var(--paper); font-weight:700; border:none; width:auto; }
+  .btn-link{ background:none; border:none; color:var(--steel); font-size:13px; text-decoration:underline;
+             padding:4px 0; align-self:flex-start; cursor:pointer; width:auto; }
+  .btn:focus-visible, .btn-link:focus-visible, .row-del:focus-visible, .btn-tiny:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .inline-form{ display:flex; gap:8px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--line);
+                border-radius:12px; padding:12px; align-items:center; }
+  .inline-form input{ flex:1; min-width:120px; border:1px solid var(--line); border-radius:8px; padding:10px;
+                       font-size:15px; background:var(--paper); color:var(--ink); }
+  .log{ margin-bottom:24px; }
+  .log h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0 0 10px; }
+  .list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--surface);
+        border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
+  .row-content{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; font-size:14px; }
+  .row-main{ font-weight:600; }
+  .row-sub{ color:var(--steel); font-size:12px; }
+  .row-amount{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; font-weight:700; }
+  .row-del{ background:none; border:none; color:var(--steel); font-size:18px; line-height:1; cursor:pointer; padding:4px 8px; }
+  .row-confirm{ display:flex; gap:6px; }
+  .btn-tiny{ border:none; border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; cursor:pointer; background:var(--surface-2); color:var(--ink); }
+  .btn-danger{ background:var(--accent); color:var(--accent-ink); }
+  .empty{ color:var(--steel); font-size:13px; margin:0; padding:12px 0; }
+  .backup{ border-top:1px solid var(--line); padding-top:16px; margin-top:auto; }
+  .backup-note{ font-size:12px; color:var(--steel); line-height:1.5; margin:0 0 12px; }
+  .backup-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .backup-actions .btn{ flex:1; min-width:140px; }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper);
+          padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:0 4px 16px var(--shadow); }
+  @media (prefers-reduced-motion:no-preference){
+    .btn, .row-del, .btn-tiny{ transition: transform 0.1s ease, opacity 0.15s ease; }
+    .btn:active{ transform:scale(0.97); }
+  }
+</style>
+</head>
+<body>
+<div class="app" dir="rtl" lang="ar">
+  <header class="hd">
+    <p class="eyebrow">تعقّب الجيم</p>
+    <h1>كام حصة وبكام</h1>
+  </header>
+
+  <section class="stats" aria-label="ملخص">
+    <div class="stat">
+      <span class="stat-label">الحصص</span>
+      <span class="stat-value" id="statSessions">0</span>
+    </div>
+    <div class="stat stat-accent">
+      <span class="stat-label">تكلفة الحصة</span>
+      <span class="stat-value" id="statCost">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">إجمالي المدفوع</span>
+      <span class="stat-value" id="statTotal">0.00</span>
+    </div>
+  </section>
+
+  <section class="actions">
+    <button id="btnLogToday" class="btn btn-primary" type="button">سجّل حصة النهارده</button>
+    <button id="btnToggleDate" class="btn-link" type="button">سجّل حصة بتاريخ تاني</button>
+    <form id="formDate" class="inline-form hidden">
+      <input type="date" id="inputDate" required />
+      <button type="submit" class="btn btn-small">تسجيل</button>
+      <button type="button" class="btn-link" id="cancelDate">إلغاء</button>
+    </form>
+
+    <button id="btnTogglePayment" class="btn btn-secondary" type="button">إضافة دفعة</button>
+    <form id="formPayment" class="inline-form hidden">
+      <input type="number" inputmode="decimal" step="0.01" min="0.01" id="inputAmount" placeholder="المبلغ" required />
+      <input type="text" id="inputDesc" placeholder="الوصف (زي: اشتراك الشهر / المدرب)" />
+      <button type="submit" class="btn btn-small">حفظ</button>
+      <button type="button" class="btn-link" id="cancelPayment">إلغاء</button>
+    </form>
+  </section>
+
+  <section class="log">
+    <h2>سجل الحصص</h2>
+    <ul id="listSessions" class="list"></ul>
+    <p id="emptySessions" class="empty hidden">لسه معملتش تسجيل حصص.</p>
+  </section>
+
+  <section class="log">
+    <h2>سجل المدفوعات</h2>
+    <ul id="listPayments" class="list"></ul>
+    <p id="emptyPayments" class="empty hidden">لسه معملتش تسجيل مدفوعات.</p>
+  </section>
+
+  <section class="backup">
+    <p class="backup-note">
+      البيانات محفوظة على الموبايل ده بس. اعمل نسخة احتياطية بين كل فترة وارفعها على OneDrive عشان متضيعش لو غيّرت جهازك أو مسحت المتصفح.
+    </p>
+    <div class="backup-actions">
+      <button id="btnExport" class="btn btn-outline" type="button">تنزيل نسخة احتياطية</button>
+      <label class="btn btn-outline" for="importFile">استرجاع نسخة احتياطية</label>
+      <input type="file" id="importFile" accept="application/json" class="hidden" />
+    </div>
+  </section>
+
+  <div id="toast" class="toast hidden"></div>
+</div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'gymTrackerData';
+  let state = load();
+
+  function load(){
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {sessions:[], payments:[]};
+      const parsed = JSON.parse(raw);
+      return {sessions: Array.isArray(parsed.sessions)?parsed.sessions:[], payments: Array.isArray(parsed.payments)?parsed.payments:[]};
+    } catch(e){ return {sessions:[], payments:[]}; }
+  }
+  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+  function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+  function formatDate(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('ar-EG', {day:'numeric', month:'short', year:'numeric'});
+  }
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function computeStats(){
+    const count = state.sessions.length;
+    const total = state.payments.reduce((s,p) => s + p.amount, 0);
+    const cost = count > 0 ? total / count : null;
+    return {count, total, cost};
+  }
+
+  let confirmingId = null;
+
+  function renderList(listId, emptyId, items, rowHtml, onDelete){
+    const list = document.getElementById(listId);
+    const empty = document.getElementById(emptyId);
+    list.innerHTML = '';
+    if(items.length === 0){ empty.classList.remove('hidden'); return; }
+    empty.classList.add('hidden');
+    items.forEach(item => {
+      const li = document.createElement('li');
+      li.className = 'row';
+      const confirming = confirmingId === item.id;
+      li.innerHTML = `
+        <div class="row-content">${rowHtml(item)}</div>
+        ${confirming
+          ? `<span class="row-confirm"><button class="btn-tiny btn-danger" type="button" data-action="confirm">احذف</button><button class="btn-tiny" type="button" data-action="cancel">إلغاء</button></span>`
+          : `<button class="row-del" type="button" data-action="ask" aria-label="حذف">×</button>`}
+      `;
+      const askBtn = li.querySelector('[data-action="ask"]');
+      const cancelBtn = li.querySelector('[data-action="cancel"]');
+      const confirmBtn = li.querySelector('[data-action="confirm"]');
+      if(askBtn) askBtn.addEventListener('click', () => { confirmingId = item.id; render(); });
+      if(cancelBtn) cancelBtn.addEventListener('click', () => { confirmingId = null; render(); });
+      if(confirmBtn) confirmBtn.addEventListener('click', () => { confirmingId = null; onDelete(item.id); });
+      list.appendChild(li);
+    });
+  }
+
+  function render(){
+    const {count, total, cost} = computeStats();
+    document.getElementById('statSessions').textContent = count;
+    document.getElementById('statTotal').textContent = money(total);
+    document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
+
+    renderList('listSessions', 'emptySessions',
+      [...state.sessions].sort((a,b) => b.date.localeCompare(a.date)),
+      item => `<span class="row-main">${formatDate(item.date)}</span>`,
+      deleteSession);
+
+    renderList('listPayments', 'emptyPayments',
+      [...state.payments].sort((a,b) => b.date.localeCompare(a.date)),
+      item => `<span class="row-main">${item.desc ? escapeHtml(item.desc) : 'دفعة'}</span><span class="row-sub">${formatDate(item.date)}</span><span class="row-amount">${money(item.amount)}</span>`,
+      deletePayment);
+
+    persist();
+  }
+
+  function deleteSession(id){ state.sessions = state.sessions.filter(s => s.id !== id); render(); }
+  function deletePayment(id){ state.payments = state.payments.filter(p => p.id !== id); render(); }
+
+  function addSession(dateStr){
+    state.sessions.push({id: uid(), date: dateStr});
+    render();
+    showToast('تم تسجيل الحصة');
+  }
+  function addPayment(amount, desc, dateStr){
+    state.payments.push({id: uid(), amount, desc, date: dateStr});
+    render();
+    showToast('تم تسجيل الدفعة');
+  }
+
+  let toastTimer;
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.add('hidden'), 2000);
+  }
+
+  document.getElementById('btnLogToday').addEventListener('click', () => addSession(todayISO()));
+
+  const formDate = document.getElementById('formDate');
+  document.getElementById('btnToggleDate').addEventListener('click', () => {
+    formDate.classList.toggle('hidden');
+    if(!formDate.classList.contains('hidden')) document.getElementById('inputDate').value = todayISO();
+  });
+  document.getElementById('cancelDate').addEventListener('click', () => formDate.classList.add('hidden'));
+  formDate.addEventListener('submit', e => {
+    e.preventDefault();
+    const val = document.getElementById('inputDate').value;
+    if(!val) return;
+    addSession(val);
+    formDate.classList.add('hidden');
+    formDate.reset();
+  });
+
+  const formPayment = document.getElementById('formPayment');
+  document.getElementById('btnTogglePayment').addEventListener('click', () => formPayment.classList.toggle('hidden'));
+  document.getElementById('cancelPayment').addEventListener('click', () => formPayment.classList.add('hidden'));
+  formPayment.addEventListener('submit', e => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('inputAmount').value);
+    const desc = document.getElementById('inputDesc').value.trim();
+    if(!amount || amount <= 0) return;
+    addPayment(amount, desc, todayISO());
+    formPayment.classList.add('hidden');
+    formPayment.reset();
+  });
+
+  document.getElementById('btnExport').addEventListener('click', async () => {
+    const data = JSON.stringify(state, null, 2);
+    const filename = `gym-tracker-backup-${todayISO()}.json`;
+    if(window.claude && window.claude.downloads){
+      try { await window.claude.downloads.save({filename, data}); }
+      catch(err){ showToast('اتلغت عملية الحفظ'); }
+    } else {
+      const blob = new Blob([data], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+  });
+
+  document.getElementById('importFile').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = JSON.parse(reader.result);
+        if(!Array.isArray(parsed.sessions) || !Array.isArray(parsed.payments)) throw new Error('bad shape');
+        state = {sessions: parsed.sessions, payments: parsed.payments};
+        render();
+        showToast('تم استرجاع النسخة الاحتياطية');
+      } catch(err){
+        showToast('الملف مش صالح');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

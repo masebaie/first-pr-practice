@@ -56,3 +56,14 @@ Run its tests with:
 ```bash
 python -m unittest test_gym_tracker.py
 ```
+
+## Gym tracker mobile app
+
+`webapp/index.html` is a self-contained, mobile-first web app version of the
+same idea: log sessions and payments and see the cost per session, all from
+your phone. Data is saved in the browser's `localStorage` (nothing leaves
+your device), with an export/import button for backups.
+
+Open it by downloading `webapp/index.html` and opening it in a mobile
+browser, or host it (e.g. GitHub Pages) and use Safari's "Add to Home
+Screen" on iPhone to use it like an app.
