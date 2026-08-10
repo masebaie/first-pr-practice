@@ -96,11 +96,11 @@
   .mini-field.result .mini-field-value{ display:flex; align-items:baseline; gap:4px; font-weight:800; font-size:19px;
       color:var(--card-a); font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; }
 
-  .btn-save-payments{ appearance:none; border:none; border-radius:11px; padding:11px; font-size:13.5px;
-      font-weight:700; cursor:pointer; width:100%; margin-top:8px; background:var(--card-a); color:#fff;
+  .btn-save-attendance{ appearance:none; border:none; border-radius:11px; padding:12px; font-size:13.5px;
+      font-weight:700; cursor:pointer; width:100%; margin-top:12px; background:var(--card-a); color:#fff;
       font-family:var(--font-ui); }
-  .btn-save-payments:focus-visible{ outline:2px solid var(--card-a); outline-offset:2px; }
-  .btn-save-payments:active{ opacity:0.85; }
+  .btn-save-attendance:focus-visible{ outline:2px solid var(--card-a); outline-offset:2px; }
+  .btn-save-attendance:active{ opacity:0.85; }
 
   .month-days summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--card-a); list-style:none;
                         display:flex; align-items:center; gap:6px; padding:8px 2px; }
@@ -289,11 +289,15 @@
     const m = state.months.find(x => x.id === monthId);
     if(!m) return;
     const idx = m.sessions.indexOf(dateStr);
-    if(idx === -1){ m.sessions.push(dateStr); showToast('اتسجّلت حصة يوم ' + formatDateShort(dateStr)); }
-    else { m.sessions.splice(idx, 1); showToast('اتشالت حصة يوم ' + formatDateShort(dateStr)); }
-    persist();
+    if(idx === -1) m.sessions.push(dateStr);
+    else m.sessions.splice(idx, 1);
     updateRow(monthId, dateStr);
     updateMonthDynamic(monthId);
+  }
+
+  function saveAttendance(monthId){
+    persist();
+    showToast('تم حفظ سجل الحضور');
   }
 
   function updateMonthDynamic(monthId){
@@ -380,14 +384,14 @@
               <span class="mini-field-label">قيمة الحصة</span>
               <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">د.إ</span></span>
             </div>
-            <button type="button" class="btn-save-payments">حفظ المدفوعات</button>
           </div>
         </div>
 
         <details class="month-days" ${index === state.months.length - 1 ? 'open' : ''}>
           <summary>عرض أيام الشهر</summary>
-          <p class="day-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت الجيم، ودوس تاني عشان تشيل العلامة.</p>
+          <p class="day-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت الجيم، ودوس تاني عشان تشيل العلامة، وبعدين احفظ السجل.</p>
           <ul class="day-list"></ul>
+          <button type="button" class="btn-save-attendance">حفظ سجل الحضور</button>
         </details>
       `;
 
@@ -435,17 +439,20 @@
 
       const inputGym = card.querySelector('.input-gym');
       const inputTrainer = card.querySelector('.input-trainer');
-      card.querySelector('.btn-save-payments').addEventListener('click', () => {
-        const gymVal = parseFloat(inputGym.value);
-        const trainerVal = parseFloat(inputTrainer.value);
-        m.gymFee = isNaN(gymVal) ? 0 : gymVal;
-        m.trainerFee = isNaN(trainerVal) ? 0 : trainerVal;
+      inputGym.addEventListener('input', () => {
+        const val = parseFloat(inputGym.value);
+        m.gymFee = isNaN(val) ? 0 : val;
         persist();
         updateMonthCost(m.id);
-        inputGym.blur();
-        inputTrainer.blur();
-        showToast('تم حفظ المدفوعات');
       });
+      inputTrainer.addEventListener('input', () => {
+        const val = parseFloat(inputTrainer.value);
+        m.trainerFee = isNaN(val) ? 0 : val;
+        persist();
+        updateMonthCost(m.id);
+      });
+
+      card.querySelector('.btn-save-attendance').addEventListener('click', () => saveAttendance(m.id));
 
       card.querySelector('.input-start').addEventListener('change', e => updateMonthDate(m.id, 'start', e.target.value));
       card.querySelector('.input-end').addEventListener('change', e => updateMonthDate(m.id, 'end', e.target.value));
