@@ -16,6 +16,7 @@
     --steel:#69737C;
     --accent:#D6431F;
     --accent-ink:#FFFFFF;
+    --accent-tint:rgba(214,67,31,0.08);
     --good:#1F8F52;
     --line:rgba(22,27,34,0.12);
     --surface:#FFFFFF;
@@ -31,6 +32,7 @@
       --steel:#8B95A1;
       --accent:#FF7A52;
       --accent-ink:#151A20;
+      --accent-tint:rgba(255,122,82,0.14);
       --good:#3FCB7C;
       --line:rgba(236,238,240,0.14);
       --surface:#1B2129;
@@ -44,6 +46,7 @@
     --steel:#8B95A1;
     --accent:#FF7A52;
     --accent-ink:#151A20;
+    --accent-tint:rgba(255,122,82,0.14);
     --good:#3FCB7C;
     --line:rgba(236,238,240,0.14);
     --surface:#1B2129;
@@ -58,6 +61,7 @@
         padding: max(20px, env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)); }
   .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:12px; color:var(--steel); margin:0 0 4px; font-weight:600; }
   h1{ font-size:clamp(22px,6vw,28px); margin:0 0 20px; font-weight:800; text-wrap:balance; letter-spacing:-0.01em; }
+
   .stats{ display:grid; grid-template-columns: 1fr 1.2fr 1fr; gap:8px; margin-bottom:24px; }
   .stat{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 10px;
          display:flex; flex-direction:column; gap:4px; align-items:center; text-align:center; box-shadow:0 1px 2px var(--shadow); }
@@ -70,58 +74,50 @@
   .section-head h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0 0 3px; }
   .section-sub{ font-size:12px; color:var(--steel); margin:0; }
 
-  .calendar{ margin-bottom:28px; }
-  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
-  .cal-weekdays span{ text-align:center; font-size:11px; color:var(--steel); font-weight:600; }
-  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
-  .cal-cell{ aspect-ratio:1; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink);
-             display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; cursor:pointer; padding:0;
-             font-family:var(--font-mono); font-variant-numeric:tabular-nums; }
-  .cal-cell-pad{ visibility:hidden; border:none; background:none; }
-  .cal-day{ font-size:14px; font-weight:700; }
-  .cal-month{ font-size:8px; color:var(--steel); text-transform:uppercase; letter-spacing:0.02em; }
-  .cal-cell.is-today{ box-shadow: inset 0 0 0 2px var(--accent); }
-  .cal-cell.is-attended{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
-  .cal-cell.is-attended .cal-month{ color:var(--accent-ink); opacity:0.85; }
-  .cal-cell:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-  .cal-hint{ font-size:11px; color:var(--steel); margin:10px 0 0; }
+  .payments{ margin-bottom:28px; }
+  .pay-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .pay-field{ display:flex; flex-direction:column; gap:6px; background:var(--surface); border:1px solid var(--line);
+              border-radius:12px; padding:12px; }
+  .pay-label{ font-size:11px; color:var(--steel); font-weight:600; line-height:1.3; }
+  .pay-field input{ border:1px solid var(--line); border-radius:8px; padding:10px; font-size:16px; background:var(--paper);
+                     color:var(--ink); font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr;
+                     text-align:left; width:100%; }
+  .pay-field input:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
 
-  .actions{ display:flex; flex-direction:column; gap:8px; margin-bottom:28px; }
-  .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-size:15px; font-weight:700;
-        cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center; }
-  .btn-primary{ background:var(--accent); color:var(--accent-ink); }
-  .btn-secondary{ background:var(--surface-2); color:var(--ink); }
-  .btn-outline{ background:transparent; border:1px solid var(--line); color:var(--ink); }
-  .btn-small{ padding:10px 14px; min-height:40px; border-radius:10px; background:var(--ink); color:var(--paper); font-weight:700; border:none; width:auto; }
-  .btn-link{ background:none; border:none; color:var(--steel); font-size:13px; text-decoration:underline;
-             padding:4px 0; align-self:flex-start; cursor:pointer; width:auto; }
-  .btn:focus-visible, .btn-link:focus-visible, .row-del:focus-visible, .btn-tiny:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-  .inline-form{ display:flex; gap:8px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--line);
-                border-radius:12px; padding:12px; align-items:center; }
-  .inline-form input{ flex:1; min-width:120px; border:1px solid var(--line); border-radius:8px; padding:10px;
-                       font-size:15px; background:var(--paper); color:var(--ink); }
-  .log{ margin-bottom:24px; }
-  .list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
-  .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--surface);
-        border:1px solid var(--line); border-radius:10px; padding:10px 12px; }
-  .row-content{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; font-size:14px; }
-  .row-main{ font-weight:600; }
-  .row-sub{ color:var(--steel); font-size:12px; }
-  .row-amount{ font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; font-weight:700; }
-  .row-del{ background:none; border:none; color:var(--steel); font-size:18px; line-height:1; cursor:pointer; padding:4px 8px; }
-  .row-confirm{ display:flex; gap:6px; }
-  .btn-tiny{ border:none; border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; cursor:pointer; background:var(--surface-2); color:var(--ink); }
-  .btn-danger{ background:var(--accent); color:var(--accent-ink); }
-  .empty{ color:var(--steel); font-size:13px; margin:0; padding:12px 0; }
+  .days{ margin-bottom:28px; }
+  .day-hint{ font-size:11px; color:var(--steel); margin:0 0 12px; }
+  .day-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .month-divider{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700;
+                   padding:10px 2px 2px; }
+  .month-divider:first-child{ padding-top:0; }
+  .day-row{ appearance:none; width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+            background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:11px 14px;
+            cursor:pointer; text-align:right; color:var(--ink); }
+  .day-row.is-attended{ background:var(--accent-tint); border-color:var(--accent); }
+  .day-row.is-today{ box-shadow: inset 0 0 0 2px var(--accent); }
+  .day-row:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .day-info{ display:flex; flex-direction:column; gap:2px; align-items:flex-start; }
+  .day-weekday{ font-size:11px; color:var(--steel); font-weight:600; }
+  .day-date{ font-size:15px; font-weight:700; }
+  .day-today-tag{ font-size:10px; color:var(--accent); font-weight:700; }
+  .day-check{ width:26px; height:26px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center;
+              justify-content:center; color:var(--accent-ink); flex-shrink:0; }
+  .day-check.is-checked{ background:var(--accent); border-color:var(--accent); }
+
   .backup{ border-top:1px solid var(--line); padding-top:16px; margin-top:auto; }
   .backup-note{ font-size:12px; color:var(--steel); line-height:1.5; margin:0 0 12px; }
   .backup-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-size:15px; font-weight:700;
+        cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center; }
+  .btn-outline{ background:transparent; border:1px solid var(--line); color:var(--ink); }
+  .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   .backup-actions .btn{ flex:1; min-width:140px; }
+
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--paper);
           padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:0 4px 16px var(--shadow); }
   @media (prefers-reduced-motion:no-preference){
-    .btn, .row-del, .btn-tiny, .cal-cell{ transition: transform 0.1s ease, opacity 0.15s ease; }
-    .btn:active, .cal-cell:active{ transform:scale(0.94); }
+    .day-row, .btn{ transition: transform 0.1s ease, opacity 0.15s ease; }
+    .day-row:active, .btn:active{ transform:scale(0.97); }
   }
 </style>
 </head>
@@ -147,32 +143,27 @@
     </div>
   </section>
 
-  <section class="calendar">
+  <section class="payments">
+    <div class="section-head"><h2>المدفوعات</h2></div>
+    <div class="pay-grid">
+      <label class="pay-field">
+        <span class="pay-label">اشتراك الجيم الشهري</span>
+        <input type="number" inputmode="decimal" step="0.01" min="0" id="inputSubscription" placeholder="0.00" />
+      </label>
+      <label class="pay-field">
+        <span class="pay-label">أجرة المدرب</span>
+        <input type="number" inputmode="decimal" step="0.01" min="0" id="inputTrainer" placeholder="0.00" />
+      </label>
+    </div>
+  </section>
+
+  <section class="days">
     <div class="section-head">
-      <h2>علّم الأيام اللي رحت فيها</h2>
-      <p class="section-sub" id="calRange"></p>
+      <h2>الأيام</h2>
+      <p class="section-sub" id="dayRange"></p>
     </div>
-    <div class="cal-weekdays">
-      <span>ح</span><span>ن</span><span>ث</span><span>ر</span><span>خ</span><span>ج</span><span>س</span>
-    </div>
-    <div class="cal-grid" id="calGrid"></div>
-    <p class="cal-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت، ودوس تاني عشان تشيل العلامة.</p>
-  </section>
-
-  <section class="actions">
-    <button id="btnTogglePayment" class="btn btn-secondary" type="button">إضافة دفعة</button>
-    <form id="formPayment" class="inline-form hidden">
-      <input type="number" inputmode="decimal" step="0.01" min="0.01" id="inputAmount" placeholder="المبلغ" required />
-      <input type="text" id="inputDesc" placeholder="الوصف (زي: اشتراك الشهر / المدرب)" />
-      <button type="submit" class="btn btn-small">حفظ</button>
-      <button type="button" class="btn-link" id="cancelPayment">إلغاء</button>
-    </form>
-  </section>
-
-  <section class="log">
-    <div class="section-head"><h2>سجل المدفوعات</h2></div>
-    <ul id="listPayments" class="list"></ul>
-    <p id="emptyPayments" class="empty hidden">لسه معملتش تسجيل مدفوعات.</p>
+    <p class="day-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت الجيم، ودوس تاني عشان تشيل العلامة.</p>
+    <ul class="day-list" id="dayList"></ul>
   </section>
 
   <section class="backup">
@@ -195,19 +186,23 @@
   const RANGE_START = '2026-08-09';
   const RANGE_END = '2026-09-08';
   const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
   let state = load();
 
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return {sessions:[], payments:[]};
+      if(!raw) return {subscriptionFee:0, trainerFee:0, sessions:[]};
       const parsed = JSON.parse(raw);
-      return {sessions: Array.isArray(parsed.sessions)?parsed.sessions:[], payments: Array.isArray(parsed.payments)?parsed.payments:[]};
-    } catch(e){ return {sessions:[], payments:[]}; }
+      return {
+        subscriptionFee: typeof parsed.subscriptionFee === 'number' ? parsed.subscriptionFee : 0,
+        trainerFee: typeof parsed.trainerFee === 'number' ? parsed.trainerFee : 0,
+        sessions: Array.isArray(parsed.sessions) ? parsed.sessions : []
+      };
+    } catch(e){ return {subscriptionFee:0, trainerFee:0, sessions:[]}; }
   }
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
   function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function toISO(d){
     const y = d.getFullYear();
@@ -216,13 +211,9 @@
     return `${y}-${m}-${day}`;
   }
   function todayISO(){ return toISO(new Date()); }
-
   function formatDate(iso){
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString('ar-EG', {day:'numeric', month:'short', year:'numeric'});
-  }
-  function escapeHtml(s){
-    return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
   function buildCalendarDates(){
@@ -239,9 +230,16 @@
 
   function computeStats(){
     const count = state.sessions.length;
-    const total = state.payments.reduce((s,p) => s + p.amount, 0);
+    const total = (state.subscriptionFee || 0) + (state.trainerFee || 0);
     const cost = count > 0 ? total / count : null;
     return {count, total, cost};
+  }
+
+  function renderStats(){
+    const {count, total, cost} = computeStats();
+    document.getElementById('statSessions').textContent = count;
+    document.getElementById('statTotal').textContent = money(total);
+    document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
   }
 
   function toggleSession(dateStr){
@@ -253,96 +251,45 @@
       state.sessions.splice(idx, 1);
       showToast('اتشالت حصة يوم ' + formatDate(dateStr));
     }
-    render();
-  }
-
-  function renderCalendar(){
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '';
-    const startDate = new Date(RANGE_START + 'T00:00:00');
-    const leadPad = startDate.getDay();
-    for(let i = 0; i < leadPad; i++){
-      const pad = document.createElement('div');
-      pad.className = 'cal-cell cal-cell-pad';
-      grid.appendChild(pad);
-    }
-    const today = todayISO();
-    CAL_DATES.forEach(dateStr => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'cal-cell';
-      const attended = state.sessions.includes(dateStr);
-      if(attended) btn.classList.add('is-attended');
-      if(dateStr === today) btn.classList.add('is-today');
-      const dObj = new Date(dateStr + 'T00:00:00');
-      const dayNum = dObj.getDate();
-      const monthLabel = dayNum === 1 ? `<span class="cal-month">${MONTHS_AR[dObj.getMonth()]}</span>` : '';
-      btn.innerHTML = `<span class="cal-day">${dayNum}</span>${monthLabel}`;
-      btn.setAttribute('aria-pressed', attended ? 'true' : 'false');
-      btn.setAttribute('aria-label', `${formatDate(dateStr)}${attended ? ' — تم الحضور' : ''}`);
-      btn.addEventListener('click', () => toggleSession(dateStr));
-      grid.appendChild(btn);
-    });
-    const endDate = new Date(RANGE_END + 'T00:00:00');
-    const trailPad = 6 - endDate.getDay();
-    for(let i = 0; i < trailPad; i++){
-      const pad = document.createElement('div');
-      pad.className = 'cal-cell cal-cell-pad';
-      grid.appendChild(pad);
-    }
-  }
-
-  let confirmingId = null;
-
-  function renderList(listId, emptyId, items, rowHtml, onDelete){
-    const list = document.getElementById(listId);
-    const empty = document.getElementById(emptyId);
-    list.innerHTML = '';
-    if(items.length === 0){ empty.classList.remove('hidden'); return; }
-    empty.classList.add('hidden');
-    items.forEach(item => {
-      const li = document.createElement('li');
-      li.className = 'row';
-      const confirming = confirmingId === item.id;
-      li.innerHTML = `
-        <div class="row-content">${rowHtml(item)}</div>
-        ${confirming
-          ? `<span class="row-confirm"><button class="btn-tiny btn-danger" type="button" data-action="confirm">احذف</button><button class="btn-tiny" type="button" data-action="cancel">إلغاء</button></span>`
-          : `<button class="row-del" type="button" data-action="ask" aria-label="حذف">×</button>`}
-      `;
-      const askBtn = li.querySelector('[data-action="ask"]');
-      const cancelBtn = li.querySelector('[data-action="cancel"]');
-      const confirmBtn = li.querySelector('[data-action="confirm"]');
-      if(askBtn) askBtn.addEventListener('click', () => { confirmingId = item.id; render(); });
-      if(cancelBtn) cancelBtn.addEventListener('click', () => { confirmingId = null; render(); });
-      if(confirmBtn) confirmBtn.addEventListener('click', () => { confirmingId = null; onDelete(item.id); });
-      list.appendChild(li);
-    });
-  }
-
-  function render(){
-    const {count, total, cost} = computeStats();
-    document.getElementById('statSessions').textContent = count;
-    document.getElementById('statTotal').textContent = money(total);
-    document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
-    document.getElementById('calRange').textContent = `${formatDate(RANGE_START)} – ${formatDate(RANGE_END)}`;
-
-    renderCalendar();
-
-    renderList('listPayments', 'emptyPayments',
-      [...state.payments].sort((a,b) => b.date.localeCompare(a.date)),
-      item => `<span class="row-main">${item.desc ? escapeHtml(item.desc) : 'دفعة'}</span><span class="row-sub">${formatDate(item.date)}</span><span class="row-amount">${money(item.amount)}</span>`,
-      deletePayment);
-
+    renderStats();
+    renderDays();
     persist();
   }
 
-  function deletePayment(id){ state.payments = state.payments.filter(p => p.id !== id); render(); }
-
-  function addPayment(amount, desc, dateStr){
-    state.payments.push({id: uid(), amount, desc, date: dateStr});
-    render();
-    showToast('تم تسجيل الدفعة');
+  function renderDays(){
+    const list = document.getElementById('dayList');
+    list.innerHTML = '';
+    const today = todayISO();
+    let lastMonth = null;
+    CAL_DATES.forEach(dateStr => {
+      const dObj = new Date(dateStr + 'T00:00:00');
+      const monthIdx = dObj.getMonth();
+      if(monthIdx !== lastMonth){
+        const divider = document.createElement('li');
+        divider.className = 'month-divider';
+        divider.textContent = `${MONTHS_AR[monthIdx]} ${dObj.getFullYear()}`;
+        list.appendChild(divider);
+        lastMonth = monthIdx;
+      }
+      const attended = state.sessions.includes(dateStr);
+      const isToday = dateStr === today;
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'day-row' + (attended ? ' is-attended' : '') + (isToday ? ' is-today' : '');
+      btn.setAttribute('aria-pressed', attended ? 'true' : 'false');
+      btn.innerHTML = `
+        <span class="day-info">
+          <span class="day-weekday">${dObj.toLocaleDateString('ar-EG', {weekday:'long'})}</span>
+          <span class="day-date">${dObj.toLocaleDateString('ar-EG', {day:'numeric', month:'long'})}</span>
+          ${isToday ? '<span class="day-today-tag">النهارده</span>' : ''}
+        </span>
+        <span class="day-check${attended ? ' is-checked' : ''}">${attended ? CHECK_SVG : ''}</span>
+      `;
+      btn.addEventListener('click', () => toggleSession(dateStr));
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
   }
 
   let toastTimer;
@@ -354,17 +301,21 @@
     toastTimer = setTimeout(() => t.classList.add('hidden'), 2000);
   }
 
-  const formPayment = document.getElementById('formPayment');
-  document.getElementById('btnTogglePayment').addEventListener('click', () => formPayment.classList.toggle('hidden'));
-  document.getElementById('cancelPayment').addEventListener('click', () => formPayment.classList.add('hidden'));
-  formPayment.addEventListener('submit', e => {
-    e.preventDefault();
-    const amount = parseFloat(document.getElementById('inputAmount').value);
-    const desc = document.getElementById('inputDesc').value.trim();
-    if(!amount || amount <= 0) return;
-    addPayment(amount, desc, todayISO());
-    formPayment.classList.add('hidden');
-    formPayment.reset();
+  const inputSubscription = document.getElementById('inputSubscription');
+  const inputTrainer = document.getElementById('inputTrainer');
+  inputSubscription.value = state.subscriptionFee || '';
+  inputTrainer.value = state.trainerFee || '';
+  inputSubscription.addEventListener('input', () => {
+    const val = parseFloat(inputSubscription.value);
+    state.subscriptionFee = isNaN(val) ? 0 : val;
+    renderStats();
+    persist();
+  });
+  inputTrainer.addEventListener('input', () => {
+    const val = parseFloat(inputTrainer.value);
+    state.trainerFee = isNaN(val) ? 0 : val;
+    renderStats();
+    persist();
   });
 
   document.getElementById('btnExport').addEventListener('click', async () => {
@@ -390,9 +341,17 @@
     reader.onload = () => {
       try {
         const parsed = JSON.parse(reader.result);
-        if(!Array.isArray(parsed.sessions) || !Array.isArray(parsed.payments)) throw new Error('bad shape');
-        state = {sessions: parsed.sessions, payments: parsed.payments};
-        render();
+        if(!Array.isArray(parsed.sessions)) throw new Error('bad shape');
+        state = {
+          subscriptionFee: typeof parsed.subscriptionFee === 'number' ? parsed.subscriptionFee : 0,
+          trainerFee: typeof parsed.trainerFee === 'number' ? parsed.trainerFee : 0,
+          sessions: parsed.sessions
+        };
+        inputSubscription.value = state.subscriptionFee || '';
+        inputTrainer.value = state.trainerFee || '';
+        renderStats();
+        renderDays();
+        persist();
         showToast('تم استرجاع النسخة الاحتياطية');
       } catch(err){
         showToast('الملف مش صالح');
@@ -402,7 +361,9 @@
     e.target.value = '';
   });
 
-  render();
+  document.getElementById('dayRange').textContent = `${formatDate(RANGE_START)} – ${formatDate(RANGE_END)}`;
+  renderStats();
+  renderDays();
 })();
 </script>
 </body>
