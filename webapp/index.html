@@ -3,213 +3,134 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>تعقّب الجيم</title>
+<title>رحلتي مع الجيم</title>
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="تعقّب الجيم" />
-<meta name="theme-color" content="#0F1216" />
+<meta name="apple-mobile-web-app-title" content="رحلتي مع الجيم" />
+<meta name="theme-color" content="#12151A" />
 <style>
   :root{
     color-scheme: light dark;
-    --ink:#15181F;
-    --paper:#EFF1EF;
-    --steel:#6B7580;
-    --accent:#D6431F;
-    --accent-2:#F2A73B;
+    --ink:#181B21;
+    --paper:#F1F2F0;
+    --steel:#6C7580;
+    --accent:#2C6E49;
     --accent-ink:#FFFFFF;
-    --accent-tint:rgba(214,67,31,0.08);
-    --hero-glow:rgba(214,67,31,0.32);
-    --line:rgba(21,24,31,0.10);
+    --accent-tint:rgba(44,110,73,0.09);
+    --line:rgba(24,27,33,0.12);
     --surface:#FFFFFF;
-    --surface-2:#E7EAE8;
-    --shadow-1:0 1px 2px rgba(21,24,31,0.06);
-    --shadow-2:0 10px 24px -12px rgba(21,24,31,0.22), 0 2px 6px rgba(21,24,31,0.08);
-    --font-display: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
+    --surface-2:#E6E8E5;
+    --shadow:0 1px 2px rgba(24,27,33,0.06);
     --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Tahoma, Arial, sans-serif;
     --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
-      --ink:#EDEFF1;
-      --paper:#0F1216;
-      --steel:#8B94A0;
-      --accent:#FF7A52;
-      --accent-2:#FFC46B;
-      --accent-ink:#17110D;
-      --accent-tint:rgba(255,122,82,0.14);
-      --hero-glow:rgba(255,122,82,0.35);
-      --line:rgba(237,239,241,0.12);
-      --surface:#1A1F27;
-      --surface-2:#212832;
-      --shadow-1:0 1px 2px rgba(0,0,0,0.3);
-      --shadow-2:0 14px 30px -14px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+      --ink:#ECEDEE;
+      --paper:#12151A;
+      --steel:#8B939C;
+      --accent:#57B784;
+      --accent-ink:#0E1512;
+      --accent-tint:rgba(87,183,132,0.14);
+      --line:rgba(236,237,238,0.12);
+      --surface:#1B1F25;
+      --surface-2:#22262D;
+      --shadow:0 1px 2px rgba(0,0,0,0.35);
     }
   }
   :root[data-theme="dark"]{
-    --ink:#EDEFF1;
-    --paper:#0F1216;
-    --steel:#8B94A0;
-    --accent:#FF7A52;
-    --accent-2:#FFC46B;
-    --accent-ink:#17110D;
-    --accent-tint:rgba(255,122,82,0.14);
-    --hero-glow:rgba(255,122,82,0.35);
-    --line:rgba(237,239,241,0.12);
-    --surface:#1A1F27;
-    --surface-2:#212832;
-    --shadow-1:0 1px 2px rgba(0,0,0,0.3);
-    --shadow-2:0 14px 30px -14px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+    --ink:#ECEDEE;
+    --paper:#12151A;
+    --steel:#8B939C;
+    --accent:#57B784;
+    --accent-ink:#0E1512;
+    --accent-tint:rgba(87,183,132,0.14);
+    --line:rgba(236,237,238,0.12);
+    --surface:#1B1F25;
+    --surface-2:#22262D;
+    --shadow:0 1px 2px rgba(0,0,0,0.35);
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; height:100%; }
-  body{ background:var(--paper); color:var(--ink); font-family:var(--font-ui); -webkit-font-smoothing:antialiased; }
+  body{ background:var(--paper); color:var(--ink); font-family:var(--font-ui); }
   .hidden{ display:none !important; }
   .app{ max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column;
-        padding: max(22px, env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom)); }
+        padding: max(20px, env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom)); }
 
-  .eyebrow{ display:flex; align-items:center; gap:8px; text-transform:uppercase; letter-spacing:0.1em; font-size:11px;
-            color:var(--steel); margin:0 0 6px; font-weight:700; font-family:var(--font-display); }
-  .eyebrow::before{ content:''; width:16px; height:3px; border-radius:3px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); }
-  h1{ font-family:var(--font-display); font-size:clamp(24px,7vw,30px); margin:0 0 22px; font-weight:800;
-      text-wrap:balance; letter-spacing:-0.015em; }
+  .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:11px; color:var(--steel); margin:0 0 4px; font-weight:600; }
+  h1{ font-size:clamp(21px,6vw,26px); margin:0 0 20px; font-weight:800; text-wrap:balance; letter-spacing:-0.01em; }
 
-  .hero{ background:linear-gradient(150deg, var(--accent), var(--accent-2)); color:var(--accent-ink); border-radius:22px;
-         padding:22px 20px; text-align:center; box-shadow:0 16px 32px -16px var(--hero-glow), var(--shadow-1); margin-bottom:12px; }
-  .hero-label{ font-family:var(--font-display); font-size:12px; text-transform:uppercase; letter-spacing:0.1em;
-               font-weight:700; margin:0 0 6px; opacity:0.92; }
-  .hero-value{ font-family:var(--font-display); font-weight:800; font-size:clamp(38px,13vw,52px); line-height:1;
-               letter-spacing:-0.02em; font-variant-numeric:tabular-nums; margin:0; direction:ltr; display:inline-flex;
-               align-items:baseline; gap:6px; }
-  .hero-unit{ font-size:0.36em; font-weight:700; opacity:0.85; }
-  .hero-sub{ font-size:12px; margin:8px 0 0; opacity:0.85; font-weight:600; }
+  .hero{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; text-align:center;
+         box-shadow:var(--shadow); margin-bottom:24px; }
+  .hero-label{ font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--steel); font-weight:700; margin:0 0 4px; }
+  .hero-value{ font-weight:800; font-size:clamp(38px,12vw,48px); line-height:1.1; color:var(--accent);
+               font-variant-numeric:tabular-nums; margin:0; }
+  .progress{ height:6px; border-radius:999px; background:var(--surface-2); overflow:hidden; margin:14px 0 10px; }
+  .progress-fill{ height:100%; background:var(--accent); border-radius:999px; width:0%; transition:width .25s ease; }
+  .hero-sub{ font-size:12.5px; color:var(--steel); margin:0; }
 
-  .mini-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:26px; }
-  .mini-stat{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:13px 12px;
-              text-align:center; box-shadow:var(--shadow-1); }
-  .mini-value{ display:block; font-family:var(--font-display); font-weight:800; font-size:clamp(19px,5.5vw,23px);
-               font-variant-numeric:tabular-nums; direction:ltr; letter-spacing:-0.01em; }
-  .mini-label{ display:block; font-size:11px; color:var(--steel); text-transform:uppercase; letter-spacing:0.06em;
-               font-weight:600; margin-top:3px; }
+  .section-head{ margin-bottom:10px; }
+  .section-head h2{ font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel); font-weight:700; margin:0; }
 
-  .section-head{ margin-bottom:12px; }
-  .section-head h2{ font-family:var(--font-display); font-size:14px; letter-spacing:-0.005em; color:var(--ink);
-                     font-weight:700; margin:0 0 3px; }
-  .section-sub{ font-size:12px; color:var(--steel); margin:0; }
-
-  .payments{ margin-bottom:30px; }
-  .pay-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .pay-field{ display:flex; flex-direction:column; gap:8px; background:var(--surface); border:1px solid var(--line);
-              border-radius:16px; padding:13px; box-shadow:var(--shadow-1); }
-  .pay-label{ font-size:11px; color:var(--steel); font-weight:600; line-height:1.35; }
-  .pay-input-row{ display:flex; align-items:center; gap:6px; background:var(--paper); border:1px solid var(--line);
-                  border-radius:11px; padding:2px 10px; transition:border-color .15s ease, box-shadow .15s ease; }
-  .pay-input-row:focus-within{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-tint); }
-  .pay-field input{ border:none; background:transparent; padding:9px 0; font-size:16px; color:var(--ink);
-                     font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; text-align:left;
-                     width:100%; min-width:0; }
-  .pay-field input:focus{ outline:none; }
-  .pay-suffix{ font-size:11px; color:var(--steel); font-weight:700; white-space:nowrap; }
-
-  .days{ margin-bottom:30px; }
-  .day-hint{ font-size:11.5px; color:var(--steel); margin:0 0 14px; line-height:1.5; }
-  .day-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; }
-  .month-divider{ font-family:var(--font-display); font-size:11px; text-transform:uppercase; letter-spacing:0.08em;
-                   color:var(--steel); font-weight:700; padding:12px 3px 3px; }
-  .month-divider:first-child{ padding-top:0; }
+  .days{ margin-bottom:26px; }
+  .day-hint{ font-size:12px; color:var(--steel); margin:0 0 14px; line-height:1.5; }
+  .day-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .week-divider{ display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+                 padding:14px 2px 4px; }
+  .week-divider:first-child{ padding-top:0; }
+  .week-title{ font-size:12.5px; font-weight:700; color:var(--ink); }
+  .week-range{ font-size:11px; color:var(--steel); }
   .day-row{ appearance:none; width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
-            background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:12px 15px;
-            cursor:pointer; text-align:right; color:var(--ink); box-shadow:var(--shadow-1);
-            transition:background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+            background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:11px 14px;
+            cursor:pointer; text-align:right; color:var(--ink);
+            transition:background-color .15s ease, border-color .15s ease; }
   .day-row.is-attended{ background:var(--accent-tint); border-color:var(--accent); }
   .day-row.is-today{ box-shadow: inset 0 0 0 2px var(--accent); }
   .day-row:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
-  @media (hover:hover){ .day-row:hover{ border-color:var(--accent); } }
-  .day-info{ display:flex; flex-direction:column; gap:2px; align-items:flex-start; }
-  .day-weekday{ font-size:11px; color:var(--steel); font-weight:600; }
-  .day-date{ font-family:var(--font-display); font-size:15px; font-weight:700; }
-  .day-today-tag{ font-size:10px; color:var(--accent); font-weight:800; }
-  .day-check{ width:28px; height:28px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center;
+  .day-info{ display:flex; align-items:baseline; gap:8px; }
+  .day-weekday{ font-size:13px; color:var(--steel); font-weight:600; min-width:52px; }
+  .day-date{ font-size:14.5px; font-weight:600; }
+  .day-today-tag{ font-size:10px; color:var(--accent); font-weight:700; }
+  .day-check{ width:24px; height:24px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center;
               justify-content:center; color:var(--accent-ink); flex-shrink:0;
-              transition:background-color .18s ease, border-color .18s ease; }
-  .day-check.is-checked{ background:linear-gradient(150deg,var(--accent),var(--accent-2)); border-color:transparent; }
+              transition:background-color .15s ease, border-color .15s ease; }
+  .day-check.is-checked{ background:var(--accent); border-color:var(--accent); }
 
-  .backup{ border-top:1px solid var(--line); padding-top:18px; margin-top:auto; }
-  .backup-note{ font-size:12px; color:var(--steel); line-height:1.55; margin:0 0 14px; }
+  .backup{ border-top:1px solid var(--line); padding-top:16px; margin-top:auto; }
+  .backup-note{ font-size:12px; color:var(--steel); line-height:1.5; margin:0 0 12px; }
   .backup-actions{ display:flex; gap:8px; flex-wrap:wrap; }
-  .btn{ appearance:none; border:none; border-radius:14px; padding:14px 16px; font-size:14.5px; font-weight:700;
-        cursor:pointer; min-height:48px; width:100%; display:inline-flex; align-items:center; justify-content:center;
-        font-family:var(--font-ui); }
-  .btn-outline{ background:var(--surface); border:1px solid var(--line); color:var(--ink); box-shadow:var(--shadow-1); }
+  .btn{ appearance:none; border:none; border-radius:12px; padding:13px 16px; font-size:14.5px; font-weight:700;
+        cursor:pointer; min-height:46px; width:100%; display:inline-flex; align-items:center; justify-content:center; }
+  .btn-outline{ background:var(--surface); border:1px solid var(--line); color:var(--ink); }
   .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
   .backup-actions .btn{ flex:1; min-width:150px; }
 
-  .toast{ position:fixed; bottom:22px; left:50%; z-index:10; background:var(--ink); color:var(--paper);
-          padding:11px 20px; border-radius:999px; font-size:13px; font-weight:600; box-shadow:var(--shadow-2);
-          opacity:0; transform:translate(-50%,10px); pointer-events:none; transition:opacity .25s ease, transform .25s ease; }
+  .toast{ position:fixed; bottom:20px; left:50%; z-index:10; background:var(--ink); color:var(--paper);
+          padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600;
+          opacity:0; transform:translate(-50%,8px); pointer-events:none; transition:opacity .2s ease, transform .2s ease; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
 
-  @media (prefers-reduced-motion:no-preference){
-    .day-row, .btn, .pay-input-row{ transition-duration:.18s; }
-    .day-row:active, .btn:active{ transform:scale(0.97); }
-    @keyframes riseIn{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:translateY(0); } }
-    @keyframes popIn{ 0%{ transform:scale(0); } 65%{ transform:scale(1.2); } 100%{ transform:scale(1); } }
-    .hero{ animation:riseIn .45s ease both; }
-    .mini-stat:nth-child(1){ animation:riseIn .45s ease both; animation-delay:.05s; }
-    .mini-stat:nth-child(2){ animation:riseIn .45s ease both; animation-delay:.1s; }
-    .day-row-item{ animation:riseIn .4s ease both; animation-delay:calc(var(--i,0) * 14ms); }
-    .day-check.is-checked svg{ animation:popIn .32s cubic-bezier(.34,1.56,.64,1); }
+  @media (prefers-reduced-motion:reduce){
+    .day-row, .progress-fill, .toast{ transition:none; }
   }
 </style>
 </head>
 <body>
 <div class="app" dir="rtl" lang="ar">
   <header class="hd">
-    <p class="eyebrow">تعقّب الجيم</p>
-    <h1>كام حصة وبكام</h1>
+    <p class="eyebrow">تتبّع الحضور</p>
+    <h1>رحلتي مع الجيم</h1>
   </header>
 
-  <section class="hero" aria-label="تكلفة الحصة">
-    <p class="hero-label">تكلفة الحصة</p>
-    <p class="hero-value"><span id="statCost">—</span><span class="hero-unit">د.إ</span></p>
-    <p class="hero-sub" id="heroSub">إجمالي المدفوعات ÷ عدد الحصص</p>
-  </section>
-
-  <div class="mini-row">
-    <div class="mini-stat">
-      <span class="mini-value" id="statSessions">0</span>
-      <span class="mini-label">الحصص</span>
-    </div>
-    <div class="mini-stat">
-      <span class="mini-value" id="statTotal">0.00</span>
-      <span class="mini-label">إجمالي المدفوع</span>
-    </div>
-  </div>
-
-  <section class="payments">
-    <div class="section-head"><h2>المدفوعات</h2></div>
-    <div class="pay-grid">
-      <label class="pay-field">
-        <span class="pay-label">اشتراك الجيم الشهري</span>
-        <span class="pay-input-row">
-          <input type="number" inputmode="decimal" step="0.01" min="0" id="inputSubscription" placeholder="0.00" />
-          <span class="pay-suffix">د.إ</span>
-        </span>
-      </label>
-      <label class="pay-field">
-        <span class="pay-label">أجرة المدرب</span>
-        <span class="pay-input-row">
-          <input type="number" inputmode="decimal" step="0.01" min="0" id="inputTrainer" placeholder="0.00" />
-          <span class="pay-suffix">د.إ</span>
-        </span>
-      </label>
-    </div>
+  <section class="hero" aria-label="عدد الحصص">
+    <p class="hero-label">عدد الحصص</p>
+    <p class="hero-value" id="statSessions">0</p>
+    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+    <p class="hero-sub" id="heroSub"></p>
   </section>
 
   <section class="days">
-    <div class="section-head">
-      <h2>الأيام</h2>
-      <p class="section-sub" id="dayRange"></p>
-    </div>
+    <div class="section-head"><h2>الأسابيع</h2></div>
     <p class="day-hint">دوس على أي يوم عشان تعلّم عليه إنك رحت الجيم، ودوس تاني عشان تشيل العلامة.</p>
     <ul class="day-list" id="dayList"></ul>
   </section>
@@ -233,8 +154,8 @@
   const STORAGE_KEY = 'gymTrackerData';
   const RANGE_START = '2026-08-09';
   const RANGE_END = '2026-09-08';
-  const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-  const CHECK_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+  const WEEK_LABELS = ['١','٢','٣','٤','٥'];
+  const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 
   let state = load();
   const rowRefs = Object.create(null);
@@ -242,17 +163,12 @@
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return {subscriptionFee:0, trainerFee:0, sessions:[]};
+      if(!raw) return {sessions:[]};
       const parsed = JSON.parse(raw);
-      return {
-        subscriptionFee: typeof parsed.subscriptionFee === 'number' ? parsed.subscriptionFee : 0,
-        trainerFee: typeof parsed.trainerFee === 'number' ? parsed.trainerFee : 0,
-        sessions: Array.isArray(parsed.sessions) ? parsed.sessions : []
-      };
-    } catch(e){ return {subscriptionFee:0, trainerFee:0, sessions:[]}; }
+      return {sessions: Array.isArray(parsed.sessions) ? parsed.sessions : []};
+    } catch(e){ return {sessions:[]}; }
   }
   function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function toISO(d){
     const y = d.getFullYear();
     const m = String(d.getMonth()+1).padStart(2,'0');
@@ -260,7 +176,11 @@
     return `${y}-${m}-${day}`;
   }
   function todayISO(){ return toISO(new Date()); }
-  function formatDate(iso){
+  function formatDateShort(iso){
+    const d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('ar-EG', {day:'numeric', month:'short'});
+  }
+  function formatDateFull(iso){
     const d = new Date(iso + 'T00:00:00');
     return d.toLocaleDateString('ar-EG', {day:'numeric', month:'short', year:'numeric'});
   }
@@ -277,31 +197,21 @@
   }
   const CAL_DATES = buildCalendarDates();
 
-  function computeStats(){
-    const count = state.sessions.length;
-    const total = (state.subscriptionFee || 0) + (state.trainerFee || 0);
-    const cost = count > 0 ? total / count : null;
-    return {count, total, cost};
-  }
-
   function renderStats(){
-    const {count, total, cost} = computeStats();
+    const count = state.sessions.length;
     document.getElementById('statSessions').textContent = count;
-    document.getElementById('statTotal').textContent = money(total);
-    document.getElementById('statCost').textContent = cost === null ? '—' : money(cost);
-    document.getElementById('heroSub').textContent = count > 0
-      ? `${money(total)} د.إ ÷ ${count} حصة`
-      : 'سجّل حصة وادفع عشان تشوف التكلفة';
+    document.getElementById('progressFill').style.width = `${Math.min(100, (count / CAL_DATES.length) * 100)}%`;
+    document.getElementById('heroSub').textContent = `من ${CAL_DATES.length} يوم (${formatDateFull(RANGE_START)} – ${formatDateFull(RANGE_END)})`;
   }
 
   function toggleSession(dateStr){
     const idx = state.sessions.indexOf(dateStr);
     if(idx === -1){
       state.sessions.push(dateStr);
-      showToast('اتسجّلت حصة يوم ' + formatDate(dateStr));
+      showToast('اتسجّلت حصة يوم ' + formatDateFull(dateStr));
     } else {
       state.sessions.splice(idx, 1);
-      showToast('اتشالت حصة يوم ' + formatDate(dateStr));
+      showToast('اتشالت حصة يوم ' + formatDateFull(dateStr));
     }
     updateRow(dateStr);
     renderStats();
@@ -322,23 +232,22 @@
     const list = document.getElementById('dayList');
     list.innerHTML = '';
     const today = todayISO();
-    let lastMonth = null;
-    let i = 0;
-    CAL_DATES.forEach(dateStr => {
-      const dObj = new Date(dateStr + 'T00:00:00');
-      const monthIdx = dObj.getMonth();
-      if(monthIdx !== lastMonth){
+    CAL_DATES.forEach((dateStr, i) => {
+      if(i % 7 === 0){
+        const weekIdx = i / 7;
+        const rangeEndIdx = Math.min(i + 6, CAL_DATES.length - 1);
         const divider = document.createElement('li');
-        divider.className = 'month-divider';
-        divider.textContent = `${MONTHS_AR[monthIdx]} ${dObj.getFullYear()}`;
+        divider.className = 'week-divider';
+        divider.innerHTML = `
+          <span class="week-title">الأسبوع ${WEEK_LABELS[weekIdx] || (weekIdx + 1)}</span>
+          <span class="week-range">${formatDateShort(CAL_DATES[i])} – ${formatDateShort(CAL_DATES[rangeEndIdx])}</span>
+        `;
         list.appendChild(divider);
-        lastMonth = monthIdx;
       }
+      const dObj = new Date(dateStr + 'T00:00:00');
       const attended = state.sessions.includes(dateStr);
       const isToday = dateStr === today;
       const li = document.createElement('li');
-      li.className = 'day-row-item';
-      li.style.setProperty('--i', i++);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'day-row' + (attended ? ' is-attended' : '') + (isToday ? ' is-today' : '');
@@ -367,23 +276,6 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
   }
 
-  const inputSubscription = document.getElementById('inputSubscription');
-  const inputTrainer = document.getElementById('inputTrainer');
-  inputSubscription.value = state.subscriptionFee || '';
-  inputTrainer.value = state.trainerFee || '';
-  inputSubscription.addEventListener('input', () => {
-    const val = parseFloat(inputSubscription.value);
-    state.subscriptionFee = isNaN(val) ? 0 : val;
-    renderStats();
-    persist();
-  });
-  inputTrainer.addEventListener('input', () => {
-    const val = parseFloat(inputTrainer.value);
-    state.trainerFee = isNaN(val) ? 0 : val;
-    renderStats();
-    persist();
-  });
-
   document.getElementById('btnExport').addEventListener('click', async () => {
     const data = JSON.stringify(state, null, 2);
     const filename = `gym-tracker-backup-${todayISO()}.json`;
@@ -408,13 +300,7 @@
       try {
         const parsed = JSON.parse(reader.result);
         if(!Array.isArray(parsed.sessions)) throw new Error('bad shape');
-        state = {
-          subscriptionFee: typeof parsed.subscriptionFee === 'number' ? parsed.subscriptionFee : 0,
-          trainerFee: typeof parsed.trainerFee === 'number' ? parsed.trainerFee : 0,
-          sessions: parsed.sessions
-        };
-        inputSubscription.value = state.subscriptionFee || '';
-        inputTrainer.value = state.trainerFee || '';
+        state = {sessions: parsed.sessions};
         renderStats();
         renderDays();
         persist();
@@ -427,7 +313,6 @@
     e.target.value = '';
   });
 
-  document.getElementById('dayRange').textContent = `${formatDate(RANGE_START)} – ${formatDate(RANGE_END)}`;
   renderStats();
   renderDays();
 })();
