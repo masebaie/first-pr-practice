@@ -57,12 +57,13 @@ Run its tests with:
 python -m unittest test_gym_tracker.py
 ```
 
-## Gym tracker mobile app
+## رحلتي مع الجيم (mobile app)
 
-`webapp/index.html` is a self-contained, mobile-first web app version of the
-same idea: log sessions and payments and see the cost per session, all from
-your phone. Data is saved in the browser's `localStorage` (nothing leaves
-your device), with an export/import button for backups.
+`webapp/index.html` is a self-contained, mobile-first attendance tracker.
+It shows the days from Aug 9 to Sep 8, 2026 grouped into 5 weeks; tapping a
+day marks whether you went to the gym, and a hero counter shows how many
+sessions you've attended. Data is saved in the browser's `localStorage`
+(nothing leaves your device), with an export/import button for backups.
 
 Open it by downloading `webapp/index.html` and opening it in a mobile
 browser, or host it (e.g. GitHub Pages) and use Safari's "Add to Home
