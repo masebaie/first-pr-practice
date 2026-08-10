@@ -83,16 +83,24 @@
 
   .mini-fields{ flex:1; display:flex; flex-direction:column; gap:7px; min-width:0; }
   .mini-field{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--paper);
-               border:1px solid var(--line); border-radius:11px; padding:8px 11px; }
+               border:1px solid var(--line); border-radius:11px; padding:9px 11px; }
   .mini-field-label{ font-size:11px; color:var(--steel); font-weight:600; }
-  .mini-field-input{ display:flex; align-items:center; gap:4px; }
-  .mini-field input{ width:56px; border:none; background:transparent; font-family:var(--font-mono); font-size:13.5px;
-                      color:var(--ink); direction:ltr; text-align:left; }
+  .mini-field-input{ display:flex; align-items:center; gap:5px; }
+  .mini-field input{ width:70px; border:none; background:transparent; font-family:var(--font-mono); font-size:16px;
+                      font-weight:700; color:var(--ink); direction:ltr; text-align:left;
+                      font-variant-numeric:tabular-nums; }
+  .mini-field input::placeholder{ font-weight:400; color:var(--steel); }
   .mini-field input:focus{ outline:none; }
-  .mini-field .unit{ font-size:10px; color:var(--steel); font-weight:700; }
+  .mini-field .unit{ font-size:10.5px; color:var(--steel); font-weight:700; }
   .mini-field.result{ background:var(--card-tint); border-color:var(--card-a); }
-  .mini-field.result .mini-field-value{ display:flex; align-items:baseline; gap:4px; font-weight:800;
+  .mini-field.result .mini-field-value{ display:flex; align-items:baseline; gap:4px; font-weight:800; font-size:19px;
       color:var(--card-a); font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; }
+
+  .btn-save-payments{ appearance:none; border:none; border-radius:11px; padding:11px; font-size:13.5px;
+      font-weight:700; cursor:pointer; width:100%; margin-top:8px; background:var(--card-a); color:#fff;
+      font-family:var(--font-ui); }
+  .btn-save-payments:focus-visible{ outline:2px solid var(--card-a); outline-offset:2px; }
+  .btn-save-payments:active{ opacity:0.85; }
 
   .month-days summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--card-a); list-style:none;
                         display:flex; align-items:center; gap:6px; padding:8px 2px; }
@@ -176,9 +184,9 @@
   const STORAGE_KEY = 'gymTrackerData';
   const CHECK_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
   const RING_PALETTES = [
-    { a:'#FF4D6D', b:'#FF8A3D', c:'#FFD23D', tint:'rgba(255,77,109,0.12)', glow:'rgba(255,110,60,0.45)' },
+    { a:'#0EA968', b:'#17C97A', c:'#9AE637', tint:'rgba(14,169,104,0.12)', glow:'rgba(23,201,122,0.45)' },
     { a:'#3D7CFF', b:'#3DD6FF', c:'#3DFFC4', tint:'rgba(61,124,255,0.12)', glow:'rgba(61,214,255,0.40)' },
-    { a:'#B84DFF', b:'#FF4DD2', c:'#FF4D6D', tint:'rgba(184,77,255,0.12)', glow:'rgba(255,77,150,0.40)' },
+    { a:'#B84DFF', b:'#FF4DD2', c:'#FF7A45', tint:'rgba(184,77,255,0.12)', glow:'rgba(255,122,69,0.40)' },
     { a:'#0FB88A', b:'#3DE0FF', c:'#3D7CFF', tint:'rgba(15,184,138,0.12)', glow:'rgba(61,224,255,0.40)' }
   ];
 
@@ -372,6 +380,7 @@
               <span class="mini-field-label">قيمة الحصة</span>
               <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">د.إ</span></span>
             </div>
+            <button type="button" class="btn-save-payments">حفظ المدفوعات</button>
           </div>
         </div>
 
@@ -426,17 +435,16 @@
 
       const inputGym = card.querySelector('.input-gym');
       const inputTrainer = card.querySelector('.input-trainer');
-      inputGym.addEventListener('input', () => {
-        const val = parseFloat(inputGym.value);
-        m.gymFee = isNaN(val) ? 0 : val;
+      card.querySelector('.btn-save-payments').addEventListener('click', () => {
+        const gymVal = parseFloat(inputGym.value);
+        const trainerVal = parseFloat(inputTrainer.value);
+        m.gymFee = isNaN(gymVal) ? 0 : gymVal;
+        m.trainerFee = isNaN(trainerVal) ? 0 : trainerVal;
         persist();
         updateMonthCost(m.id);
-      });
-      inputTrainer.addEventListener('input', () => {
-        const val = parseFloat(inputTrainer.value);
-        m.trainerFee = isNaN(val) ? 0 : val;
-        persist();
-        updateMonthCost(m.id);
+        inputGym.blur();
+        inputTrainer.blur();
+        showToast('تم حفظ المدفوعات');
       });
 
       card.querySelector('.input-start').addEventListener('change', e => updateMonthDate(m.id, 'start', e.target.value));
