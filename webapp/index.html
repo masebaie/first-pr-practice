@@ -429,10 +429,6 @@
               <span class="mini-field-label">اشتراك المدرب</span>
               <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-trainer" value="${m.trainerFee || ''}" placeholder="0.00" /><span class="unit">AED</span></span>
             </div>
-            <div class="mini-field">
-              <span class="mini-field-label">الهدف الأسبوعي</span>
-              <span class="mini-field-input"><input type="number" inputmode="decimal" step="1" min="0" max="7" class="input-target" value="${m.weeklyTarget || ''}" placeholder="4" /><span class="unit">حصة</span></span>
-            </div>
             <div class="mini-field result">
               <span class="mini-field-label">قيمة الحصة</span>
               <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">AED</span></span>
@@ -496,7 +492,6 @@
 
       const inputGym = card.querySelector('.input-gym');
       const inputTrainer = card.querySelector('.input-trainer');
-      const inputTarget = card.querySelector('.input-target');
       inputGym.addEventListener('input', () => {
         const val = parseFloat(inputGym.value);
         m.gymFee = isNaN(val) ? 0 : val;
@@ -508,12 +503,6 @@
         m.trainerFee = isNaN(val) ? 0 : val;
         persist();
         updateMonthCost(m.id);
-      });
-      inputTarget.addEventListener('input', () => {
-        const val = parseFloat(inputTarget.value);
-        m.weeklyTarget = isNaN(val) ? 0 : val;
-        persist();
-        updateMonthDynamic(m.id);
       });
 
       card.querySelector('.btn-save-attendance').addEventListener('click', () => saveAttendance(m.id));
