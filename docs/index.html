@@ -121,6 +121,10 @@
       letter-spacing:-0.01em; color:var(--accent); font-family:var(--font-display); font-variant-numeric:tabular-nums;
       direction:ltr; }
 
+  .goal-status{ font-size:12.5px; color:var(--steel); margin:0 0 14px; line-height:1.5; }
+  .goal-status strong{ color:var(--primary); font-weight:800; }
+  .goal-status.is-met strong{ color:var(--primary); }
+
   .btn-save-attendance{ appearance:none; border:none; border-radius:11px; padding:12px; font-size:13.5px;
       font-weight:700; cursor:pointer; width:100%; margin-top:12px; background:var(--primary); color:#fff;
       font-family:var(--font-ui); }
@@ -234,7 +238,7 @@
     } catch(e){ return {months: [defaultMonth()]}; }
   }
   function defaultMonth(){
-    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, sessions:[]};
+    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[]};
   }
   function normalizeMonth(m){
     return {
@@ -243,6 +247,7 @@
       end: typeof m.end === 'string' ? m.end : '2026-09-08',
       gymFee: typeof m.gymFee === 'number' ? m.gymFee : 0,
       trainerFee: typeof m.trainerFee === 'number' ? m.trainerFee : 0,
+      weeklyTarget: typeof m.weeklyTarget === 'number' ? m.weeklyTarget : 4,
       sessions: Array.isArray(m.sessions) ? m.sessions : []
     };
   }
@@ -258,6 +263,11 @@
   function toArabicDigits(n){
     const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
     return String(n).split('').map(ch => map[ch] !== undefined ? map[ch] : ch).join('');
+  }
+  function goalStatusHTML(count, target, remaining){
+    if(target <= 0) return 'حدّد هدف أسبوعي عشان تتابع تقدّمك ناحية الهدف.';
+    if(remaining === 0) return `وصلت للهدف! <strong>${toArabicDigits(count)}</strong> من <strong>${toArabicDigits(target)}</strong> حصة الشهر ده.`;
+    return `متبقي <strong>${toArabicDigits(remaining)}</strong> حصة عشان توصل لهدف الشهر (${toArabicDigits(target)} حصة).`;
   }
   function toISO(d){
     const y = d.getFullYear();
@@ -291,8 +301,11 @@
     const count = m.sessions.filter(d => dates.includes(d)).length;
     const total = (m.gymFee || 0) + (m.trainerFee || 0);
     const cost = count > 0 ? total / count : null;
-    const pct = dates.length > 0 ? Math.min(100, (count / dates.length) * 100) : 0;
-    return {dates, count, total, cost, pct};
+    const weeklyTarget = m.weeklyTarget || 0;
+    const target = weeklyTarget > 0 ? Math.round((dates.length / 7) * weeklyTarget) : 0;
+    const remaining = Math.max(0, target - count);
+    const pct = target > 0 ? Math.min(100, (count / target) * 100) : 0;
+    return {dates, count, total, cost, target, remaining, pct};
   }
 
   function addMonth(){
@@ -340,10 +353,13 @@
     const ref = monthRefs[monthId];
     const m = state.months.find(x => x.id === monthId);
     if(!ref || !m) return;
-    const {count, cost, pct} = monthStats(m);
+    const {count, cost, target, remaining, pct} = monthStats(m);
     ref.ring.style.setProperty('--pct', pct);
     ref.countValue.textContent = count;
+    ref.countLabel.textContent = `من ${toArabicDigits(target)}`;
     ref.costValue.textContent = cost === null ? '—' : money(cost);
+    ref.goalStatus.innerHTML = goalStatusHTML(count, target, remaining);
+    ref.goalStatus.classList.toggle('is-met', remaining === 0 && target > 0);
     ref.countValue.classList.remove('bump');
     void ref.countValue.offsetWidth;
     ref.countValue.classList.add('bump');
@@ -376,7 +392,7 @@
     for(const key of Object.keys(monthRefs)) delete monthRefs[key];
 
     state.months.forEach((m, index) => {
-      const {dates, count, cost, pct} = monthStats(m);
+      const {dates, count, cost, target, remaining, pct} = monthStats(m);
       const today = todayISO();
 
       const card = document.createElement('section');
@@ -400,7 +416,7 @@
             <div class="count-ring">
               <div class="count-inner">
                 <span class="count-value">${count}</span>
-                <span class="count-label">حصة</span>
+                <span class="count-label">من ${toArabicDigits(target)}</span>
               </div>
             </div>
           </div>
@@ -413,12 +429,18 @@
               <span class="mini-field-label">اشتراك المدرب</span>
               <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-trainer" value="${m.trainerFee || ''}" placeholder="0.00" /><span class="unit">AED</span></span>
             </div>
+            <div class="mini-field">
+              <span class="mini-field-label">الهدف الأسبوعي</span>
+              <span class="mini-field-input"><input type="number" inputmode="decimal" step="1" min="0" max="7" class="input-target" value="${m.weeklyTarget || ''}" placeholder="4" /><span class="unit">حصة</span></span>
+            </div>
             <div class="mini-field result">
               <span class="mini-field-label">قيمة الحصة</span>
               <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">AED</span></span>
             </div>
           </div>
         </div>
+
+        <p class="goal-status${remaining === 0 && target > 0 ? ' is-met' : ''}">${goalStatusHTML(count, target, remaining)}</p>
 
         <details class="month-days" ${index === state.months.length - 1 ? 'open' : ''}>
           <summary>عرض أيام الشهر</summary>
@@ -430,7 +452,9 @@
 
       const ring = card.querySelector('.count-ring');
       const countValue = card.querySelector('.count-value');
+      const countLabel = card.querySelector('.count-label');
       const costValue = card.querySelector('.cost-value');
+      const goalStatus = card.querySelector('.goal-status');
       const dayList = card.querySelector('.day-list');
       const rowRefs = Object.create(null);
 
@@ -468,10 +492,11 @@
         rowRefs[dateStr] = {row: btn, check: btn.querySelector('.day-check')};
       });
 
-      monthRefs[m.id] = {card, ring, countValue, costValue, rowRefs};
+      monthRefs[m.id] = {card, ring, countValue, countLabel, costValue, goalStatus, rowRefs};
 
       const inputGym = card.querySelector('.input-gym');
       const inputTrainer = card.querySelector('.input-trainer');
+      const inputTarget = card.querySelector('.input-target');
       inputGym.addEventListener('input', () => {
         const val = parseFloat(inputGym.value);
         m.gymFee = isNaN(val) ? 0 : val;
@@ -483,6 +508,12 @@
         m.trainerFee = isNaN(val) ? 0 : val;
         persist();
         updateMonthCost(m.id);
+      });
+      inputTarget.addEventListener('input', () => {
+        const val = parseFloat(inputTarget.value);
+        m.weeklyTarget = isNaN(val) ? 0 : val;
+        persist();
+        updateMonthDynamic(m.id);
       });
 
       card.querySelector('.btn-save-attendance').addEventListener('click', () => saveAttendance(m.id));
