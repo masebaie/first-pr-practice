@@ -9,6 +9,11 @@
 <meta name="apple-mobile-web-app-title" content="رحلتي مع الجيم" />
 <meta name="theme-color" content="#12151A" />
 <style>
+  @property --pct{
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+  }
   :root{
     color-scheme: light dark;
     --ink:#181B21;
@@ -72,13 +77,14 @@
   .month-summary{ display:flex; align-items:center; gap:14px; margin-bottom:14px; }
   .count-wrap{ position:relative; width:100px; height:100px; flex-shrink:0; }
   .count-ring{ position:absolute; inset:0; border-radius:50%;
-    background: conic-gradient(from -90deg, var(--card-a) 0deg, var(--card-b) calc(var(--pct,0) * 1.8deg),
-                var(--card-c) calc(var(--pct,0) * 3.6deg), var(--surface-2) calc(var(--pct,0) * 3.6deg) 360deg);
-    box-shadow:0 10px 22px -10px var(--card-glow); }
+    background: conic-gradient(from -90deg, var(--card-a) 0deg, var(--card-b) calc(var(--pct) * 1.8deg),
+                var(--card-c) calc(var(--pct) * 3.6deg), var(--surface-2) calc(var(--pct) * 3.6deg) 360deg);
+    box-shadow:0 10px 22px -10px var(--card-glow);
+    transition: --pct 0.7s cubic-bezier(.22,.9,.32,1), box-shadow 1.6s ease-in-out; }
   .count-inner{ position:absolute; inset:10px; border-radius:50%; background:var(--surface); display:flex;
                 flex-direction:column; align-items:center; justify-content:center; }
   .count-value{ font-family:var(--font-display); font-size:27px; font-weight:800; color:var(--ink); line-height:1;
-                font-variant-numeric:tabular-nums; }
+                font-variant-numeric:tabular-nums; display:inline-block; }
   .count-label{ font-size:10px; color:var(--steel); font-weight:700; margin-top:3px; }
 
   .mini-fields{ flex:1; display:flex; flex-direction:column; gap:7px; min-width:0; }
@@ -86,15 +92,16 @@
                border:1px solid var(--line); border-radius:11px; padding:9px 11px; }
   .mini-field-label{ font-size:11px; color:var(--steel); font-weight:600; }
   .mini-field-input{ display:flex; align-items:center; gap:5px; }
-  .mini-field input{ width:70px; border:none; background:transparent; font-family:var(--font-mono); font-size:16px;
-                      font-weight:700; color:var(--ink); direction:ltr; text-align:left;
+  .mini-field input{ width:70px; border:none; background:transparent; font-family:var(--font-display); font-size:17px;
+                      font-weight:700; letter-spacing:-0.01em; color:var(--ink); direction:ltr; text-align:left;
                       font-variant-numeric:tabular-nums; }
   .mini-field input::placeholder{ font-weight:400; color:var(--steel); }
   .mini-field input:focus{ outline:none; }
-  .mini-field .unit{ font-size:10.5px; color:var(--steel); font-weight:700; }
+  .mini-field .unit{ font-size:10.5px; color:var(--steel); font-weight:700; letter-spacing:0.02em; }
   .mini-field.result{ background:var(--card-tint); border-color:var(--card-a); }
-  .mini-field.result .mini-field-value{ display:flex; align-items:baseline; gap:4px; font-weight:800; font-size:19px;
-      color:var(--card-a); font-family:var(--font-mono); font-variant-numeric:tabular-nums; direction:ltr; }
+  .mini-field.result .mini-field-value{ display:flex; align-items:baseline; gap:4px; font-weight:800; font-size:20px;
+      letter-spacing:-0.01em; color:var(--card-a); font-family:var(--font-display); font-variant-numeric:tabular-nums;
+      direction:ltr; }
 
   .btn-save-attendance{ appearance:none; border:none; border-radius:11px; padding:12px; font-size:13.5px;
       font-weight:700; cursor:pointer; width:100%; margin-top:12px; background:var(--card-a); color:#fff;
@@ -152,6 +159,16 @@
 
   @media (prefers-reduced-motion:reduce){
     .day-row, .count-ring, .toast, .month-days summary::before{ transition:none; }
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    @keyframes ringIn{ from{ opacity:0; transform:scale(0.82); } to{ opacity:1; transform:scale(1); } }
+    @keyframes ringGlow{ 0%,100%{ box-shadow:0 10px 22px -10px var(--card-glow); }
+                          50%{ box-shadow:0 14px 30px -8px var(--card-glow); } }
+    @keyframes countBump{ 0%{ transform:scale(1); } 45%{ transform:scale(1.22); } 100%{ transform:scale(1); } }
+    .count-wrap{ animation: ringIn .55s cubic-bezier(.34,1.56,.64,1) both; }
+    .count-ring{ animation: ringGlow 3.4s ease-in-out infinite; }
+    .count-value.bump{ animation: countBump .35s cubic-bezier(.34,1.56,.64,1); }
   }
 </style>
 </head>
@@ -308,6 +325,9 @@
     ref.ring.style.setProperty('--pct', pct);
     ref.countValue.textContent = count;
     ref.costValue.textContent = cost === null ? '—' : money(cost);
+    ref.countValue.classList.remove('bump');
+    void ref.countValue.offsetWidth;
+    ref.countValue.classList.add('bump');
   }
 
   function updateRow(monthId, dateStr){
@@ -348,7 +368,7 @@
       card.style.setProperty('--card-c', palette.c);
       card.style.setProperty('--card-tint', palette.tint);
       card.style.setProperty('--card-glow', palette.glow);
-      card.style.setProperty('--pct', pct);
+      card.style.setProperty('--pct', 0);
 
       card.innerHTML = `
         <div class="month-head">
@@ -374,15 +394,15 @@
           <div class="mini-fields">
             <div class="mini-field">
               <span class="mini-field-label">اشتراك الجيم</span>
-              <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-gym" value="${m.gymFee || ''}" placeholder="0.00" /><span class="unit">د.إ</span></span>
+              <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-gym" value="${m.gymFee || ''}" placeholder="0.00" /><span class="unit">AED</span></span>
             </div>
             <div class="mini-field">
               <span class="mini-field-label">اشتراك المدرب</span>
-              <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-trainer" value="${m.trainerFee || ''}" placeholder="0.00" /><span class="unit">د.إ</span></span>
+              <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-trainer" value="${m.trainerFee || ''}" placeholder="0.00" /><span class="unit">AED</span></span>
             </div>
             <div class="mini-field result">
               <span class="mini-field-label">قيمة الحصة</span>
-              <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">د.إ</span></span>
+              <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">AED</span></span>
             </div>
           </div>
         </div>
@@ -459,6 +479,10 @@
       card.querySelector('.month-delete').addEventListener('click', () => deleteMonth(m.id));
 
       container.appendChild(card);
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => { ring.style.setProperty('--pct', pct); });
+      });
     });
   }
 
