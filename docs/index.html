@@ -74,9 +74,28 @@
   .app{ max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column;
         padding: max(20px, env(safe-area-inset-top)) 18px calc(26px + env(safe-area-inset-bottom)); }
 
-  .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:11px; color:var(--steel); margin:0 0 4px; font-weight:600; }
-  h1{ font-family:var(--font-display); font-size:clamp(22px,6.5vw,28px); margin:0 0 22px; font-weight:800;
+  .hd-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:4px; }
+  .eyebrow{ text-transform:uppercase; letter-spacing:0.08em; font-size:11px; color:var(--steel); font-weight:600; margin:0; }
+  h1{ font-family:var(--font-display); font-size:clamp(22px,6.5vw,28px); margin:0 0 20px; font-weight:800;
       text-wrap:balance; letter-spacing:-0.015em; }
+
+  .lang-toggle{ display:flex; gap:3px; background:var(--surface-2); border-radius:9px; padding:3px; flex-shrink:0; }
+  .lang-toggle button{ appearance:none; border:none; background:transparent; padding:5px 10px; border-radius:6px;
+                        font-size:11px; font-weight:700; color:var(--steel); cursor:pointer; font-family:var(--font-ui); }
+  .lang-toggle button.is-active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
+
+  .quick-log{ margin-bottom:20px; }
+  .quick-log-btn{ appearance:none; width:100%; border:none; border-radius:16px; padding:16px; font-size:15px;
+                  font-weight:800; cursor:pointer; font-family:var(--font-display);
+                  display:flex; align-items:center; justify-content:center; gap:8px;
+                  background: linear-gradient(120deg, #7C3AED, #EC4899, #06B6D4); color:#fff;
+                  box-shadow:0 10px 22px -10px rgba(124,58,237,0.45); }
+  .quick-log-btn.is-logged{ background:var(--surface); color:var(--primary); border:2px solid var(--primary); box-shadow:none; }
+  .quick-log-btn:disabled{ opacity:0.55; cursor:not-allowed; }
+  .quick-log-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .section-head{ margin-bottom:10px; }
+  .section-head h2{ font-family:var(--font-display); font-size:14px; font-weight:800; margin:0; }
 
   .month-card{ background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:18px;
                margin-bottom:16px; box-shadow:var(--shadow); }
@@ -88,7 +107,7 @@
   .date-field{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--steel); font-weight:600;
                background:var(--paper); border:1px solid var(--line); border-radius:9px; padding:5px 9px; }
   .date-field input{ border:none; background:transparent; font-family:var(--font-mono); font-size:12px;
-                      color:var(--ink); }
+                      color:var(--ink); direction:ltr; }
   .date-field input:focus{ outline:none; }
   .month-delete{ appearance:none; background:none; border:none; color:var(--steel); font-size:20px; line-height:1;
                  cursor:pointer; padding:2px 6px; border-radius:8px; flex-shrink:0; }
@@ -105,31 +124,36 @@
                 flex-direction:column; align-items:center; justify-content:center; }
   .count-value{ font-family:var(--font-display); font-size:27px; font-weight:800; color:var(--ink); line-height:1;
                 font-variant-numeric:tabular-nums; display:inline-block; }
-  .count-label{ font-size:10px; color:var(--steel); font-weight:700; margin-top:3px; }
+  .count-label{ font-size:10px; color:var(--steel); font-weight:700; margin-top:3px; direction:ltr; }
 
   .mini-fields{ flex:1; display:flex; flex-direction:column; gap:7px; min-width:0; }
   .mini-field{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--paper);
                border:1px solid var(--line); border-radius:11px; padding:9px 11px; }
   .mini-field-label{ font-size:11px; color:var(--steel); font-weight:600; }
-  .mini-field-input{ display:flex; align-items:center; gap:5px; }
+  .mini-field-input{ display:flex; align-items:center; gap:5px; direction:ltr; }
   .mini-field input{ width:70px; border:none; background:transparent; font-family:var(--font-display); font-size:17px;
                       font-weight:700; letter-spacing:-0.01em; color:var(--ink); text-align:left;
-                      font-variant-numeric:tabular-nums; }
+                      font-variant-numeric:tabular-nums; direction:ltr; }
   .mini-field input::placeholder{ font-weight:400; color:var(--steel); }
   .mini-field input:focus{ outline:none; }
   .mini-field .unit{ font-size:10.5px; color:var(--steel); font-weight:700; letter-spacing:0.02em; }
   .mini-field.result{ background:var(--accent-tint); border-color:var(--accent); }
   .mini-field.result .mini-field-value{ display:flex; align-items:baseline; gap:4px; font-weight:800; font-size:20px;
-      letter-spacing:-0.01em; color:var(--accent); font-family:var(--font-display); font-variant-numeric:tabular-nums; }
+      letter-spacing:-0.01em; color:var(--accent); font-family:var(--font-display); font-variant-numeric:tabular-nums;
+      direction:ltr; }
 
   .goal-status{ font-size:12.5px; color:var(--steel); margin:0 0 14px; line-height:1.5; }
   .goal-status strong{ color:var(--primary); font-weight:800; }
 
+  .month-actions{ display:flex; gap:8px; margin-top:12px; }
   .btn-save-attendance{ appearance:none; border:none; border-radius:11px; padding:12px; font-size:13.5px;
-      font-weight:700; cursor:pointer; width:100%; margin-top:12px; background:var(--primary); color:#fff;
-      font-family:var(--font-ui); }
+      font-weight:700; cursor:pointer; flex:2; background:var(--primary); color:#fff; font-family:var(--font-ui); }
   .btn-save-attendance:focus-visible{ outline:2px solid var(--primary); outline-offset:2px; }
   .btn-save-attendance:active{ opacity:0.85; }
+  .btn-share{ appearance:none; flex:1; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+              border-radius:11px; padding:12px; font-size:13px; font-weight:700; cursor:pointer; font-family:var(--font-ui); }
+  .btn-share:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .btn-share:active{ opacity:0.85; }
 
   .month-days summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--accent); list-style:none;
                         display:flex; align-items:center; gap:6px; padding:8px 2px; }
@@ -138,9 +162,10 @@
   .month-days[open] summary::before{ transform:rotate(90deg); }
   .day-hint{ font-size:11.5px; color:var(--steel); margin:2px 0 12px; line-height:1.5; }
 
-  .grid-month-block{ margin-bottom:16px; }
+  .grid-month-block{ margin-bottom:16px; direction:ltr; }
   .grid-month-block:last-child{ margin-bottom:0; }
-  .grid-month-label{ font-family:var(--font-display); font-size:12.5px; font-weight:700; color:var(--ink); margin:0 0 8px; }
+  .grid-month-label{ font-family:var(--font-display); font-size:12.5px; font-weight:700; color:var(--ink);
+                      margin:0 0 8px; text-align:left; }
   .day-grid-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
   .day-grid-weekdays span{ text-align:center; font-size:11px; color:var(--steel); font-weight:600; }
   .day-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
@@ -162,6 +187,27 @@
   }
   .day-cell.is-today{ outline:2px solid var(--accent); outline-offset:2px; }
   .day-cell:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .comparison{ margin-bottom:24px; }
+  .comparison-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface);
+                    border:1px solid var(--line); border-radius:12px; padding:11px 14px; margin-bottom:8px; }
+  .comparison-row:last-child{ margin-bottom:0; }
+  .comparison-name{ font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .comparison-badge{ font-size:9.5px; font-weight:800; color:var(--primary); background:var(--primary-tint);
+                      padding:2px 8px; border-radius:999px; text-transform:uppercase; letter-spacing:0.03em; }
+  .comparison-stats{ font-size:12px; color:var(--steel); font-family:var(--font-mono); font-variant-numeric:tabular-nums;
+                      direction:ltr; }
+
+  .archived{ margin-bottom:24px; }
+  .archived summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--steel); list-style:none;
+                      display:flex; align-items:center; gap:6px; padding:4px 0; }
+  .archived summary::-webkit-details-marker{ display:none; }
+  .archived summary::before{ content:'›'; display:inline-block; font-size:16px; transition:transform .15s ease; }
+  .archived[open] summary::before{ transform:rotate(90deg); }
+  .archived-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--paper);
+                 border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px; font-size:12.5px; }
+  .archived-row button{ appearance:none; border:none; background:var(--surface-2); color:var(--ink); border-radius:8px;
+                         padding:6px 12px; font-size:11px; font-weight:700; cursor:pointer; font-family:var(--font-ui); flex-shrink:0; }
 
   .btn-add{ appearance:none; background:transparent; border:1.5px dashed var(--line); color:var(--steel);
             border-radius:16px; padding:14px; font-weight:700; width:100%; cursor:pointer; font-size:14px;
@@ -185,7 +231,7 @@
   .toast.show{ opacity:1; transform:translate(-50%,0); }
 
   @media (prefers-reduced-motion:reduce){
-    .day-cell, .count-ring, .toast, .month-days summary::before{ transition:none; }
+    .day-cell, .count-ring, .toast, .month-days summary::before, .archived summary::before{ transition:none; }
   }
 
   @media (prefers-reduced-motion:no-preference){
@@ -219,12 +265,34 @@
 <body>
 <div class="app" dir="ltr" lang="en">
   <header class="hd">
-    <p class="eyebrow">Attendance tracker</p>
+    <div class="hd-top">
+      <p class="eyebrow">Attendance tracker</p>
+      <div class="lang-toggle">
+        <button type="button" class="lang-btn is-active" data-lang="en">EN</button>
+        <button type="button" class="lang-btn" data-lang="ar">AR</button>
+      </div>
+    </div>
     <h1>My Gym Journey</h1>
   </header>
 
+  <section class="quick-log">
+    <button id="btnQuickLog" type="button" class="quick-log-btn"></button>
+  </section>
+
   <div id="monthsContainer"></div>
   <button id="btnAddMonth" class="btn-add" type="button">+ Add new month</button>
+
+  <section class="comparison" id="comparisonSection" hidden>
+    <div class="section-head"><h2>Monthly comparison</h2></div>
+    <div id="comparisonList"></div>
+  </section>
+
+  <section class="archived" id="archivedSection" hidden>
+    <details>
+      <summary id="archivedSummary"></summary>
+      <div id="archivedList"></div>
+    </details>
+  </section>
 
   <section class="backup">
     <p class="backup-note">
@@ -243,8 +311,79 @@
 <script>
 (function(){
   const STORAGE_KEY = 'gymTrackerData';
-  const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const WEEKDAYS_EN = ['S','M','T','W','T','F','S'];
+  const MONTHS = {
+    en: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    ar: ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']
+  };
+  const WEEKDAYS = { en: ['S','M','T','W','T','F','S'], ar: ['ح','ن','ث','ر','خ','ج','س'] };
+
+  const STRINGS = {
+    en: {
+      eyebrow: 'Attendance tracker',
+      appTitle: 'My Gym Journey',
+      quickLogLog: 'I went today',
+      quickLogLogged: 'Logged today ✓ — tap to undo',
+      quickLogNone: 'Today is outside any tracked month',
+      addMonth: '+ Add new month',
+      monthLabel: n => `Month ${n}`,
+      from: 'From', to: 'To',
+      archiveMonth: 'Archive month',
+      gymSub: 'Gym subscription', trainerSub: 'Trainer subscription', costPerSession: 'Cost per session',
+      of: n => `of ${n}`,
+      goalNoTarget: 'Set a weekly target to track your progress.',
+      goalReached: (count,target) => `Target reached! ${count} of ${target} sessions this month.`,
+      goalRemaining: (remaining,target) => `${remaining} session${remaining===1?'':'s'} left to reach this month's target (${target} sessions).`,
+      showDays: "Show this month's days",
+      dayHint: 'Tap any day to mark that you went to the gym, tap again to remove it, then save your attendance.',
+      saveAttendance: 'Save attendance',
+      shareSummary: 'Share summary',
+      comparisonTitle: 'Monthly comparison',
+      mostConsistent: 'Most consistent',
+      archivedTitle: n => `Archived months (${n})`,
+      restore: 'Restore',
+      backupNote: "Your data is only saved on this device. Back it up regularly and upload it to OneDrive so you don't lose it if you switch devices or clear your browser.",
+      downloadBackup: 'Download backup', restoreBackup: 'Restore backup',
+      couldNotSave: 'Could not save — check your device storage',
+      atLeastOneActive: 'At least one active month must remain',
+      attendanceSaved: 'Attendance saved', saveCancelled: 'Save was cancelled',
+      backupRestored: 'Backup restored', fileNotValid: 'That file is not valid',
+      sessionsWord: 'sessions', perSession: 'session',
+      monthArchived: 'Month archived', monthRestored: 'Month restored'
+    },
+    ar: {
+      eyebrow: 'تتبّع الحضور',
+      appTitle: 'رحلتي مع الجيم',
+      quickLogLog: 'رحت النهارده',
+      quickLogLogged: 'اتسجّل النهارده ✓ — دوس عشان تشيل',
+      quickLogNone: 'النهارده مش جوه أي شهر متابَع',
+      addMonth: '+ إضافة شهر جديد',
+      monthLabel: n => `الشهر ${n}`,
+      from: 'من', to: 'إلى',
+      archiveMonth: 'أرشفة الشهر',
+      gymSub: 'اشتراك الجيم', trainerSub: 'اشتراك المدرب', costPerSession: 'قيمة الحصة',
+      of: n => `من ${n}`,
+      goalNoTarget: 'حدّد هدف أسبوعي عشان تتابع تقدّمك.',
+      goalReached: (count,target) => `وصلت للهدف! ${count} من ${target} حصة الشهر ده.`,
+      goalRemaining: (remaining,target) => `متبقي ${remaining} حصة عشان توصل لهدف الشهر (${target} حصة).`,
+      showDays: 'عرض أيام الشهر',
+      dayHint: 'دوس على أي يوم عشان تعلّم عليه إنك رحت الجيم، ودوس تاني عشان تشيل العلامة، وبعدين احفظ السجل.',
+      saveAttendance: 'حفظ سجل الحضور',
+      shareSummary: 'مشاركة الملخص',
+      comparisonTitle: 'مقارنة الشهور',
+      mostConsistent: 'الأكثر التزامًا',
+      archivedTitle: n => `الشهور المؤرشفة (${n})`,
+      restore: 'استرجاع',
+      backupNote: 'البيانات محفوظة على الموبايل ده بس. اعمل نسخة احتياطية بين كل فترة وارفعها على OneDrive عشان متضيعش لو غيّرت جهازك أو مسحت المتصفح.',
+      downloadBackup: 'تنزيل نسخة احتياطية', restoreBackup: 'استرجاع نسخة احتياطية',
+      couldNotSave: 'البيانات متحفظتش، خزّن ذاكرة موبايلك أو المتصفح ممتلئ',
+      atLeastOneActive: 'لازم يفضل شهر نشط واحد على الأقل',
+      attendanceSaved: 'تم حفظ سجل الحضور', saveCancelled: 'اتلغت عملية الحفظ',
+      backupRestored: 'تم استرجاع النسخة الاحتياطية', fileNotValid: 'الملف مش صالح',
+      sessionsWord: 'حصص', perSession: 'حصة',
+      monthArchived: 'تم أرشفة الشهر', monthRestored: 'تم استرجاع الشهر'
+    }
+  };
+  function t(key){ return STRINGS[state.lang][key]; }
 
   let state = load();
   const monthRefs = Object.create(null);
@@ -252,16 +391,17 @@
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return {months: [defaultMonth()]};
+      if(!raw) return {lang:'en', months:[defaultMonth()]};
       const parsed = JSON.parse(raw);
+      const lang = parsed.lang === 'ar' ? 'ar' : 'en';
       if(Array.isArray(parsed.months) && parsed.months.length){
-        return {months: parsed.months.map(normalizeMonth)};
+        return {lang, months: parsed.months.map(normalizeMonth)};
       }
-      return {months: [defaultMonth()]};
-    } catch(e){ return {months: [defaultMonth()]}; }
+      return {lang, months:[defaultMonth()]};
+    } catch(e){ return {lang:'en', months:[defaultMonth()]}; }
   }
   function defaultMonth(){
-    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[]};
+    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false};
   }
   function normalizeMonth(m){
     return {
@@ -271,22 +411,23 @@
       gymFee: typeof m.gymFee === 'number' ? m.gymFee : 0,
       trainerFee: typeof m.trainerFee === 'number' ? m.trainerFee : 0,
       weeklyTarget: typeof m.weeklyTarget === 'number' ? m.weeklyTarget : 4,
-      sessions: Array.isArray(m.sessions) ? m.sessions : []
+      sessions: Array.isArray(m.sessions) ? m.sessions : [],
+      archived: typeof m.archived === 'boolean' ? m.archived : false
     };
   }
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
   function persist(){
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    catch(e){ showToast('Could not save — check your device storage'); }
+    catch(e){ showToast(t('couldNotSave')); }
   }
   if('storage' in navigator && 'persist' in navigator.storage){
     navigator.storage.persist().catch(() => {});
   }
   function money(n){ return n.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function goalStatusHTML(count, target, remaining){
-    if(target <= 0) return 'Set a weekly target to track your progress.';
-    if(remaining === 0) return `Target reached! <strong>${count}</strong> of <strong>${target}</strong> sessions this month.`;
-    return `<strong>${remaining}</strong> session${remaining === 1 ? '' : 's'} left to reach this month's target (${target} sessions).`;
+    if(target <= 0) return t('goalNoTarget');
+    if(remaining === 0) return t('goalReached')(count, target);
+    return t('goalRemaining')(remaining, target);
   }
   function toISO(d){
     const y = d.getFullYear();
@@ -310,6 +451,12 @@
     }
     return dates;
   }
+  function formatRangeShort(start, end){
+    const locale = state.lang === 'ar' ? 'ar-EG' : 'en-US';
+    const d1 = new Date(start + 'T00:00:00').toLocaleDateString(locale, {day:'numeric', month:'short'});
+    const d2 = new Date(end + 'T00:00:00').toLocaleDateString(locale, {day:'numeric', month:'short'});
+    return `${d1} – ${d2}`;
+  }
 
   function monthStats(m){
     const dates = buildDateRange(m.start, m.end);
@@ -328,15 +475,28 @@
     const last = months[months.length - 1];
     const start = addDays(last.end, 1);
     const end = addDays(start, 29);
-    months.push({id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[]});
+    months.push({id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false});
     persist();
     renderAll();
   }
 
-  function deleteMonth(id){
-    if(state.months.length <= 1){ showToast('At least one month must remain'); return; }
-    state.months = state.months.filter(m => m.id !== id);
+  function archiveMonth(id){
+    const activeCount = state.months.filter(m => !m.archived).length;
+    if(activeCount <= 1){ showToast(t('atLeastOneActive')); return; }
+    const m = state.months.find(x => x.id === id);
+    if(!m) return;
+    m.archived = true;
     persist();
+    showToast(t('monthArchived'));
+    renderAll();
+  }
+
+  function unarchiveMonth(id){
+    const m = state.months.find(x => x.id === id);
+    if(!m) return;
+    m.archived = false;
+    persist();
+    showToast(t('monthRestored'));
     renderAll();
   }
 
@@ -357,11 +517,12 @@
     persist();
     updateRow(monthId, dateStr);
     updateMonthDynamic(monthId);
+    renderComparison();
   }
 
   function saveAttendance(monthId){
     persist();
-    showToast('Attendance saved');
+    showToast(t('attendanceSaved'));
   }
 
   function updateMonthDynamic(monthId){
@@ -371,7 +532,7 @@
     const {count, cost, target, remaining, pct} = monthStats(m);
     ref.ring.style.setProperty('--pct', pct);
     ref.countValue.textContent = count;
-    ref.countLabel.textContent = `of ${target}`;
+    ref.countLabel.textContent = t('of')(target);
     ref.costValue.textContent = cost === null ? '—' : money(cost);
     ref.goalStatus.innerHTML = goalStatusHTML(count, target, remaining);
     ref.countValue.classList.remove('bump');
@@ -399,6 +560,141 @@
     if(!ref || !m) return;
     const {cost} = monthStats(m);
     ref.costValue.textContent = cost === null ? '—' : money(cost);
+    renderComparison();
+  }
+
+  function shareSummaryImage(m, displayName){
+    const {count, target, cost} = monthStats(m);
+    const W = 1080, H = 1080;
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    if(state.lang === 'ar') ctx.direction = 'rtl';
+
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, '#7C3AED');
+    grad.addColorStop(0.5, '#EC4899');
+    grad.addColorStop(1, '#06B6D4');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '600 34px -apple-system, sans-serif';
+    ctx.fillText(displayName.toUpperCase(), W/2, 260);
+
+    ctx.fillStyle = '#fff';
+    ctx.font = '800 260px -apple-system, sans-serif';
+    ctx.fillText(String(count), W/2, 560);
+
+    ctx.font = '600 44px -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.fillText(target > 0 ? t('of')(target) : t('sessionsWord'), W/2, 630);
+
+    if(cost !== null){
+      ctx.font = '700 40px -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      ctx.fillText(`${money(cost)} AED / ${t('perSession')}`, W/2, 720);
+    }
+
+    ctx.font = '800 30px -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.fillText(t('appTitle'), W/2, H - 80);
+
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `gym-summary-${m.start}.png`;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }
+
+  function refreshQuickLog(){
+    const btn = document.getElementById('btnQuickLog');
+    const today = todayISO();
+    const m = state.months.find(x => !x.archived && buildDateRange(x.start, x.end).includes(today));
+    if(!m){
+      btn.disabled = true;
+      btn.textContent = t('quickLogNone');
+      btn.classList.remove('is-logged');
+      btn.onclick = null;
+      return;
+    }
+    btn.disabled = false;
+    const logged = m.sessions.includes(today);
+    btn.textContent = logged ? t('quickLogLogged') : t('quickLogLog');
+    btn.classList.toggle('is-logged', logged);
+    btn.onclick = () => {
+      toggleSession(m.id, today);
+      refreshQuickLog();
+    };
+  }
+
+  function renderComparison(){
+    const section = document.getElementById('comparisonSection');
+    const list = document.getElementById('comparisonList');
+    const active = state.months.filter(x => !x.archived);
+    if(active.length < 2){ section.hidden = true; return; }
+    section.hidden = false;
+    list.innerHTML = '';
+    const rows = active.map((m, i) => ({ index: i + 1, ...monthStats(m) }));
+    let bestIdx = -1, bestPct = -1;
+    rows.forEach((r, i) => { if(r.target > 0 && r.pct > bestPct){ bestPct = r.pct; bestIdx = i; } });
+    rows.forEach((r, i) => {
+      const row = document.createElement('div');
+      row.className = 'comparison-row';
+      const pctText = r.target > 0 ? `${Math.round(r.pct)}%` : '—';
+      const costText = r.cost === null ? '—' : `${money(r.cost)} AED`;
+      row.innerHTML = `
+        <span class="comparison-name">${t('monthLabel')(r.index)}${i === bestIdx ? `<span class="comparison-badge">${t('mostConsistent')}</span>` : ''}</span>
+        <span class="comparison-stats">${r.count}/${r.target || '—'} · ${pctText} · ${costText}</span>
+      `;
+      list.appendChild(row);
+    });
+  }
+
+  function renderArchived(){
+    const section = document.getElementById('archivedSection');
+    const summaryEl = document.getElementById('archivedSummary');
+    const listEl = document.getElementById('archivedList');
+    const archived = state.months.filter(x => x.archived);
+    if(archived.length === 0){ section.hidden = true; return; }
+    section.hidden = false;
+    summaryEl.textContent = t('archivedTitle')(archived.length);
+    listEl.innerHTML = '';
+    archived.forEach(m => {
+      const {count} = monthStats(m);
+      const row = document.createElement('div');
+      row.className = 'archived-row';
+      row.innerHTML = `
+        <span>${formatRangeShort(m.start, m.end)} · ${count} ${t('sessionsWord')}</span>
+        <button type="button">${t('restore')}</button>
+      `;
+      row.querySelector('button').addEventListener('click', () => unarchiveMonth(m.id));
+      listEl.appendChild(row);
+    });
+  }
+
+  function applyLangAttrs(){
+    const isAr = state.lang === 'ar';
+    const dir = isAr ? 'rtl' : 'ltr';
+    document.documentElement.setAttribute('lang', state.lang);
+    document.documentElement.setAttribute('dir', dir);
+    document.querySelector('.app').setAttribute('lang', state.lang);
+    document.querySelector('.app').setAttribute('dir', dir);
+  }
+
+  function applyStaticStrings(){
+    document.title = t('appTitle');
+    document.querySelector('.eyebrow').textContent = t('eyebrow');
+    document.querySelector('h1').textContent = t('appTitle');
+    document.getElementById('btnAddMonth').textContent = t('addMonth');
+    document.querySelector('.backup-note').textContent = t('backupNote');
+    document.getElementById('btnExport').textContent = t('downloadBackup');
+    document.querySelector('label[for="importFile"]').textContent = t('restoreBackup');
+    document.querySelector('#comparisonSection h2').textContent = t('comparisonTitle');
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('is-active', b.dataset.lang === state.lang));
   }
 
   function renderAll(){
@@ -406,9 +702,11 @@
     container.innerHTML = '';
     for(const key of Object.keys(monthRefs)) delete monthRefs[key];
 
-    state.months.forEach((m, index) => {
+    const active = state.months.filter(m => !m.archived);
+    const today = todayISO();
+
+    active.forEach((m, index) => {
       const {dates, count, cost, target, remaining, pct} = monthStats(m);
-      const today = todayISO();
 
       const card = document.createElement('section');
       card.className = 'month-card';
@@ -417,13 +715,13 @@
       card.innerHTML = `
         <div class="month-head">
           <div>
-            <h2 class="month-title">Month ${index + 1}</h2>
+            <h2 class="month-title">${t('monthLabel')(index + 1)}</h2>
             <div class="month-dates">
-              <label class="date-field"><span>From</span><input type="date" class="input-start" value="${m.start}" /></label>
-              <label class="date-field"><span>To</span><input type="date" class="input-end" value="${m.end}" /></label>
+              <label class="date-field"><span>${t('from')}</span><input type="date" class="input-start" value="${m.start}" /></label>
+              <label class="date-field"><span>${t('to')}</span><input type="date" class="input-end" value="${m.end}" /></label>
             </div>
           </div>
-          <button type="button" class="month-delete" aria-label="Delete month">×</button>
+          <button type="button" class="month-delete" aria-label="${t('archiveMonth')}">×</button>
         </div>
 
         <div class="month-summary">
@@ -431,21 +729,21 @@
             <div class="count-ring">
               <div class="count-inner">
                 <span class="count-value">${count}</span>
-                <span class="count-label">of ${target}</span>
+                <span class="count-label">${t('of')(target)}</span>
               </div>
             </div>
           </div>
           <div class="mini-fields">
             <div class="mini-field">
-              <span class="mini-field-label">Gym subscription</span>
+              <span class="mini-field-label">${t('gymSub')}</span>
               <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-gym" value="${m.gymFee || ''}" placeholder="0.00" /><span class="unit">AED</span></span>
             </div>
             <div class="mini-field">
-              <span class="mini-field-label">Trainer subscription</span>
+              <span class="mini-field-label">${t('trainerSub')}</span>
               <span class="mini-field-input"><input type="number" inputmode="decimal" step="0.01" min="0" class="input-trainer" value="${m.trainerFee || ''}" placeholder="0.00" /><span class="unit">AED</span></span>
             </div>
             <div class="mini-field result">
-              <span class="mini-field-label">Cost per session</span>
+              <span class="mini-field-label">${t('costPerSession')}</span>
               <span class="mini-field-value"><span class="cost-value">${cost === null ? '—' : money(cost)}</span><span class="unit">AED</span></span>
             </div>
           </div>
@@ -453,11 +751,14 @@
 
         <p class="goal-status">${goalStatusHTML(count, target, remaining)}</p>
 
-        <details class="month-days" ${index === state.months.length - 1 ? 'open' : ''}>
-          <summary>Show this month's days</summary>
-          <p class="day-hint">Tap any day to mark that you went to the gym, tap again to remove it, then save your attendance.</p>
+        <details class="month-days" ${index === active.length - 1 ? 'open' : ''}>
+          <summary>${t('showDays')}</summary>
+          <p class="day-hint">${t('dayHint')}</p>
           <div class="day-grid-container"></div>
-          <button type="button" class="btn-save-attendance">Save attendance</button>
+          <div class="month-actions">
+            <button type="button" class="btn-save-attendance">${t('saveAttendance')}</button>
+            <button type="button" class="btn-share">${t('shareSummary')}</button>
+          </div>
         </details>
       `;
 
@@ -471,6 +772,9 @@
 
       let currentMonthKey = null;
       let currentGrid = null;
+      const monthNames = MONTHS[state.lang];
+      const weekdayLetters = WEEKDAYS[state.lang];
+      const locale = state.lang === 'ar' ? 'ar-EG' : 'en-US';
       dates.forEach(dateStr => {
         const dObj = new Date(dateStr + 'T00:00:00');
         const monthKey = `${dObj.getFullYear()}-${dObj.getMonth()}`;
@@ -480,10 +784,10 @@
           block.className = 'grid-month-block';
           const label = document.createElement('p');
           label.className = 'grid-month-label';
-          label.textContent = `${MONTHS_EN[dObj.getMonth()]} ${dObj.getFullYear()}`;
+          label.textContent = `${monthNames[dObj.getMonth()]} ${dObj.getFullYear()}`;
           const weekdays = document.createElement('div');
           weekdays.className = 'day-grid-weekdays';
-          weekdays.innerHTML = WEEKDAYS_EN.map(w => `<span>${w}</span>`).join('');
+          weekdays.innerHTML = weekdayLetters.map(w => `<span>${w}</span>`).join('');
           currentGrid = document.createElement('div');
           currentGrid.className = 'day-grid';
           block.appendChild(label);
@@ -503,7 +807,7 @@
         btn.type = 'button';
         btn.className = 'day-cell' + (attended ? ' is-attended' : '') + (isToday ? ' is-today' : '');
         btn.setAttribute('aria-pressed', attended ? 'true' : 'false');
-        btn.setAttribute('aria-label', dObj.toLocaleDateString('en-US', {weekday:'long', day:'numeric', month:'long'}));
+        btn.setAttribute('aria-label', dObj.toLocaleDateString(locale, {weekday:'long', day:'numeric', month:'long'}));
         btn.textContent = dObj.getDate();
         btn.addEventListener('click', () => toggleSession(m.id, dateStr));
         currentGrid.appendChild(btn);
@@ -528,10 +832,11 @@
       });
 
       card.querySelector('.btn-save-attendance').addEventListener('click', () => saveAttendance(m.id));
+      card.querySelector('.btn-share').addEventListener('click', () => shareSummaryImage(m, t('monthLabel')(index + 1)));
 
       card.querySelector('.input-start').addEventListener('change', e => updateMonthDate(m.id, 'start', e.target.value));
       card.querySelector('.input-end').addEventListener('change', e => updateMonthDate(m.id, 'end', e.target.value));
-      card.querySelector('.month-delete').addEventListener('click', () => deleteMonth(m.id));
+      card.querySelector('.month-delete').addEventListener('click', () => archiveMonth(m.id));
 
       container.appendChild(card);
 
@@ -539,25 +844,40 @@
         requestAnimationFrame(() => { ring.style.setProperty('--pct', pct); });
       });
     });
+
+    refreshQuickLog();
+    renderComparison();
+    renderArchived();
   }
 
   let toastTimer;
   function showToast(msg){
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
   }
 
   document.getElementById('btnAddMonth').addEventListener('click', addMonth);
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if(state.lang === btn.dataset.lang) return;
+      state.lang = btn.dataset.lang;
+      persist();
+      applyLangAttrs();
+      applyStaticStrings();
+      renderAll();
+    });
+  });
 
   document.getElementById('btnExport').addEventListener('click', async () => {
     const data = JSON.stringify(state, null, 2);
     const filename = `gym-tracker-backup-${todayISO()}.json`;
     if(window.claude && window.claude.downloads){
       try { await window.claude.downloads.save({filename, data}); }
-      catch(err){ showToast('Save was cancelled'); }
+      catch(err){ showToast(t('saveCancelled')); }
     } else {
       const blob = new Blob([data], {type: 'application/json'});
       const url = URL.createObjectURL(blob);
@@ -576,18 +896,22 @@
       try {
         const parsed = JSON.parse(reader.result);
         if(!Array.isArray(parsed.months) || !parsed.months.length) throw new Error('bad shape');
-        state = {months: parsed.months.map(normalizeMonth)};
+        state = {lang: parsed.lang === 'ar' ? 'ar' : 'en', months: parsed.months.map(normalizeMonth)};
         persist();
+        applyLangAttrs();
+        applyStaticStrings();
         renderAll();
-        showToast('Backup restored');
+        showToast(t('backupRestored'));
       } catch(err){
-        showToast('That file is not valid');
+        showToast(t('fileNotValid'));
       }
     };
     reader.readAsText(file);
     e.target.value = '';
   });
 
+  applyLangAttrs();
+  applyStaticStrings();
   renderAll();
 })();
 </script>
