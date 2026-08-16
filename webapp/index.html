@@ -187,6 +187,29 @@
   }
   .day-cell.is-today{ outline:2px solid var(--accent); outline-offset:2px; }
   .day-cell:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .day-cell.is-paused{ opacity:0.4; }
+  .day-cell.is-paused::after{ border-style:dashed; border-color:var(--steel); }
+
+  .pause-section{ margin-bottom:14px; }
+  .pause-section summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--steel); list-style:none;
+                        display:flex; align-items:center; gap:6px; padding:8px 2px; }
+  .pause-section summary::-webkit-details-marker{ display:none; }
+  .pause-section summary::before{ content:'›'; display:inline-block; font-size:16px; transition:transform .15s ease; }
+  .pause-section[open] summary::before{ transform:rotate(90deg); }
+  .pause-hint{ font-size:11.5px; color:var(--steel); margin:2px 0 10px; line-height:1.5; }
+  .pause-list{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .pause-empty{ font-size:12px; color:var(--steel); margin:0 0 10px; }
+  .pause-chip{ display:flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--line);
+               border-radius:999px; padding:5px 6px 5px 12px; font-size:12px; color:var(--ink); font-family:var(--font-mono);
+               direction:ltr; }
+  .pause-chip button{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
+               width:18px; height:18px; line-height:1; font-size:13px; cursor:pointer; display:flex; align-items:center;
+               justify-content:center; flex-shrink:0; }
+  .pause-add{ display:flex; align-items:flex-end; gap:8px; flex-wrap:wrap; }
+  .pause-add .date-field{ flex:1; min-width:110px; }
+  .pause-add .btn-add-pause{ appearance:none; border:none; border-radius:11px; padding:11px 14px; font-size:12.5px;
+      font-weight:700; cursor:pointer; background:var(--surface-2); color:var(--ink); font-family:var(--font-ui); }
+  .pause-add .btn-add-pause:active{ opacity:0.85; }
 
   .comparison{ margin-bottom:24px; }
   .comparison-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface);
@@ -348,7 +371,10 @@
       attendanceSaved: 'Attendance saved', saveCancelled: 'Save was cancelled',
       backupRestored: 'Backup restored', fileNotValid: 'That file is not valid',
       sessionsWord: 'sessions', perSession: 'session',
-      monthArchived: 'Month archived', monthRestored: 'Month restored'
+      monthArchived: 'Month archived', monthRestored: 'Month restored',
+      pauseTitle: 'Pause periods', pauseHint: "Add a break (injury, travel, etc.) — those days won't count against your target.",
+      addPause: 'Add pause', removePause: 'Remove pause', pauseInvalid: 'End date must be after start date',
+      noPauses: 'No pauses added'
     },
     ar: {
       eyebrow: 'تتبّع الحضور',
@@ -380,7 +406,10 @@
       attendanceSaved: 'تم حفظ سجل الحضور', saveCancelled: 'اتلغت عملية الحفظ',
       backupRestored: 'تم استرجاع النسخة الاحتياطية', fileNotValid: 'الملف مش صالح',
       sessionsWord: 'حصص', perSession: 'حصة',
-      monthArchived: 'تم أرشفة الشهر', monthRestored: 'تم استرجاع الشهر'
+      monthArchived: 'تم أرشفة الشهر', monthRestored: 'تم استرجاع الشهر',
+      pauseTitle: 'فترات التوقف', pauseHint: 'أضف فترة توقف (إصابة، سفر، إلخ) — الأيام دي مش هتتحسب على هدفك.',
+      addPause: 'إضافة توقف', removePause: 'حذف فترة التوقف', pauseInvalid: 'تاريخ النهاية لازم يكون بعد تاريخ البداية',
+      noPauses: 'مفيش فترات توقف مضافة'
     }
   };
   function t(key){ return STRINGS[state.lang][key]; }
@@ -401,7 +430,11 @@
     } catch(e){ return {lang:'en', months:[defaultMonth()]}; }
   }
   function defaultMonth(){
-    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false};
+    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[]};
+  }
+  function normalizeBreak(b){
+    if(!b || typeof b.start !== 'string' || typeof b.end !== 'string') return null;
+    return {id: typeof b.id === 'string' ? b.id : uid(), start: b.start, end: b.end < b.start ? b.start : b.end};
   }
   function normalizeMonth(m){
     return {
@@ -412,7 +445,8 @@
       trainerFee: typeof m.trainerFee === 'number' ? m.trainerFee : 0,
       weeklyTarget: typeof m.weeklyTarget === 'number' ? m.weeklyTarget : 4,
       sessions: Array.isArray(m.sessions) ? m.sessions : [],
-      archived: typeof m.archived === 'boolean' ? m.archived : false
+      archived: typeof m.archived === 'boolean' ? m.archived : false,
+      breaks: Array.isArray(m.breaks) ? m.breaks.map(normalizeBreak).filter(Boolean) : []
     };
   }
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -458,16 +492,26 @@
     return `${d1} – ${d2}`;
   }
 
+  function pausedDateSet(m, dates){
+    const set = new Set();
+    (m.breaks || []).forEach(b => {
+      buildDateRange(b.start, b.end).forEach(d => { if(dates.includes(d)) set.add(d); });
+    });
+    return set;
+  }
+
   function monthStats(m){
     const dates = buildDateRange(m.start, m.end);
+    const paused = pausedDateSet(m, dates);
     const count = m.sessions.filter(d => dates.includes(d)).length;
     const total = (m.gymFee || 0) + (m.trainerFee || 0);
     const cost = count > 0 ? total / count : null;
     const weeklyTarget = m.weeklyTarget || 0;
-    const target = weeklyTarget > 0 ? Math.round((dates.length / 7) * weeklyTarget) : 0;
+    const activeDays = Math.max(0, dates.length - paused.size);
+    const target = weeklyTarget > 0 ? Math.round((activeDays / 7) * weeklyTarget) : 0;
     const remaining = Math.max(0, target - count);
     const pct = target > 0 ? Math.min(100, (count / target) * 100) : 0;
-    return {dates, count, total, cost, target, remaining, pct};
+    return {dates, paused, count, total, cost, target, remaining, pct};
   }
 
   function addMonth(){
@@ -475,9 +519,57 @@
     const last = months[months.length - 1];
     const start = addDays(last.end, 1);
     const end = addDays(start, 29);
-    months.push({id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false});
+    months.push({id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[]});
     persist();
     renderAll();
+  }
+
+  function addBreak(monthId, start, end){
+    const m = state.months.find(x => x.id === monthId);
+    if(!m || !start) return;
+    if(!Array.isArray(m.breaks)) m.breaks = [];
+    m.breaks.push({id: uid(), start, end: end < start ? start : end});
+    m.breaks.sort((a,b) => a.start.localeCompare(b.start));
+    persist();
+    refreshMonthBreaks(monthId);
+  }
+
+  function removeBreak(monthId, breakId){
+    const m = state.months.find(x => x.id === monthId);
+    if(!m) return;
+    m.breaks = (m.breaks || []).filter(b => b.id !== breakId);
+    persist();
+    refreshMonthBreaks(monthId);
+  }
+
+  function renderPauseList(m, pauseListEl){
+    if((m.breaks || []).length === 0){
+      pauseListEl.innerHTML = `<p class="pause-empty">${t('noPauses')}</p>`;
+      return;
+    }
+    pauseListEl.innerHTML = '';
+    m.breaks.forEach(b => {
+      const chip = document.createElement('div');
+      chip.className = 'pause-chip';
+      chip.innerHTML = `<span>${formatRangeShort(b.start, b.end)}</span><button type="button" aria-label="${t('removePause')}">×</button>`;
+      chip.querySelector('button').addEventListener('click', () => removeBreak(m.id, b.id));
+      pauseListEl.appendChild(chip);
+    });
+  }
+
+  function refreshMonthBreaks(monthId){
+    const ref = monthRefs[monthId];
+    const m = state.months.find(x => x.id === monthId);
+    if(!ref || !m) return;
+    updateMonthDynamic(monthId);
+    const {dates, paused} = monthStats(m);
+    dates.forEach(d => {
+      const rowRef = ref.rowRefs[d];
+      if(rowRef) rowRef.row.classList.toggle('is-paused', paused.has(d));
+    });
+    const pauseListEl = ref.card.querySelector('.pause-list');
+    if(pauseListEl) renderPauseList(m, pauseListEl);
+    renderComparison();
   }
 
   function archiveMonth(id){
@@ -706,7 +798,7 @@
     const today = todayISO();
 
     active.forEach((m, index) => {
-      const {dates, count, cost, target, remaining, pct} = monthStats(m);
+      const {dates, paused, count, cost, target, remaining, pct} = monthStats(m);
 
       const card = document.createElement('section');
       card.className = 'month-card';
@@ -750,6 +842,17 @@
         </div>
 
         <p class="goal-status">${goalStatusHTML(count, target, remaining)}</p>
+
+        <details class="pause-section">
+          <summary>${t('pauseTitle')}</summary>
+          <p class="pause-hint">${t('pauseHint')}</p>
+          <div class="pause-list"></div>
+          <div class="pause-add">
+            <label class="date-field"><span>${t('from')}</span><input type="date" class="pause-start" /></label>
+            <label class="date-field"><span>${t('to')}</span><input type="date" class="pause-end" /></label>
+            <button type="button" class="btn-add-pause">${t('addPause')}</button>
+          </div>
+        </details>
 
         <details class="month-days" ${index === active.length - 1 ? 'open' : ''}>
           <summary>${t('showDays')}</summary>
@@ -803,9 +906,10 @@
         }
         const attended = m.sessions.includes(dateStr);
         const isToday = dateStr === today;
+        const isPaused = paused.has(dateStr);
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'day-cell' + (attended ? ' is-attended' : '') + (isToday ? ' is-today' : '');
+        btn.className = 'day-cell' + (attended ? ' is-attended' : '') + (isToday ? ' is-today' : '') + (isPaused ? ' is-paused' : '');
         btn.setAttribute('aria-pressed', attended ? 'true' : 'false');
         btn.setAttribute('aria-label', dObj.toLocaleDateString(locale, {weekday:'long', day:'numeric', month:'long'}));
         btn.textContent = dObj.getDate();
@@ -833,6 +937,20 @@
 
       card.querySelector('.btn-save-attendance').addEventListener('click', () => saveAttendance(m.id));
       card.querySelector('.btn-share').addEventListener('click', () => shareSummaryImage(m, t('monthLabel')(index + 1)));
+
+      const pauseListEl = card.querySelector('.pause-list');
+      renderPauseList(m, pauseListEl);
+      const pauseStartInput = card.querySelector('.pause-start');
+      const pauseEndInput = card.querySelector('.pause-end');
+      card.querySelector('.btn-add-pause').addEventListener('click', () => {
+        const start = pauseStartInput.value;
+        const end = pauseEndInput.value || start;
+        if(!start) return;
+        if(end < start){ showToast(t('pauseInvalid')); return; }
+        addBreak(m.id, start, end);
+        pauseStartInput.value = '';
+        pauseEndInput.value = '';
+      });
 
       card.querySelector('.input-start').addEventListener('change', e => updateMonthDate(m.id, 'start', e.target.value));
       card.querySelector('.input-end').addEventListener('change', e => updateMonthDate(m.id, 'end', e.target.value));
