@@ -21,3 +21,9 @@ python -m unittest test_add.py
 
 This project is intentionally small so it's easy to receive your first pull
 request end to end without worrying about a big codebase.
+
+## Duas collection
+
+`duas.md` contains duas (Islamic supplications) collected from personal notes,
+organized by category (rizq, relief from distress, protection from envy,
+justice against oppressors, etc.).
