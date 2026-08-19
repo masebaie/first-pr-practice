@@ -347,7 +347,7 @@ a { color: inherit; }
 
 .dua-body {
   font-family: 'Times New Roman', 'Times', 'Liberation Serif', serif;
-  font-size: 14pt;
+  font-size: 16pt;
   line-height: 1.9;
 }
 
@@ -401,6 +401,35 @@ mark {
   z-index: 20;
 }
 
+.back-to-menu {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  font-size: 1.3rem;
+  z-index: 20;
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.back-to-menu.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
@@ -416,7 +445,7 @@ mark {
   .nav-list { max-height: 260px; overflow-y: auto; }
   .main { padding: 28px 18px 80px; }
   .dua-title { font-size: 18pt; }
-  .dua-body { font-size: 13pt; }
+  .dua-body { font-size: 15pt; }
 }
 
 @media (max-width: 520px) {
@@ -508,6 +537,21 @@ mark {
 </div>
 
 <button class="theme-toggle" id="theme-toggle" title="تبديل المظهر" aria-label="تبديل المظهر">◐</button>
+<button class="back-to-menu" id="back-to-menu" title="رجوع للقائمة" aria-label="رجوع للقائمة">☰</button>
+
+<script>
+(function() {
+  var btn = document.getElementById('back-to-menu');
+  function toggleVisibility() {
+    btn.classList.toggle('show', window.scrollY > 200);
+  }
+  window.addEventListener('scroll', toggleVisibility, { passive: true });
+  toggleVisibility();
+  btn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  });
+})();
+</script>
 
 <script>
 (function() {
