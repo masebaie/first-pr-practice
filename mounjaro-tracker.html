@@ -1,0 +1,579 @@
+<!doctype html>
+<title>رحلة المنجارو</title>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F4;
+  --surface:#FFFFFF;
+  --surface-2:#EBF1EE;
+  --ink:#142420;
+  --ink-soft:#4B5F58;
+  --ink-faint:#7C8F88;
+  --accent:#1F6F62;
+  --accent-soft:#DCEAE6;
+  --gold:#C68A2E;
+  --gold-soft:#F3E4C8;
+  --warn:#B5533F;
+  --warn-soft:#F3DFDA;
+  --border:#DCE4E0;
+  --shadow: 0 1px 2px rgba(20,36,32,.06), 0 8px 24px -12px rgba(20,36,32,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1613;
+    --surface:#151F1B;
+    --surface-2:#1B2723;
+    --ink:#EAF2EE;
+    --ink-soft:#9FB3AC;
+    --ink-faint:#6C8079;
+    --accent:#4FB39F;
+    --accent-soft:#1B322C;
+    --gold:#E3A34C;
+    --gold-soft:#33291A;
+    --warn:#E08872;
+    --warn-soft:#3A211D;
+    --border:#233029;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1613;
+  --surface:#151F1B;
+  --surface-2:#1B2723;
+  --ink:#EAF2EE;
+  --ink-soft:#9FB3AC;
+  --ink-faint:#6C8079;
+  --accent:#4FB39F;
+  --accent-soft:#1B322C;
+  --gold:#E3A34C;
+  --gold-soft:#33291A;
+  --warn:#E08872;
+  --warn-soft:#3A211D;
+  --border:#233029;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  direction:rtl;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;font-weight:700;text-wrap:balance;margin:0}
+::selection{background:var(--accent);color:var(--surface)}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+a{color:inherit}
+
+/* ---------- Header ---------- */
+.hero{
+  display:flex;flex-direction:column;gap:6px;margin-bottom:22px;
+}
+.eyebrow{
+  font-size:13px;letter-spacing:.04em;color:var(--gold);font-weight:600;
+}
+.hero h1{font-size:clamp(28px,5vw,40px);color:var(--ink)}
+.hero p{color:var(--ink-soft);margin:2px 0 0;font-size:15px}
+
+.stat-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin:22px 0 26px;
+}
+.stat{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:16px 18px;box-shadow:var(--shadow);
+}
+.stat .label{font-size:12.5px;color:var(--ink-faint);margin-bottom:6px}
+.stat .value{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.stat .value small{font-size:14px;font-weight:500;color:var(--ink-soft)}
+.stat.accent{background:linear-gradient(155deg,var(--accent-soft),var(--surface))}
+.stat.accent .value{color:var(--accent)}
+.stat.gold .value{color:var(--gold)}
+
+/* ---------- Cards / sections ---------- */
+section{margin-bottom:30px}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:20px;box-shadow:var(--shadow);
+}
+.card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.card-head h2{font-size:19px}
+.card-head .hint{font-size:12.5px;color:var(--ink-faint)}
+
+/* ---------- Chart ---------- */
+.chart-wrap{position:relative}
+#chart{width:100%;height:auto;display:block;overflow:visible}
+.tooltip{
+  position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);
+  padding:7px 10px;border-radius:9px;font-size:12.5px;line-height:1.5;
+  transform:translate(-50%,-115%);white-space:nowrap;opacity:0;transition:opacity .1s;
+  box-shadow:var(--shadow);z-index:5;font-variant-numeric:tabular-nums;
+}
+:root[data-theme="dark"] .tooltip, @media (prefers-color-scheme:dark){.tooltip{}}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--ink-soft)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+/* ---------- Dose timeline ---------- */
+.dose-scale{display:flex;flex-wrap:wrap;gap:10px}
+.dose-pill{
+  flex:1 1 130px;border:1px solid var(--border);border-radius:12px;padding:12px 14px;
+  background:var(--surface-2);
+}
+.dose-pill .dose{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.dose-pill .delta{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
+.dose-pill .delta.down{color:var(--accent)}
+.dose-pill .delta.up{color:var(--warn)}
+
+/* ---------- Table ---------- */
+.table-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+input[type=text], input[type=search], select, input[type=date], input[type=number]{
+  font:inherit;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);
+  border-radius:9px;padding:9px 12px;
+}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.table-tools input[type=search]{flex:1;min-width:160px}
+.table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+thead th{
+  position:sticky;top:0;background:var(--surface-2);text-align:start;
+  padding:10px 12px;font-weight:600;color:var(--ink-soft);font-size:12.5px;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+tbody td{padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;font-variant-numeric:tabular-nums}
+td.delta-cell{direction:ltr;text-align:right}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+.badge{
+  display:inline-block;padding:2px 8px;border-radius:99px;font-size:11.5px;font-weight:600;
+  background:var(--accent-soft);color:var(--accent);
+}
+.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.gold{background:var(--gold-soft);color:var(--gold)}
+.delta-cell.down{color:var(--accent)}
+.delta-cell.up{color:var(--warn)}
+.show-more{margin-top:12px}
+
+/* ---------- Form ---------- */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--ink-soft)}
+.form-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;align-items:center}
+button{
+  font:inherit;font-weight:600;border:none;border-radius:10px;padding:10px 18px;cursor:pointer;
+  background:var(--accent);color:#fff;
+}
+button.secondary{background:var(--surface-2);color:var(--ink);border:1px solid var(--border)}
+button.ghost{background:transparent;color:var(--ink-soft);padding:6px 10px;font-weight:500}
+button:hover{filter:brightness(1.05)}
+.msg{font-size:13px;color:var(--accent);min-height:18px}
+
+footer{color:var(--ink-faint);font-size:12.5px;text-align:center;padding-top:10px}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">دفتر متابعة العلاج</div>
+    <h1>رحلتي مع المنجارو</h1>
+    <p>سجل الوزن والجرعات منذ أول حقنة في ١٣ مايو ٢٠٢٣</p>
+  </div>
+
+  <div class="stat-grid" id="statGrid"></div>
+
+  <section>
+    <div class="card">
+      <div class="card-head">
+        <h2>منحنى الوزن</h2>
+        <span class="hint">مرّر المؤشر فوق الخط لعرض التفاصيل</span>
+      </div>
+      <div class="chart-wrap">
+        <svg id="chart" viewBox="0 0 1000 380" preserveAspectRatio="none"></svg>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+      <div class="legend" id="chartLegend"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <div class="card-head">
+        <h2>التقدم حسب الجرعة</h2>
+        <span class="hint">صافي التغيّر في كل مرحلة جرعة</span>
+      </div>
+      <div class="dose-scale" id="doseScale"></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <div class="card-head">
+        <h2>إضافة وزن جديد</h2>
+        <span class="hint">يُحفظ في متصفحك على هذا الجهاز</span>
+      </div>
+      <form id="entryForm">
+        <div class="form-grid">
+          <label>التاريخ
+            <input type="date" id="f-date" required>
+          </label>
+          <label>الوقت
+            <select id="f-time">
+              <option value="صباحا">صباحا</option>
+              <option value="ظهرا">ظهرا</option>
+              <option value="عصرا">عصرا</option>
+              <option value="مساء">مساء</option>
+              <option value="فجرا">فجرا</option>
+            </select>
+          </label>
+          <label>الوزن (كجم)
+            <input type="number" id="f-weight" step="0.1" min="1" required>
+          </label>
+          <label>الجرعة (مجم)
+            <input type="number" id="f-dose" step="0.25" min="0" placeholder="اختياري">
+          </label>
+          <label>موقع الحقن
+            <input type="text" id="f-site" placeholder="اختياري">
+          </label>
+          <label>ملاحظة
+            <input type="text" id="f-note" placeholder="صيام، سفر، حبة تنزيل مياه...">
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="submit">حفظ الإدخال</button>
+          <button type="button" class="secondary" id="exportBtn">تصدير البيانات (JSON)</button>
+          <button type="button" class="ghost" id="resetBtn">مسح الإدخالات المحفوظة محليًا</button>
+          <span class="msg" id="formMsg"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <div class="card-head">
+        <h2>سجل الوزن الكامل</h2>
+        <span class="hint" id="rowCount"></span>
+      </div>
+      <div class="table-tools">
+        <input type="search" id="search" placeholder="ابحث في الملاحظات أو التاريخ...">
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>التاريخ</th><th>الوقت</th><th>الوزن</th><th>التغيّر</th><th>الجرعة</th><th>موقع الحقن</th><th>ملاحظة</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="show-more" id="showMoreWrap" style="display:none">
+        <button class="secondary" id="showMoreBtn"></button>
+      </div>
+    </div>
+  </section>
+
+  <footer>سجل شخصي لمتابعة رحلة المنجارو — البيانات الجديدة تُحفظ محليًا في متصفحك فقط.</footer>
+</div>
+
+<script>
+const BUILTIN_WEIGHINS = [["2023-05-13", "15:00", null, "بدء الرحلة - أول حقنة"], ["2023-05-14", "صباحا", 123.5, null], ["2023-05-15", "صباحا", 122.6, "صيام"], ["2023-05-16", "صباحا", 122.7, "بدون دخول حمام"], ["2023-05-17", "عصرا", 121.7, "صيام"], ["2023-05-18", "عصرا", 121.4, "صيام"], ["2023-05-19", "عصرا", 120.7, "صيام"], ["2023-05-20", "صباحا", 120.5, null], ["2023-05-21", "صباحا", 120.9, null], ["2023-05-22", "عصرا", 120.9, null], ["2023-05-23", "صباحا", 121.3, null], ["2023-05-25", "صباحا", 121.2, null], ["2023-05-26", "صباحا", 121.0, null], ["2023-05-27", "صباحا", 120.9, null], ["2023-05-28", "صباحا", 120.9, null], ["2023-05-29", "ظهرا", 121.3, "حبة تنزيل مياه"], ["2023-05-30", "صباحا", 120.1, null], ["2023-06-02", "صباحا", 119.5, "حبة تنزيل مياه"], ["2023-06-03", "صباحا", 120.9, null], ["2023-06-04", "صباحا", 120.8, null], ["2023-06-05", "عصرا", 120.5, "صيام"], ["2023-06-09", "ظهرا", 119.5, "حبة تنزيل مياه"], ["2023-06-10", "صباحا", 120.2, null], ["2023-06-11", "صباحا", 120.1, null], ["2023-06-12", "عصرا", 119.8, null], ["2023-06-13", "عصرا", 118.7, null], ["2023-06-15", "عصرا", 118.8, null], ["2023-06-16", "ظهرا", 119.2, null], ["2023-06-17", "صباحا", 119.8, null], ["2023-06-18", "عصرا", 118.3, "حبة تنزيل مياه"], ["2023-06-19", "ظهرا", 117.3, "صيام"], ["2023-06-20", "عصرا", 117.1, "صيام"], ["2023-06-22", "ظهرا", 118.2, "صيام"], ["2023-06-23", "عصرا", 117.8, "صيام"], ["2023-06-24", "صباحا", 117.8, "السفر إلى إسطنبول"], ["2023-07-04", "صباحا", 118.9, null], ["2023-07-05", "صباحا", 118.2, null], ["2023-07-06", "صباحا", 117.8, null], ["2023-07-07", "صباحا", 117.5, null], ["2023-07-08", "صباحا", 118.0, null], ["2023-07-09", "صباحا", 117.8, null], ["2023-07-10", "صباحا", 116.7, null], ["2023-07-11", "صباحا", 116.2, null], ["2023-07-12", "صباحا", 116.0, null], ["2023-07-13", "صباحا", 115.5, null], ["2023-07-14", "صباحا", 115.9, null], ["2023-07-15", "صباحا", 116.5, null], ["2023-07-17", "ظهرا", 115.8, null], ["2023-07-19", "صباحا", 114.7, null], ["2023-07-21", "صباحا", 115.0, null], ["2023-07-22", "صباحا", 115.5, null], ["2023-07-24", "عصرا", 116.0, "حبة تنزيل مياه"], ["2023-07-25", "صباحا", 115.0, null], ["2023-07-26", "مساء", 114.6, null], ["2023-07-27", "مساء", 114.5, null], ["2023-07-28", "مساء", 114.0, "صيام"], ["2023-07-30", "صباحا", 115.5, null], ["2023-07-31", "صباحا", 115.0, null], ["2023-08-03", "مساء", 113.3, "حبة تنزيل مياه"], ["2023-08-04", "ظهرا", 113.3, null], ["2023-08-05", "ظهرا", 113.9, null], ["2023-08-10", "ظهرا", 113.4, "حبة تنزيل مياه"], ["2023-08-11", "صباحا", 112.0, null], ["2023-08-12", "صباحا", 112.3, null], ["2023-08-17", "ظهرا", 111.3, "حبة تنزيل مياه"], ["2023-08-18", "فجرا", 111.7, null], ["2023-08-19", "صباحا", 111.9, null], ["2023-08-20", "صباحا", 111.7, null], ["2023-08-21", "صباحا", 111.5, null], ["2023-08-24", "عصرا", 110.2, "حبة تنزيل مياه"], ["2023-08-25", "ظهرا", 110.5, null], ["2023-08-26", "صباحا", 110.5, null], ["2023-08-28", "صباحا", 111.0, null], ["2023-08-29", "صباحا", 110.6, null], ["2023-09-01", "صباحا", 110.6, null], ["2023-09-02", "صباحا", 110.6, null], ["2023-09-05", "صباحا", 110.5, null], ["2023-09-06", "صباحا", 110.1, null], ["2023-09-07", "عصرا", 109.2, "حبة تنزيل مياه"], ["2023-09-08", "ظهرا", 108.9, null], ["2023-09-11", "صباحا", 110.3, null], ["2023-09-12", "صباحا", 110.1, null], ["2023-09-13", "عصرا", 109.7, null], ["2023-09-14", "صباحا", 108.3, "حبة تنزيل مياه"], ["2023-09-15", "عصرا", 109.1, null], ["2023-09-16", "مساء", 109.2, null], ["2023-09-17", "عصرا", 109.3, null], ["2023-09-18", "صباحا", 109.0, null], ["2023-09-19", "صباحا", 108.7, null], ["2023-09-21", "صباحا", 107.6, null], ["2023-09-23", "صباحا", 108.2, null], ["2023-09-28", "صباحا", 107.5, null], ["2023-09-29", "صباحا", 107.9, null], ["2023-09-30", "صباحا", 108.0, null], ["2023-10-01", "عصرا", 106.4, "حبة تنزيل مياه"], ["2023-10-04", "صباحا", 106.7, null], ["2023-10-06", "صباحا", 105.9, null], ["2023-10-07", "صباحا", 106.7, null], ["2023-10-08", "العشاء", 107.1, null], ["2023-10-09", "صباحا", 106.3, null], ["2023-10-23", "صباحا", 107.0, null], ["2023-10-24", "صباحا", 105.1, "حبة تنزيل مياه"], ["2023-10-28", "صباحا", 106.1, null], ["2023-10-29", "صباحا", 104.8, null], ["2023-10-31", "صباحا", 104.7, null], ["2023-11-01", "صباحا", 105.1, null], ["2023-11-04", "صباحا", 105.5, null], ["2023-11-06", "صباحا", 105.0, null], ["2023-11-07", "عصرا", 104.4, null], ["2023-11-10", "صباحا", 104.3, null], ["2023-11-11", "ظهرا", 104.3, "حبة تنزيل مياه"], ["2023-11-14", "صباحا", 103.6, null], ["2023-11-15", "ظهرا", 103.4, null], ["2023-11-17", "صباحا", 103.6, null], ["2023-11-18", "صباحا", 104.6, null], ["2023-11-20", "صباحا", null, "ألم شديد في المعدة"], ["2023-11-21", "صباحا", 103.3, null], ["2023-11-22", "ظهرا", 103.1, null], ["2023-11-24", "صباحا", 102.4, "حبة تنزيل مياه"], ["2023-11-25", "صباحا", 101.9, null], ["2023-11-27", "صباحا", 101.7, null], ["2023-12-06", "صباحا", 101.2, null], ["2023-12-08", "صباحا", 101.7, null], ["2023-12-09", "صباحا", 102.7, null], ["2023-12-10", "صباحا", 102.0, null], ["2023-12-12", "صباحا", 101.1, null], ["2023-12-14", "صباحا", 100.3, null], ["2023-12-15", "صباحا", 100.7, null], ["2023-12-16", "صباحا", 100.7, null], ["2023-12-17", "صباحا", 100.5, null], ["2023-12-19", "صباحا", 99.7, null], ["2023-12-21", "صباحا", 98.8, null], ["2023-12-23", "صباحا", 99.2, null], ["2023-12-24", "صباحا", 99.1, "ألم شديد في المعدة"], ["2023-12-29", "عصرا", 98.5, null], ["2023-12-30", "صباحا", 98.9, null], ["2024-01-04", "صباحا", 98.1, null], ["2024-01-05", "صباحا", 97.9, null], ["2024-01-06", "صباحا", 98.4, null], ["2024-01-09", "صباحا", 98.0, null], ["2024-01-12", "صباحا", 98.6, null], ["2024-01-13", "صباحا", 98.1, null], ["2024-01-14", "صباحا", 97.8, null], ["2024-01-15", "صباحا", 97.6, null], ["2024-01-17", "ظهرا", 97.1, null], ["2024-01-21", "صباحا", 97.6, null], ["2024-01-22", "صباحا", 97.0, null], ["2024-01-26", "صباحا", 97.2, null], ["2024-01-27", "صباحا", 98.3, null], ["2024-01-30", "صباحا", 97.1, null], ["2024-01-31", "مساء", 97.0, null], ["2024-02-05", "صباحا", 96.9, null], ["2024-02-09", "صباحا", 96.4, null], ["2024-02-16", "صباحا", 96.6, null], ["2024-02-17", "صباحا", 97.0, null], ["2024-02-22", "عصرا", 96.3, null], ["2024-02-23", "ظهرا", 95.3, "حبة تنزيل مياه"], ["2024-02-25", "صباحا", 96.3, null], ["2024-03-01", "صباحا", 97.5, null], ["2024-03-02", "صباحا", 96.3, null], ["2024-03-04", "صباحا", 97.2, null], ["2024-03-08", "صباحا", 97.5, null], ["2024-03-16", "صباحا", 97.8, null], ["2024-03-18", "مساء", 97.3, null], ["2024-03-24", "ظهرا", 95.5, null], ["2024-03-25", "ظهرا", 95.2, null], ["2024-03-26", "ظهرا", 95.7, null], ["2024-03-30", "ظهرا", 95.2, null], ["2024-04-01", "ظهرا", 95.7, null], ["2024-04-05", "عصرا", 95.5, null], ["2024-04-10", "عصرا", 96.3, null], ["2024-04-15", "عصرا", 95.9, null], ["2024-04-26", "عصرا", 96.8, null], ["2024-04-29", "ظهرا", 94.8, null], ["2024-05-05", "صباحا", 96.4, null], ["2024-05-08", "صباحا", 96.0, null], ["2024-05-09", "عصرا", 95.1, null], ["2024-05-13", "عصرا", 95.0, null], ["2024-05-21", "صباحا", 95.3, null], ["2024-05-22", "ظهرا", 94.3, null], ["2024-05-24", "ظهرا", 94.5, null], ["2024-05-28", "صباحا", 94.7, null], ["2024-05-29", "ظهرا", 95.6, null], ["2024-05-30", "ظهرا", 94.8, null], ["2024-06-01", "صباحا", 94.4, null], ["2024-06-06", "صباحا", 95.5, null], ["2024-06-08", "صباحا", 93.8, null], ["2024-06-22", "صباحا", 94.2, null], ["2024-06-28", "صباحا", 94.0, null], ["2024-07-03", "صباحا", 94.0, null], ["2024-07-06", "صباحا", 93.9, null], ["2024-07-15", "المغرب", 95.8, null], ["2024-07-18", "صباحا", 94.5, null], ["2024-07-20", "صباحا", 95.5, null], ["2024-07-21", "صباحا", 95.2, null], ["2024-07-23", "صباحا", 94.4, null], ["2024-07-27", "صباحا", 94.5, null], ["2024-07-30", "صباحا", 94.0, null], ["2024-08-06", "صباحا", 95.0, null], ["2024-08-07", "صباحا", 94.8, null], ["2024-08-10", "صباحا", 94.1, null], ["2024-08-15", "صباحا", 95.6, null], ["2024-08-17", "صباحا", 95.5, null], ["2024-08-21", "صباحا", 95.5, null], ["2024-08-24", "صباحا", 94.4, null], ["2024-09-09", "ظهرا", 96.5, null], ["2024-09-10", "صباحا", 95.5, null], ["2024-09-12", "صباحا", 95.1, null], ["2024-09-16", "صباحا", 95.3, null], ["2024-09-17", "صباحا", 95.6, null], ["2024-09-20", "صباحا", 95.1, null], ["2024-09-23", "صباحا", 95.2, null], ["2024-09-28", "صباحا", 95.2, null], ["2024-10-02", "صباحا", 94.8, null], ["2024-10-04", "صباحا", 95.2, null], ["2024-10-08", "ظهرا", 94.9, null], ["2024-10-11", "ظهرا", 94.4, null], ["2024-10-19", "صباحا", 94.2, null], ["2024-10-25", "صباحا", 94.9, null], ["2024-10-28", "صباحا", 95.2, null], ["2024-10-30", "صباحا", 94.2, null], ["2024-11-02", "صباحا", 94.4, null], ["2024-11-05", "صباحا", 94.5, null], ["2024-11-08", "صباحا", 94.6, null], ["2024-11-09", "صباحا", 94.3, null], ["2024-11-10", "صباحا", 93.9, null], ["2024-11-20", "صباحا", 95.6, "بعد حقنة كورتيزون + مضاد حيوي"], ["2024-11-22", "صباحا", 95.2, null], ["2024-11-27", "صباحا", 95.0, null], ["2024-11-28", "صباحا", 95.8, null], ["2024-12-02", "صباحا", 95.1, null], ["2024-12-04", "عصرا", 95.8, null], ["2024-12-05", "صباحا", 95.5, null], ["2024-12-08", "عصرا", 95.4, null], ["2024-12-09", "عصرا", 94.2, null], ["2024-12-20", "عصرا", 96.4, null], ["2024-12-21", "صباحا", 95.2, null], ["2024-12-23", "صباحا", 97.6, null], ["2024-12-29", "صباحا", 96.2, null], ["2024-12-30", "صباحا", 97.2, null], ["2024-12-31", "صباحا", 96.8, null], ["2025-01-02", "صباحا", 95.7, null], ["2025-01-06", "صباحا", 95.9, null], ["2025-01-07", "صباحا", 95.2, null], ["2025-01-13", "صباحا", 96.6, null], ["2025-01-14", "صباحا", 95.1, null], ["2025-01-22", "صباحا", 94.7, null], ["2025-01-23", "صباحا", 95.5, null], ["2025-01-27", "صباحا", 96.5, null], ["2025-02-03", "صباحا", 95.9, null], ["2025-02-04", "صباحا", 95.3, null], ["2025-02-06", "صباحا", 94.9, null], ["2025-02-09", "صباحا", 95.6, null], ["2025-02-10", "صباحا", 95.3, null], ["2025-02-14", "صباحا", 94.7, null], ["2025-02-18", "صباحا", 95.3, null], ["2025-02-19", "ظهرا", 94.7, null], ["2025-02-20", "صباحا", 94.5, null], ["2025-02-23", "صباحا", 95.5, null], ["2025-03-02", "صباحا", 95.9, null], ["2025-03-04", "ظهرا", 95.8, null], ["2025-03-09", "ظهرا", 94.4, null], ["2025-03-14", "ظهرا", 95.1, null], ["2025-03-17", "عصرا", 95.0, null], ["2025-03-22", "ظهرا", 95.3, null], ["2025-03-27", "عصرا", 95.0, null], ["2025-04-03", "صباحا", 96.3, null], ["2025-04-08", "صباحا", 97.8, null], ["2025-04-15", "صباحا", 96.3, null], ["2025-04-16", "صباحا", 95.9, null], ["2025-04-20", "صباحا", 96.5, null], ["2025-04-22", "صباحا", 96.3, null], ["2025-04-23", "صباحا", 96.5, null], ["2025-04-26", "ظهرا", 95.6, null], ["2025-06-10", "صباحا", 97.3, null], ["2025-06-16", "صباحا", 97.5, null], ["2025-06-17", "صباحا", 96.8, null], ["2025-06-22", "صباحا", 98.3, null], ["2025-06-27", "صباحا", 97.8, null], ["2025-06-30", "ظهرا", 98.0, null], ["2025-07-01", "صباحا", 96.3, null], ["2025-07-02", "صباحا", 96.8, null], ["2025-07-23", "", 96.7, null], ["2025-08-04", "", 97.1, null], ["2025-08-18", "", 96.7, null]]; // [date, time, weight|null, note|null]
+const PHASES = [["2023-05-13", 2.5, "البطن", "الأسبوع 1"], ["2023-05-20", 2.5, "الفخذ الأيمن", "الأسبوع 2"], ["2023-05-27", 2.5, "الذراع الأيمن", "الأسبوع 3"], ["2023-06-03", 2.5, "الذراع الأيسر", "الأسبوع 4"], ["2023-06-10", 5, "البطن", "الأسبوع 1"], ["2023-06-17", 5, "الذراع الأيسر", "الأسبوع 2"], ["2023-06-24", 5, "الذراع الأيمن", "الأسبوع 3 - سفر إسطنبول"], ["2023-07-04", 5, "الفخذ الأيمن", "الأسبوع 4"], ["2023-07-08", 7.5, "البطن", "الأسبوع 1"], ["2023-07-15", 7.5, "الذراع الأيمن", "الأسبوع 2"], ["2023-07-22", 7.5, "الذراع الأيسر", "الأسبوع 3"], ["2023-07-30", 7.5, "الفخذ الأيمن", "الأسبوع 4"], ["2023-08-05", 7.5, "البطن", "الأسبوع 5"], ["2023-08-12", 7.5, "الذراع الأيمن", "الأسبوع 6"], ["2023-08-19", 10, "البطن", "الأسبوع 1"], ["2023-08-26", 10, "البطن", "الأسبوع 2"], ["2023-09-02", 10, "البطن", "الأسبوع 3"], ["2023-09-11", 10, "البطن", "الأسبوع 4"], ["2023-09-16", 10, "البطن", "الأسبوع 5"], ["2023-09-23", 10, "البطن", "الأسبوع 6"], ["2023-09-30", 10, "البطن", "الأسبوع 7"], ["2023-10-07", 10, "البطن", "الأسبوع 8"], ["2023-10-23", 10, "البطن", "الأسبوع 10"], ["2023-10-28", 10, "البطن", "الأسبوع 11"], ["2023-11-04", 10, "البطن", "الأسبوع 12"], ["2023-11-11", 10, "البطن", "الأسبوع 13"], ["2023-11-18", 10, "البطن", "الأسبوع 14"], ["2023-11-25", 10, "البطن", "الأسبوع 15"], ["2023-12-06", 10, "البطن", "الأسبوع 16"], ["2023-12-09", 10, "البطن", "الأسبوع 17"], ["2023-12-16", 10, "البطن", "الأسبوع 18"], ["2023-12-23", 10, "البطن", "الأسبوع 19"], ["2023-12-30", 10, "البطن", "الأسبوع 20"], ["2024-01-06", 10, "البطن", "الأسبوع 21 - نهاية فترة كل أسبوع (نزول 13.6 كجم)"], ["2024-01-14", 10, "البطن", "بداية فترة التثبيت - تأخير الجرعة يوم كل أسبوع"], ["2024-01-22", 10, "البطن", "تثبيت"], ["2024-01-30", 10, "البطن", "تثبيت"], ["2024-02-09", 10, "البطن", "تثبيت"], ["2024-02-17", 10, "البطن", "تثبيت"], ["2024-02-27", 10, "البطن", "تثبيت"], ["2024-03-06", 10, "البطن", "تثبيت"], ["2024-03-16", 10, "البطن", "تثبيت"], ["2024-03-29", 10, "البطن", "تثبيت"], ["2024-04-10", 10, "البطن", "تثبيت"], ["2024-04-26", 10, "البطن", "تثبيت"], ["2024-05-07", 10, "البطن", "تثبيت"], ["2024-05-18", 10, "البطن", "تثبيت"], ["2024-05-29", 10, "البطن", "تثبيت"], ["2024-06-06", 10, "البطن", "تثبيت"], ["2024-06-13", 10, "البطن", "السفر للحج"], ["2024-06-22", 10, "البطن", "تثبيت"], ["2024-07-03", 10, "البطن", "تثبيت"], ["2024-07-13", 7.5, "البطن", "تخفيض الجرعة"], ["2024-07-20", 7.5, "البطن", "تثبيت"], ["2024-07-27", 7.5, "البطن", "تثبيت"], ["2024-08-06", 10, "البطن", "رفع الجرعة"], ["2024-08-14", 10, "البطن", "تثبيت"], ["2024-08-21", 10, "البطن", "تثبيت"], ["2024-08-29", 10, "البطن", "السفر إلى إسبانيا وإيطاليا"], ["2024-09-09", 10, "البطن", "تثبيت"], ["2024-09-17", 10, "البطن", "تثبيت"], ["2024-09-27", 10, "البطن", "تثبيت"], ["2024-10-07", 10, "البطن", "تثبيت"], ["2024-10-17", 10, "البطن", "تثبيت"], ["2024-10-28", 10, "البطن", "تثبيت"], ["2024-11-08", 10, "البطن", "تثبيت"], ["2024-11-18", 10, "البطن", "حقنة كورتيزون + مضاد حيوي"], ["2024-11-29", 10, "البطن", "تثبيت"], ["2024-12-09", 10, "البطن", "تثبيت"], ["2024-12-23", 10, "البطن", "تثبيت"], ["2024-12-30", 10, "البطن", "تثبيت"], ["2025-01-06", 10, "البطن", "تثبيت"], ["2025-01-13", 10, "البطن", "تثبيت"], ["2025-01-20", 10, "البطن", "تثبيت"], ["2025-01-27", 10, "البطن", "تثبيت"], ["2025-02-03", 10, "البطن", "تثبيت"], ["2025-02-10", 10, "البطن", "تثبيت"], ["2025-02-17", 10, "البطن", "تثبيت"], ["2025-02-24", 10, "البطن", "تثبيت"], ["2025-03-04", 10, "البطن", "تثبيت"], ["2025-03-12", 10, "البطن", "تثبيت"], ["2025-03-21", 10, "البطن", "تثبيت"], ["2025-03-31", 10, "البطن", "تثبيت"], ["2025-04-07", 10, "البطن", "تثبيت"], ["2025-04-15", 11.25, "البطن", "رفع الجرعة"], ["2025-04-23", 11.25, "البطن", "تثبيت"], ["2025-05-02", 11.25, "البطن", "تثبيت"], ["2025-05-13", 11.25, "البطن", "تثبيت"], ["2025-05-24", 11.25, "البطن", "تثبيت"], ["2025-06-04", 11.25, "البطن", "تثبيت"], ["2025-06-13", 11.25, "البطن", "تثبيت"], ["2025-06-23", 11.25, "البطن", "تثبيت"], ["2025-07-02", 11.25, "البطن", "تثبيت"], ["2025-07-10", 11.25, "البطن", "تثبيت"], ["2025-07-21", 11.25, "البطن", "تثبيت"], ["2025-08-02", 11.25, "البطن", "تثبيت"], ["2025-08-13", 11.25, "البطن", "تثبيت"], ["2025-08-21", 11.25, "البطن", "تثبيت"], ["2025-08-30", 11.25, "البطن", "تثبيت"], ["2025-09-10", 11.25, "البطن", "تثبيت"], ["2025-09-25", 11.25, "البطن", "تثبيت"], ["2025-10-05", 12.5, "البطن", "رفع الجرعة"], ["2025-10-11", 12.5, "البطن", "تثبيت"], ["2025-10-19", 12.5, "البطن", "تثبيت"], ["2025-10-27", 12.5, "البطن", "تثبيت"], ["2025-11-04", 12.5, "البطن", "تثبيت"], ["2025-11-12", 12.5, "البطن", "تثبيت"], ["2025-11-21", 12.5, "البطن", "تثبيت"], ["2025-11-29", 12.5, "البطن", "تثبيت"], ["2025-12-07", 12.5, "البطن", "تثبيت"], ["2025-12-15", 12.5, "البطن", "تثبيت"], ["2025-12-23", 12.5, "البطن", "تثبيت"], ["2026-01-03", 12.5, "البطن", "تثبيت"], ["2026-01-14", 12.5, "البطن", "تثبيت"], ["2026-01-24", 12.5, "البطن", "تثبيت"], ["2026-02-11", 12.5, "البطن", "تثبيت"], ["2026-02-25", 12.5, "البطن", "تثبيت"], ["2026-03-10", 12.5, "البطن", "تثبيت"], ["2026-03-21", 12.5, "البطن", "تثبيت"], ["2026-04-02", 12.5, "البطن", "تثبيت"], ["2026-04-10", 12.5, "البطن", "تثبيت"], ["2026-04-19", 12.5, "البطن", "تثبيت"], ["2026-04-30", 12.5, "البطن", "تثبيت"], ["2026-05-07", 13, "البطن", "رفع الجرعة"], ["2026-05-15", 13.75, "البطن", "رفع الجرعة"], ["2026-05-23", 13.75, "البطن", "تثبيت"], ["2026-06-02", 13.75, "البطن", "تثبيت"], ["2026-06-15", 13.75, "البطن", "تثبيت"], ["2026-06-29", 13.75, "البطن", "تثبيت"], ["2026-07-09", 13.75, "البطن", "تثبيت"], ["2026-07-20", 13.75, "البطن", "تثبيت"], ["2026-07-31", 13.75, "البطن", "تثبيت"], ["2026-08-10", 13.75, "البطن", "تثبيت"]]; // [start_date, dose_mg, site, note]
+
+const LS_KEY = "mounjaro_custom_entries_v1";
+function loadCustom(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }catch(e){ return []; }
+}
+function saveCustom(list){ localStorage.setItem(LS_KEY, JSON.stringify(list)); }
+
+function doseAt(dateStr){
+  let d = null;
+  for(const p of PHASES){ if(p[0] <= dateStr) d = p; else break; }
+  return d;
+}
+
+function buildDataset(){
+  const custom = loadCustom(); // [date, time, weight, dose, site, note, custom:true]
+  const rows = [];
+  for(const [date,time,weight,note] of BUILTIN_WEIGHINS){
+    const ph = doseAt(date);
+    rows.push({date, time, weight, note, dose: ph?ph[1]:null, site: ph?ph[2]:null, custom:false});
+  }
+  for(const c of custom){
+    const ph = doseAt(c.date);
+    rows.push({date:c.date, time:c.time, weight:c.weight, note:c.note||null,
+      dose: c.dose!=null?c.dose:(ph?ph[1]:null), site: c.site||(ph?ph[2]:null), custom:true, id:c.id});
+  }
+  rows.sort((a,b)=> a.date===b.date ? 0 : (a.date<b.date?-1:1));
+  return rows;
+}
+
+const MONTHS_AR = ["يناير","فبراير","مارس","إبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+function fmtDate(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS_AR[m-1]} ${y}`;
+}
+function fmtDateShort(iso){
+  const [y,m,d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS_AR[m-1].slice(0,3)}`;
+}
+
+const DOSE_COLORS = {
+  2.5:"#8FB6AE", 5:"#6FA79B", 7.5:"#4C9184", 10:"#1F6F62", 11.25:"#C68A2E", 12.5:"#B5703A", 13:"#A85E2E", 13.75:"#9C4E28"
+};
+function doseColor(d){ return DOSE_COLORS[d] || "#1F6F62"; }
+
+let DATA = [];
+let filteredIds = null;
+
+function render(){
+  DATA = buildDataset();
+  renderStats();
+  renderChart();
+  renderDoseScale();
+  renderTable();
+}
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+function renderStats(){
+  const withWeight = DATA.filter(r=>r.weight!=null);
+  const start = withWeight[0];
+  const last = withWeight[withWeight.length-1];
+  const lowest = withWeight.reduce((m,r)=> r.weight<m.weight?r:m, withWeight[0]);
+  const totalLost = (start.weight - last.weight);
+  const pct = (totalLost/start.weight*100);
+  const days = Math.round((new Date(todayISO())-new Date(start.date))/86400000);
+  const currentDose = doseAt(todayISO());
+  const staleDays = Math.round((new Date(todayISO())-new Date(last.date))/86400000);
+
+  const stats = [
+    {label:`آخر وزن مسجَّل${staleDays>21?` (منذ ${Math.round(staleDays/7)} أسبوعًا)`:""}`, value:`${last.weight.toFixed(1)}<small> كجم</small>`, cls:"accent"},
+    {label:"إجمالي الفقد", value:`${totalLost.toFixed(1)}<small> كجم</small>`, cls:"gold"},
+    {label:"نسبة الفقد", value:`${pct.toFixed(1)}<small>٪</small>`},
+    {label:"أدنى وزن مسجَّل", value:`${lowest.weight.toFixed(1)}<small> كجم</small>`},
+    {label:"الجرعة الحالية", value:`${currentDose?currentDose[1]:"-"}<small> مجم</small>`},
+    {label:"مدة الرحلة", value:`${Math.round(days/7)}<small> أسبوعًا</small>`},
+  ];
+  document.getElementById("statGrid").innerHTML = stats.map(s=>
+    `<div class="stat ${s.cls||""}"><div class="label">${s.label}</div><div class="value">${s.value}</div></div>`
+  ).join("");
+}
+
+function renderChart(){
+  const withWeight = DATA.filter(r=>r.weight!=null);
+  const svg = document.getElementById("chart");
+  const W=1000,H=380, padL=42, padR=14, padT=16, padB=28;
+  const plotW = W-padL-padR, plotH = H-padT-padB;
+
+  const dates = withWeight.map(r=>new Date(r.date).getTime());
+  const weights = withWeight.map(r=>r.weight);
+  const minD = Math.min(...dates), maxD = Math.max(...dates);
+  const minW = Math.min(...weights)-2, maxW = Math.max(...weights)+2;
+
+  const x = t => padL + (t-minD)/(maxD-minD||1)*plotW;
+  const y = w => padT + (1-(w-minW)/(maxW-minW||1))*plotH;
+
+  let svgParts = [];
+
+  // dose phase background bands
+  for(let i=0;i<PHASES.length;i++){
+    const [pd, dose] = PHASES[i];
+    const t0 = new Date(pd).getTime();
+    if(t0>maxD) continue;
+    const t1 = i+1<PHASES.length ? new Date(PHASES[i+1][0]).getTime() : maxD;
+    const x0 = x(Math.max(t0,minD)), x1 = x(Math.min(t1,maxD));
+    if(x1<=x0) continue;
+    svgParts.push(`<rect x="${x0.toFixed(1)}" y="${padT}" width="${(x1-x0).toFixed(1)}" height="${plotH}" fill="${doseColor(dose)}" opacity="0.07"></rect>`);
+  }
+
+  // gridlines + y labels
+  const ySteps = 5;
+  for(let i=0;i<=ySteps;i++){
+    const w = minW + (maxW-minW)*i/ySteps;
+    const yy = y(w);
+    svgParts.push(`<line x1="${padL}" y1="${yy.toFixed(1)}" x2="${W-padR}" y2="${yy.toFixed(1)}" stroke="var(--border)" stroke-width="1"></line>`);
+    svgParts.push(`<text x="${padL-8}" y="${(yy+3).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--ink-faint)">${w.toFixed(0)}</text>`);
+  }
+
+  // x labels: pick ~7 evenly spaced points
+  const ticks = 7;
+  for(let i=0;i<=ticks;i++){
+    const t = minD + (maxD-minD)*i/ticks;
+    const xx = x(t);
+    const d = new Date(t);
+    const iso = d.toISOString().slice(0,10);
+    svgParts.push(`<text x="${xx.toFixed(1)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--ink-faint)">${fmtDateShort(iso)}</text>`);
+  }
+
+  // area fill
+  let path = withWeight.map((r,i)=> `${i===0?'M':'L'} ${x(new Date(r.date).getTime()).toFixed(1)} ${y(r.weight).toFixed(1)}`).join(" ");
+  const areaPath = `${path} L ${x(dates[dates.length-1]).toFixed(1)} ${(H-padB).toFixed(1)} L ${x(dates[0]).toFixed(1)} ${(H-padB).toFixed(1)} Z`;
+  svgParts.push(`<defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+    </linearGradient></defs>`);
+  svgParts.push(`<path d="${areaPath}" fill="url(#areaGrad)"></path>`);
+  svgParts.push(`<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path>`);
+
+  // endpoint marker
+  const lastPt = withWeight[withWeight.length-1];
+  svgParts.push(`<circle cx="${x(new Date(lastPt.date).getTime()).toFixed(1)}" cy="${y(lastPt.weight).toFixed(1)}" r="4.5" fill="var(--gold)" stroke="var(--surface)" stroke-width="2"></circle>`);
+
+  // invisible hover points
+  const ptsMeta = withWeight.map(r=>({x:x(new Date(r.date).getTime()), y:y(r.weight), r}));
+  svgParts.push(ptsMeta.map(p=>`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="9" fill="transparent" class="hoverpt" data-i="${ptsMeta.indexOf(p)}"></circle>`).join(""));
+
+  svg.innerHTML = svgParts.join("");
+
+  const tooltip = document.getElementById("tooltip");
+  const wrap = svg.parentElement;
+  svg.querySelectorAll(".hoverpt").forEach(el=>{
+    el.addEventListener("mouseenter", (e)=>{
+      const i = +el.dataset.i;
+      const p = ptsMeta[i];
+      const rect = svg.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const scale = rect.width/W;
+      tooltip.style.left = (rect.left - wrapRect.left + p.x*scale) + "px";
+      tooltip.style.top = (rect.top - wrapRect.top + p.y*scale) + "px";
+      const doseTxt = p.r.dose ? `${p.r.dose} مجم` : "";
+      tooltip.innerHTML = `<strong>${fmtDate(p.r.date)}</strong><br>${p.r.weight.toFixed(1)} كجم${doseTxt?" · "+doseTxt:""}${p.r.note?"<br>"+p.r.note:""}`;
+      tooltip.style.opacity = 1;
+    });
+    el.addEventListener("mouseleave", ()=>{ tooltip.style.opacity=0; });
+  });
+
+  const legend = document.getElementById("chartLegend");
+  const usedDoses = [...new Set(PHASES.map(p=>p[1]))];
+  legend.innerHTML = usedDoses.map(d=>`<span><i style="background:${doseColor(d)}"></i>${d} مجم</span>`).join("");
+}
+
+function doseRuns(){
+  // merge consecutive PHASES entries that share the same dose into single runs,
+  // so a dose revisited later (e.g. 7.5mg, 10mg) isn't averaged with its earlier use.
+  const runs = [];
+  for(const [date,dose] of PHASES){
+    const last = runs[runs.length-1];
+    if(last && last.dose===dose){ last.end = date; }
+    else { runs.push({dose, start:date, end:date}); }
+  }
+  return runs;
+}
+
+function renderDoseScale(){
+  const withWeight = DATA.filter(r=>r.weight!=null);
+  const runs = doseRuns();
+  const html = runs.map((run,i)=>{
+    const rangeEnd = i+1<runs.length ? runs[i+1].start : todayISO();
+    const inRun = withWeight.filter(r=> r.date>=run.start && r.date<rangeEnd);
+    if(inRun.length<2){
+      return `<div class="dose-pill"><div class="dose">${run.dose} مجم</div><div class="delta">بيانات غير كافية</div></div>`;
+    }
+    const delta = inRun[inRun.length-1].weight - inRun[0].weight;
+    const cls = delta<0 ? "down" : (delta>0 ? "up" : "");
+    const sign = delta<0 ? "↓" : (delta>0?"↑":"—");
+    return `<div class="dose-pill"><div class="dose">${run.dose} مجم</div><div class="delta ${cls}">${sign} ${Math.abs(delta).toFixed(1)} كجم</div><div class="delta">${fmtDateShort(run.start)} – ${fmtDateShort(rangeEnd)}</div></div>`;
+  }).join("");
+  document.getElementById("doseScale").innerHTML = html;
+}
+
+let showAll = false;
+function renderTable(){
+  let rows = DATA.slice().reverse(); // newest first
+  const q = document.getElementById("search").value.trim().toLowerCase();
+  if(q){
+    rows = rows.filter(r => (r.note||"").toLowerCase().includes(q) || fmtDate(r.date).toLowerCase().includes(q) || r.date.includes(q));
+  }
+  document.getElementById("rowCount").textContent = `${rows.length} إدخال`;
+
+  const withWeightSorted = DATA.filter(r=>r.weight!=null);
+  const deltaMap = new Map();
+  for(let i=0;i<withWeightSorted.length;i++){
+    const r = withWeightSorted[i];
+    const prev = i>0 ? withWeightSorted[i-1] : null;
+    deltaMap.set(r, prev ? r.weight-prev.weight : null);
+  }
+
+  const LIMIT = 40;
+  const shown = showAll ? rows : rows.slice(0, LIMIT);
+
+  document.getElementById("tbody").innerHTML = shown.map(r=>{
+    const delta = deltaMap.get(r);
+    let deltaTxt = "-";
+    let deltaCls = "";
+    if(delta!=null){
+      deltaCls = delta<0?"down":(delta>0?"up":"");
+      deltaTxt = (delta<=0?"":"+") + delta.toFixed(1);
+    }
+    const noteBadge = r.note ? `<span class="badge ${/ألم|شديد/.test(r.note)?'warn':(/سفر/.test(r.note)?'gold':'')}">${r.note}</span>` : "";
+    const custom = r.custom ? `<span class="badge gold" title="إدخال مضاف يدويًا">جديد</span>` : "";
+    return `<tr>
+      <td>${fmtDate(r.date)}</td>
+      <td>${r.time||"-"}</td>
+      <td>${r.weight!=null?r.weight.toFixed(1):"-"}</td>
+      <td class="delta-cell ${deltaCls}">${deltaTxt}</td>
+      <td>${r.dose?r.dose+" مجم":"-"}</td>
+      <td>${r.site||"-"}</td>
+      <td>${noteBadge} ${custom}</td>
+    </tr>`;
+  }).join("");
+
+  const wrap = document.getElementById("showMoreWrap");
+  const btn = document.getElementById("showMoreBtn");
+  if(rows.length>LIMIT){
+    wrap.style.display="block";
+    btn.textContent = showAll ? "إخفاء" : `عرض الكل (${rows.length})`;
+  } else {
+    wrap.style.display="none";
+  }
+}
+
+document.getElementById("search").addEventListener("input", renderTable);
+document.getElementById("showMoreBtn").addEventListener("click", ()=>{ showAll=!showAll; renderTable(); });
+
+document.getElementById("entryForm").addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const date = document.getElementById("f-date").value;
+  const time = document.getElementById("f-time").value;
+  const weight = parseFloat(document.getElementById("f-weight").value);
+  const doseVal = document.getElementById("f-dose").value;
+  const site = document.getElementById("f-site").value.trim();
+  const note = document.getElementById("f-note").value.trim();
+  if(!date || isNaN(weight)){ return; }
+  const custom = loadCustom();
+  custom.push({id:Date.now(), date, time, weight, dose: doseVal?parseFloat(doseVal):null, site, note});
+  saveCustom(custom);
+  document.getElementById("entryForm").reset();
+  document.getElementById("f-time").value = "صباحا";
+  document.getElementById("formMsg").textContent = "تم الحفظ ✓";
+  setTimeout(()=>{ document.getElementById("formMsg").textContent=""; }, 2500);
+  render();
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  const payload = JSON.stringify({builtin_count: BUILTIN_WEIGHINS.length, custom: loadCustom()}, null, 2);
+  const blob = new Blob([payload], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "mounjaro-entries-backup.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("سيتم حذف كل الإدخالات التي أضفتها يدويًا من هذا المتصفح فقط. متابعة؟")){
+    localStorage.removeItem(LS_KEY);
+    render();
+  }
+});
+
+document.getElementById("f-date").valueAsDate = new Date();
+render();
+</script>
