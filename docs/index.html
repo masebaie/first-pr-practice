@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>خزانة الأدعية</title>
+<meta name="build-version" content="1787388660">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -432,6 +433,43 @@ mark {
   pointer-events: auto;
 }
 
+/* ---------- Update banner ---------- */
+
+.update-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-align: center;
+  transform: translateY(-100%);
+  transition: transform 200ms ease;
+}
+
+.update-banner.show {
+  transform: translateY(0);
+}
+
+.update-banner button {
+  border: none;
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
@@ -543,6 +581,38 @@ mark {
 
 <button class="theme-toggle" id="theme-toggle" title="تبديل المظهر" aria-label="تبديل المظهر">◐</button>
 <button class="back-to-menu" id="back-to-menu" title="رجوع للقائمة" aria-label="رجوع للقائمة">☰</button>
+
+<div class="update-banner" id="update-banner">
+  <span>في تحديث جديد للتطبيق</span>
+  <button id="update-banner-btn">تحديث الآن</button>
+</div>
+
+<script>
+(function() {
+  var CURRENT_VERSION = document.querySelector('meta[name="build-version"]').content;
+  var banner = document.getElementById('update-banner');
+  var btn = document.getElementById('update-banner-btn');
+
+  function checkForUpdate() {
+    fetch(location.href, { cache: 'no-store' })
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        var m = html.match(/<meta name="build-version" content="([^"]+)">/);
+        if (m && m[1] && m[1] !== CURRENT_VERSION) {
+          banner.classList.add('show');
+        }
+      })
+      .catch(function() { /* offline or blocked - ignore */ });
+  }
+
+  btn.addEventListener('click', function() { location.reload(); });
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') checkForUpdate();
+  });
+  checkForUpdate();
+})();
+</script>
 
 <script>
 (function() {
