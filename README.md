@@ -24,12 +24,14 @@ request end to end without worrying about a big codebase.
 
 ## Mounjaro tracker
 
-`mounjaro-tracker.html` (also published as `index.html` for GitHub Pages) is
-a self-contained, Arabic (RTL) dashboard for tracking a Mounjaro
-weight-loss journey: a weight chart with dose-phase bands, per-dose
-progress, an editable dose log, a full searchable weigh-in log, and a form
-to log new entries (saved locally in the browser). It's installable to an
-iOS home screen from Safari's Share menu → "Add to Home Screen".
+`mounjaro-tracker.html` (also published as `mounjaro/index.html` for GitHub
+Pages, kept in its own subfolder so it doesn't collide with any other app
+published from this repo's root) is a self-contained, Arabic (RTL)
+dashboard for tracking a Mounjaro weight-loss journey: a weight chart with
+dose-phase bands, per-dose progress, an editable dose log, a full
+searchable weigh-in log, and a form to log new entries (saved locally in
+the browser). It's installable to an iOS home screen from Safari's Share
+menu → "Add to Home Screen".
 
 Open it directly in any browser:
 
@@ -38,8 +40,8 @@ open mounjaro-tracker.html   # or just double-click the file
 ```
 
 Or, once GitHub Pages is enabled for this repo (Settings → Pages → Deploy
-from branch → `master` / `/root`), it's live at:
+from branch → `master` / `/root`), it's live at its own dedicated path:
 
 ```
-https://masebaie.github.io/first-pr-practice/
+https://masebaie.github.io/first-pr-practice/mounjaro/
 ```
