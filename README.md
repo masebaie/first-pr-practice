@@ -21,3 +21,14 @@ python -m unittest test_add.py
 
 This project is intentionally small so it's easy to receive your first pull
 request end to end without worrying about a big codebase.
+
+## Mounjaro tracker
+
+`mounjaro-tracker.html` is a self-contained, Arabic (RTL) dashboard for
+tracking a Mounjaro weight-loss journey: a weight chart with dose-phase
+bands, per-dose progress, a full searchable weigh-in log, and a form to log
+new entries (saved locally in the browser). Open it directly in any browser:
+
+```bash
+open mounjaro-tracker.html   # or just double-click the file
+```
