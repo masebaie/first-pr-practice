@@ -24,11 +24,22 @@ request end to end without worrying about a big codebase.
 
 ## Mounjaro tracker
 
-`mounjaro-tracker.html` is a self-contained, Arabic (RTL) dashboard for
-tracking a Mounjaro weight-loss journey: a weight chart with dose-phase
-bands, per-dose progress, a full searchable weigh-in log, and a form to log
-new entries (saved locally in the browser). Open it directly in any browser:
+`mounjaro-tracker.html` (also published as `index.html` for GitHub Pages) is
+a self-contained, Arabic (RTL) dashboard for tracking a Mounjaro
+weight-loss journey: a weight chart with dose-phase bands, per-dose
+progress, an editable dose log, a full searchable weigh-in log, and a form
+to log new entries (saved locally in the browser). It's installable to an
+iOS home screen from Safari's Share menu → "Add to Home Screen".
+
+Open it directly in any browser:
 
 ```bash
 open mounjaro-tracker.html   # or just double-click the file
+```
+
+Or, once GitHub Pages is enabled for this repo (Settings → Pages → Deploy
+from branch → `master` / `/root`), it's live at:
+
+```
+https://masebaie.github.io/first-pr-practice/
 ```
