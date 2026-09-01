@@ -34,6 +34,7 @@ branch setting to switch between them.
 |---|---|---|
 | Mounjaro tracker | `docs/index.html` | https://masebaie.github.io/first-pr-practice/ |
 | Gym journey | `docs/gym/index.html` | https://masebaie.github.io/first-pr-practice/gym/ |
+| Duas (خزانة الأدعية) | `docs/duas/index.html` | https://masebaie.github.io/first-pr-practice/duas/ |
 
 To add another app later: drop its files in a new `docs/<app-name>/`
 folder (with its own `index.html`) on this same branch and push — no
