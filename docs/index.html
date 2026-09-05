@@ -1,5 +1,5 @@
 <title>خزانة الأدعية</title>
-<meta name="build-version" content="1788625680">
+<meta name="build-version" content="1788626241">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -648,9 +648,11 @@ mark {
   var CURRENT_VERSION = document.querySelector('meta[name="build-version"]').content;
   var banner = document.getElementById('update-banner');
   var btn = document.getElementById('update-banner-btn');
+  var base = location.origin + location.pathname;
 
   function checkForUpdate() {
-    fetch(location.href, { cache: 'no-store' })
+    // cache-bust the check itself so a stale CDN/edge copy can't hide a real update
+    fetch(base + '?_cb=' + Date.now(), { cache: 'no-store' })
       .then(function(res) { return res.text(); })
       .then(function(html) {
         var m = html.match(/<meta name="build-version" content="([^"]+)">/);
@@ -661,12 +663,16 @@ mark {
       .catch(function() { /* offline or blocked - ignore */ });
   }
 
-  btn.addEventListener('click', function() { location.reload(); });
+  btn.addEventListener('click', function() {
+    // cache-bust the reload too, otherwise the browser/CDN may just hand back the same stale page
+    location.href = base + '?_cb=' + Date.now();
+  });
 
   document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'visible') checkForUpdate();
   });
   checkForUpdate();
+  setInterval(checkForUpdate, 60000);
 })();
 </script>
 
