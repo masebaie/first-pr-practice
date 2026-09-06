@@ -1,5 +1,5 @@
 <title>خزانة الأدعية</title>
-<meta name="build-version" content="1788684814">
+<meta name="build-version" content="1788685063">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -510,17 +510,6 @@ mark {
   transform: translateY(0);
 }
 
-.update-banner button {
-  border: none;
-  background: var(--surface);
-  color: var(--accent);
-  font-weight: 700;
-  font-size: 0.82rem;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
@@ -639,16 +628,31 @@ mark {
 <button class="back-to-menu" id="back-to-menu" title="رجوع للقائمة" aria-label="رجوع للقائمة">☰</button>
 
 <div class="update-banner" id="update-banner">
-  <span>في تحديث جديد للتطبيق</span>
-  <button id="update-banner-btn">تحديث الآن</button>
+  <span>بيتم تحديث المحتوى...</span>
 </div>
 
 <script>
 (function() {
   var CURRENT_VERSION = document.querySelector('meta[name="build-version"]').content;
   var banner = document.getElementById('update-banner');
-  var btn = document.getElementById('update-banner-btn');
   var base = location.origin + location.pathname;
+  var SCROLL_KEY = 'duas-scroll-before-update';
+
+  // restore scroll position right after an auto-update reload
+  var savedScroll = sessionStorage.getItem(SCROLL_KEY);
+  if (savedScroll) {
+    sessionStorage.removeItem(SCROLL_KEY);
+    window.scrollTo(0, parseInt(savedScroll, 10) || 0);
+  }
+
+  function applyUpdate() {
+    banner.classList.add('show');
+    try { sessionStorage.setItem(SCROLL_KEY, String(window.scrollY)); } catch (e) {}
+    setTimeout(function() {
+      // cache-bust the reload so the browser/CDN can't hand back the same stale page
+      location.href = base + '?_cb=' + Date.now();
+    }, 500);
+  }
 
   function checkForUpdate() {
     // cache-bust the check itself so a stale CDN/edge copy can't hide a real update
@@ -657,22 +661,17 @@ mark {
       .then(function(html) {
         var m = html.match(/<meta name="build-version" content="([^"]+)">/);
         if (m && m[1] && m[1] !== CURRENT_VERSION) {
-          banner.classList.add('show');
+          applyUpdate();
         }
       })
       .catch(function() { /* offline or blocked - ignore */ });
   }
 
-  btn.addEventListener('click', function() {
-    // cache-bust the reload too, otherwise the browser/CDN may just hand back the same stale page
-    location.href = base + '?_cb=' + Date.now();
-  });
-
   document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'visible') checkForUpdate();
   });
   checkForUpdate();
-  setInterval(checkForUpdate, 60000);
+  setInterval(checkForUpdate, 30000);
 })();
 </script>
 
