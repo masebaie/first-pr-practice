@@ -45,10 +45,13 @@ Settings changes needed.
 `mounjaro-tracker.html` (also published as `docs/index.html`) is a
 self-contained, Arabic (RTL) dashboard for tracking a Mounjaro weight-loss
 journey: a weight chart with dose-phase bands, per-dose progress, an
-editable dose log, a full searchable weigh-in log, and a form to log new
-entries (saved locally in the browser). It's installable to an iOS home
-screen from Safari's Share menu → "Add to Home Screen". Open it directly
-in any browser:
+editable dose log, and a full searchable weigh-in log — every field
+(date, time, weight, injection site, note) is editable in place, edits
+are saved locally and can be reverted per-row or all at once, and a
+column shows the gap in days since the previous dose — plus a form to log
+new entries (saved locally in the browser). It's installable to an iOS
+home screen from Safari's Share menu → "Add to Home Screen". Open it
+directly in any browser:
 
 ```bash
 open mounjaro-tracker.html   # or just double-click the file
