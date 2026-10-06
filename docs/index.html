@@ -167,7 +167,13 @@ input[type=date].field-edit{width:132px}
 input[type=number].field-edit, input[type=date].field-edit{direction:ltr;text-align:center}
 input[type=number].field-edit::-webkit-inner-spin-button,
 input[type=number].field-edit::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.field-edit.dose-field{width:60px}
 tr.row-overridden{background:var(--gold-soft)}
+tr.row-hidden{opacity:.5}
+tr.row-hidden .field-edit{text-decoration:line-through}
+.show-hidden-toggle{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);white-space:nowrap}
+.row-delete{color:var(--warn)}
+.row-restore{color:var(--accent)}
 
 /* ---------- Table ---------- */
 .table-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
@@ -338,13 +344,14 @@ footer{color:var(--ink-faint);font-size:12.5px;text-align:center;padding-top:10p
       </div>
       <div class="table-tools">
         <input type="search" id="search" placeholder="ابحث في الملاحظات أو التاريخ...">
+        <label class="show-hidden-toggle"><input type="checkbox" id="showHiddenToggle"> <span id="hiddenCountLabel">إظهار المحذوف</span></label>
       </div>
-      <p class="hint" style="margin:-4px 0 10px">اضغط على أي خانة في الجدول وعدّلها مباشرة — التعديل يُحفظ فورًا في متصفحك</p>
+      <p class="hint" style="margin:-4px 0 10px">اضغط على أي خانة في الجدول وعدّلها مباشرة — التعديل يُحفظ فورًا في متصفحك. زر 🗑 يحذف الصف (قابل للاسترجاع)</p>
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th>التاريخ</th><th>الوقت</th><th>الوزن</th><th>التغيّر</th><th>الجرعة</th><th>الفارق عن الجرعة السابقة</th><th>موقع الحقن</th><th>ملاحظة</th>
+              <th>التاريخ</th><th>الوقت</th><th>الوزن</th><th>التغيّر</th><th>الجرعة</th><th>الفارق عن الجرعة السابقة</th><th>موقع الحقن</th><th>ملاحظة</th><th>إجراءات</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -416,6 +423,8 @@ function applyWeighinOverride(row, key, overrides){
   if(ov.weight!==undefined) merged.weight = ov.weight;
   if(ov.note!==undefined) merged.note = ov.note;
   if(ov.site!==undefined) merged.siteOverride = ov.site;
+  if(ov.dose!==undefined) merged.doseOverride = ov.dose;
+  merged.hidden = !!ov.hidden;
   return merged;
 }
 
@@ -427,9 +436,9 @@ function buildDataset(){
     const key = `b:${idx}`;
     let row = applyWeighinOverride({date, time, weight, note, custom:false, key}, key, overrides);
     const ph = doseAt(row.date);
-    row.dose = ph?ph[1]:null;
+    row.dose = row.doseOverride!==undefined ? row.doseOverride : (ph?ph[1]:null);
     row.site = row.siteOverride!==undefined ? row.siteOverride : (ph?ph[2]:null);
-    row.overridden = !!overrides[key];
+    row.overridden = !!overrides[key] && !row.hidden;
     rows.push(row);
   });
   for(const c of custom){
@@ -437,9 +446,9 @@ function buildDataset(){
     let row = applyWeighinOverride({date:c.date, time:c.time, weight:c.weight, note:c.note||null,
       custom:true, id:c.id, key}, key, overrides);
     const ph = doseAt(row.date);
-    row.dose = c.dose!=null ? c.dose : (ph?ph[1]:null);
+    row.dose = row.doseOverride!==undefined ? row.doseOverride : (c.dose!=null ? c.dose : (ph?ph[1]:null));
     row.site = row.siteOverride!==undefined ? row.siteOverride : (c.site || (ph?ph[2]:null));
-    row.overridden = !!overrides[key];
+    row.overridden = !!overrides[key] && !row.hidden;
     rows.push(row);
   }
   rows.sort((a,b)=> a.date===b.date ? 0 : (a.date<b.date?-1:1));
@@ -491,7 +500,7 @@ function render(){
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 
 function renderStats(){
-  const withWeight = DATA.filter(r=>r.weight!=null);
+  const withWeight = DATA.filter(r=>r.weight!=null && !r.hidden);
   const start = withWeight[0];
   const last = withWeight[withWeight.length-1];
   const lowest = withWeight.reduce((m,r)=> r.weight<m.weight?r:m, withWeight[0]);
@@ -539,7 +548,7 @@ function buildChartPoints(withWeight){
 }
 
 function renderChart(){
-  const withWeight = DATA.filter(r=>r.weight!=null);
+  const withWeight = DATA.filter(r=>r.weight!=null && !r.hidden);
   const points = buildChartPoints(withWeight);
   const svg = document.getElementById("chart");
   const W=1000,H=380, padL=42, padR=14, padT=16, padB=28;
@@ -648,7 +657,7 @@ function doseRuns(){
 }
 
 function renderDoseScale(){
-  const withWeight = DATA.filter(r=>r.weight!=null);
+  const withWeight = DATA.filter(r=>r.weight!=null && !r.hidden);
   const runs = doseRuns();
   const html = runs.map((run,i)=>{
     const rangeEnd = i+1<runs.length ? runs[i+1].start : todayISO();
@@ -725,15 +734,20 @@ function renderDoseLog(){
 }
 
 let showAll = false;
+let showHidden = false;
 function renderTable(){
+  const hiddenCount = DATA.filter(r=>r.hidden).length;
+  document.getElementById("hiddenCountLabel").textContent = hiddenCount>0 ? `إظهار المحذوف (${hiddenCount})` : "إظهار المحذوف";
+
   let rows = DATA.slice().reverse(); // newest first
+  if(!showHidden) rows = rows.filter(r=>!r.hidden);
   const q = document.getElementById("search").value.trim().toLowerCase();
   if(q){
     rows = rows.filter(r => (r.note||"").toLowerCase().includes(q) || fmtDate(r.date).toLowerCase().includes(q) || r.date.includes(q));
   }
   document.getElementById("rowCount").textContent = `${rows.length} إدخال`;
 
-  const withWeightSorted = DATA.filter(r=>r.weight!=null);
+  const withWeightSorted = DATA.filter(r=>r.weight!=null && !r.hidden);
   const deltaMap = new Map();
   for(let i=0;i<withWeightSorted.length;i++){
     const r = withWeightSorted[i];
@@ -755,18 +769,22 @@ function renderTable(){
     const noteBadge = r.custom ? `<span class="badge gold" title="إدخال مضاف يدويًا">جديد</span>` : "";
     const gapDays = phaseGapDays(r.date);
     const gapTxt = gapDays!=null ? `${gapDays} يوم` : "-";
-    const ov = "overridden";
-    return `<tr class="${r.overridden?'row-overridden':''}">
-      <td><input type="date" class="field-edit ${r.overridden?ov:''}" data-key="${r.key}" data-field="date" value="${r.date}"></td>
-      <td><input type="text" class="field-edit time-field" data-key="${r.key}" data-field="time" value="${r.time||''}" placeholder="-"></td>
-      <td><input type="number" step="0.1" class="field-edit weight-field" data-key="${r.key}" data-field="weight" value="${r.weight!=null?r.weight:''}" placeholder="-"></td>
+    const ovCls = "overridden";
+    const dis = r.hidden ? "disabled" : "";
+    const rowClass = r.hidden ? "row-hidden" : (r.overridden?"row-overridden":"");
+    const actions = r.hidden
+      ? `<button type="button" class="row-restore" data-key="${r.key}" title="استرجاع الصف">♻️ استرجاع</button>`
+      : `${r.overridden?`<button type="button" class="row-reset" data-key="${r.key}" title="استعادة القيم الأصلية لهذا الصف">↺</button>`:''}<button type="button" class="row-delete" data-key="${r.key}" title="حذف هذا الصف">🗑</button>`;
+    return `<tr class="${rowClass}">
+      <td><input type="date" class="field-edit ${r.overridden?ovCls:''}" data-key="${r.key}" data-field="date" value="${r.date}" ${dis}></td>
+      <td><input type="text" class="field-edit time-field" data-key="${r.key}" data-field="time" value="${r.time||''}" placeholder="-" ${dis}></td>
+      <td><input type="number" step="0.1" class="field-edit weight-field" data-key="${r.key}" data-field="weight" value="${r.weight!=null?r.weight:''}" placeholder="-" ${dis}></td>
       <td class="delta-cell ${deltaCls}">${deltaTxt}</td>
-      <td>${r.dose?r.dose+" مجم":"-"}</td>
+      <td><input type="number" step="0.25" min="0" class="field-edit dose-field" data-key="${r.key}" data-field="dose" value="${r.dose!=null?r.dose:''}" placeholder="-" ${dis}></td>
       <td>${gapTxt}</td>
-      <td><input type="text" class="field-edit site-field" data-key="${r.key}" data-field="site" value="${r.site||''}" placeholder="-"></td>
-      <td><input type="text" class="field-edit note-field" data-key="${r.key}" data-field="note" value="${r.note||''}" placeholder="-"> ${noteBadge}
-        ${r.overridden?`<button type="button" class="row-reset" data-key="${r.key}" title="استعادة القيمة الأصلية لهذا الصف">↺</button>`:''}
-      </td>
+      <td><input type="text" class="field-edit site-field" data-key="${r.key}" data-field="site" value="${r.site||''}" placeholder="-" ${dis}></td>
+      <td><input type="text" class="field-edit note-field" data-key="${r.key}" data-field="note" value="${r.note||''}" placeholder="-" ${dis}> ${noteBadge}</td>
+      <td>${actions}</td>
     </tr>`;
   }).join("");
 
@@ -775,7 +793,7 @@ function renderTable(){
       const key = inp.dataset.key;
       const field = inp.dataset.field;
       let val = inp.value;
-      if(field==="weight"){ val = val===""? null : parseFloat(val); if(val!=null && isNaN(val)) return; }
+      if(field==="weight" || field==="dose"){ val = val===""? null : parseFloat(val); if(val!=null && isNaN(val)) return; }
       if(field==="date" && !val) return;
       const ov = loadWeighinOverrides();
       if(!ov[key]) ov[key] = {};
@@ -792,6 +810,24 @@ function renderTable(){
       render();
     });
   });
+  document.querySelectorAll(".row-delete").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(!confirm("حذف هذا الصف؟ يمكنك استرجاعه بعدين من \"إظهار المحذوف\".")) return;
+      const ov = loadWeighinOverrides();
+      if(!ov[btn.dataset.key]) ov[btn.dataset.key] = {};
+      ov[btn.dataset.key].hidden = true;
+      saveWeighinOverrides(ov);
+      render();
+    });
+  });
+  document.querySelectorAll(".row-restore").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const ov = loadWeighinOverrides();
+      if(ov[btn.dataset.key]) delete ov[btn.dataset.key].hidden;
+      saveWeighinOverrides(ov);
+      render();
+    });
+  });
 
   const wrap = document.getElementById("showMoreWrap");
   const btn = document.getElementById("showMoreBtn");
@@ -804,6 +840,7 @@ function renderTable(){
 }
 
 document.getElementById("search").addEventListener("input", renderTable);
+document.getElementById("showHiddenToggle").addEventListener("change", (e)=>{ showHidden = e.target.checked; renderTable(); });
 document.getElementById("showMoreBtn").addEventListener("click", ()=>{ showAll=!showAll; renderTable(); });
 document.getElementById("doseShowMoreBtn").addEventListener("click", ()=>{ doseShowAll=!doseShowAll; renderDoseLog(); });
 document.getElementById("resetDoseBtn").addEventListener("click", ()=>{
