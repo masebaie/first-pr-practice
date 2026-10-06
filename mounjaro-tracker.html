@@ -395,23 +395,48 @@ function computeEffectivePhases(){
   return PHASES.map(p => (overrides[p[0]]!=null) ? [p[0], overrides[p[0]], p[2], p[3]] : p);
 }
 
+// CURRENT_PHASES only covers the known/planned schedule, which has an end date.
+// Once the user keeps logging weigh-ins past that date, each new entry becomes
+// its own phase point (carrying forward the last known dose unless a new one is
+// given) so day-gap math stays correct instead of comparing everything after
+// the schedule's end to the same last known phase change.
+let EXTENDED_PHASES = PHASES;
+function computeExtendedPhases(){
+  const lastPhaseDate = CURRENT_PHASES.length ? CURRENT_PHASES[CURRENT_PHASES.length-1][0] : null;
+  const custom = loadCustom()
+    .filter(c => lastPhaseDate!=null && c.date > lastPhaseDate)
+    .sort((a,b)=> a.date===b.date ? 0 : (a.date<b.date?-1:1));
+  if(custom.length===0) return CURRENT_PHASES;
+  const map = new Map(CURRENT_PHASES.map(p=>[p[0],p]));
+  let lastDose = CURRENT_PHASES.length ? CURRENT_PHASES[CURRENT_PHASES.length-1][1] : null;
+  let lastSite = CURRENT_PHASES.length ? CURRENT_PHASES[CURRENT_PHASES.length-1][2] : null;
+  for(const c of custom){
+    const dose = c.dose!=null ? c.dose : lastDose;
+    const site = c.site || lastSite;
+    if(dose==null) continue;
+    map.set(c.date, [c.date, dose, site, "إدخال يدوي"]);
+    lastDose = dose; lastSite = site;
+  }
+  return Array.from(map.values()).sort((a,b)=> a[0]===b[0]?0:(a[0]<b[0]?-1:1));
+}
+
 function doseAt(dateStr){
   let d = null;
-  for(const p of CURRENT_PHASES){ if(p[0] <= dateStr) d = p; else break; }
+  for(const p of EXTENDED_PHASES){ if(p[0] <= dateStr) d = p; else break; }
   return d;
 }
 
-// index of the phase active on dateStr within CURRENT_PHASES, or -1 if before the first phase
+// index of the phase active on dateStr within EXTENDED_PHASES, or -1 if before the first phase
 function phaseIndexAt(dateStr){
   let idx = -1;
-  for(let i=0;i<CURRENT_PHASES.length;i++){ if(CURRENT_PHASES[i][0] <= dateStr) idx = i; else break; }
+  for(let i=0;i<EXTENDED_PHASES.length;i++){ if(EXTENDED_PHASES[i][0] <= dateStr) idx = i; else break; }
   return idx;
 }
 // days between this row's dose phase and the one before it (null if there is no earlier phase)
 function phaseGapDays(dateStr){
   const idx = phaseIndexAt(dateStr);
   if(idx <= 0) return null;
-  return daysBetween(CURRENT_PHASES[idx-1][0], CURRENT_PHASES[idx][0]);
+  return daysBetween(EXTENDED_PHASES[idx-1][0], EXTENDED_PHASES[idx][0]);
 }
 
 function applyWeighinOverride(row, key, overrides){
@@ -489,6 +514,7 @@ let filteredIds = null;
 
 function render(){
   CURRENT_PHASES = computeEffectivePhases();
+  EXTENDED_PHASES = computeExtendedPhases();
   DATA = buildDataset();
   renderStats();
   renderChart();
