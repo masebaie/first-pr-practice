@@ -84,6 +84,18 @@
                         font-size:11px; font-weight:700; color:var(--steel); cursor:pointer; font-family:var(--font-ui); }
   .lang-toggle button.is-active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
 
+  .month-tabs{ display:flex; gap:8px; overflow-x:auto; margin-bottom:16px; padding-bottom:2px;
+               scrollbar-width:none; -ms-overflow-style:none; }
+  .month-tabs::-webkit-scrollbar{ display:none; }
+  .month-tab{ appearance:none; border:none; flex-shrink:0; border-radius:999px; padding:8px 16px; font-size:12.5px;
+              font-weight:700; cursor:pointer; font-family:var(--font-ui); background:var(--surface-2); color:var(--steel); }
+  .month-tab:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .month-tab.is-active{
+    font-weight:800; color:#fff;
+    background: linear-gradient(120deg, #7C3AED, #EC4899, #06B6D4);
+    box-shadow:0 6px 14px -6px rgba(124,58,237,0.4);
+  }
+
   .quick-log{ margin-bottom:20px; }
   .quick-log-btn{ appearance:none; width:100%; border:none; border-radius:16px; padding:16px; font-size:15px;
                   font-weight:800; cursor:pointer; font-family:var(--font-display);
@@ -273,6 +285,11 @@
       background-size: auto, 300% 300%;
       animation: auroraShift 5s ease infinite;
     }
+    .month-tab.is-active{
+      background-image: linear-gradient(120deg, #7C3AED, #EC4899, #06B6D4, #7C3AED);
+      background-size: 300% 300%;
+      animation: auroraShift 6s ease infinite;
+    }
 
     @keyframes plateLoad{
       0%{ transform:scale(1) rotate(0deg); }
@@ -297,6 +314,8 @@
     </div>
     <h1>My Gym Journey</h1>
   </header>
+
+  <section class="month-tabs" id="monthTabs"></section>
 
   <section class="quick-log">
     <button id="btnQuickLog" type="button" class="quick-log-btn"></button>
@@ -416,6 +435,7 @@
 
   let state = load();
   const monthRefs = Object.create(null);
+  let selectedMonthId = null;
 
   function load(){
     try {
@@ -519,7 +539,9 @@
     const last = months[months.length - 1];
     const start = addDays(last.end, 1);
     const end = addDays(start, 29);
-    months.push({id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[]});
+    const newMonth = {id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[]};
+    months.push(newMonth);
+    selectedMonthId = newMonth.id;
     persist();
     renderAll();
   }
@@ -587,6 +609,7 @@
     const m = state.months.find(x => x.id === id);
     if(!m) return;
     m.archived = false;
+    selectedMonthId = id;
     persist();
     showToast(t('monthRestored'));
     renderAll();
@@ -719,7 +742,12 @@
     btn.classList.toggle('is-logged', logged);
     btn.onclick = () => {
       toggleSession(m.id, today);
-      refreshQuickLog();
+      if(selectedMonthId !== m.id){
+        selectedMonthId = m.id;
+        renderAll();
+      } else {
+        refreshQuickLog();
+      }
     };
   }
 
@@ -789,6 +817,23 @@
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('is-active', b.dataset.lang === state.lang));
   }
 
+  function renderMonthTabs(active){
+    const tabsEl = document.getElementById('monthTabs');
+    tabsEl.innerHTML = '';
+    active.forEach((m, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'month-tab' + (m.id === selectedMonthId ? ' is-active' : '');
+      btn.textContent = t('monthLabel')(i + 1);
+      btn.addEventListener('click', () => {
+        if(selectedMonthId === m.id) return;
+        selectedMonthId = m.id;
+        renderAll();
+      });
+      tabsEl.appendChild(btn);
+    });
+  }
+
   function renderAll(){
     const container = document.getElementById('monthsContainer');
     container.innerHTML = '';
@@ -797,7 +842,17 @@
     const active = state.months.filter(m => !m.archived);
     const today = todayISO();
 
-    active.forEach((m, index) => {
+    if(!selectedMonthId || !active.some(m => m.id === selectedMonthId)){
+      const todaysMonth = active.find(m => buildDateRange(m.start, m.end).includes(today));
+      selectedMonthId = todaysMonth ? todaysMonth.id : (active.length ? active[active.length - 1].id : null);
+    }
+
+    renderMonthTabs(active);
+
+    const selected = active.filter(m => m.id === selectedMonthId);
+
+    selected.forEach((m) => {
+      const index = active.indexOf(m);
       const {dates, paused, count, cost, target, remaining, pct} = monthStats(m);
 
       const card = document.createElement('section');
@@ -854,7 +909,7 @@
           </div>
         </details>
 
-        <details class="month-days" ${index === active.length - 1 ? 'open' : ''}>
+        <details class="month-days" open>
           <summary>${t('showDays')}</summary>
           <p class="day-hint">${t('dayHint')}</p>
           <div class="day-grid-container"></div>
