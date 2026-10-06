@@ -931,4 +931,16 @@ document.getElementById("installBannerClose").addEventListener("click", ()=>{
 
 document.getElementById("f-date").valueAsDate = new Date();
 render();
+
+// Always fetch the live page instead of a stale cached copy - this is what was
+// causing updates to not show up without manually clearing Safari's cache.
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", ()=>{
+    if(reloaded) return;
+    reloaded = true;
+    location.reload();
+  });
+}
 </script>
