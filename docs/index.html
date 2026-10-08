@@ -1,5 +1,5 @@
 <title>خزانة الأدعية</title>
-<meta name="build-version" content="1791463696">
+<meta name="build-version" content="1791464376">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -901,7 +901,10 @@ mark {
   var sections = Array.prototype.slice.call(document.querySelectorAll('.category'));
 
   function normalize(s) {
-    return (s || '').toLowerCase().replace(/ة/g, 'ه');
+    return (s || '').toLowerCase()
+      .replace(/ة/g, 'ه')
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ى/g, 'ي');
   }
 
   function clearMarks(scope) {
