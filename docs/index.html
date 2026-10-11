@@ -759,15 +759,16 @@
     section.hidden = false;
     list.innerHTML = '';
     const rows = active.map((m, i) => ({ index: i + 1, ...monthStats(m) }));
-    let bestIdx = -1, bestPct = -1;
-    rows.forEach((r, i) => { if(r.target > 0 && r.pct > bestPct){ bestPct = r.pct; bestIdx = i; } });
-    rows.forEach((r, i) => {
+    let bestPct = -1;
+    rows.forEach(r => { if(r.target > 0){ const rounded = Math.round(r.pct); if(rounded > bestPct) bestPct = rounded; } });
+    rows.forEach((r) => {
       const row = document.createElement('div');
       row.className = 'comparison-row';
       const pctText = r.target > 0 ? `${Math.round(r.pct)}%` : '—';
       const costText = r.cost === null ? '—' : `${money(r.cost)} AED`;
+      const isBest = r.target > 0 && bestPct > -1 && Math.round(r.pct) === bestPct;
       row.innerHTML = `
-        <span class="comparison-name">${t('monthLabel')(r.index)}${i === bestIdx ? `<span class="comparison-badge">${t('mostConsistent')}</span>` : ''}</span>
+        <span class="comparison-name">${t('monthLabel')(r.index)}${isBest ? `<span class="comparison-badge">${t('mostConsistent')}</span>` : ''}</span>
         <span class="comparison-stats">${r.count}/${r.target || '—'} · ${pctText} · ${costText}</span>
       `;
       list.appendChild(row);
