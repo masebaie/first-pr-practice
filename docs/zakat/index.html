@@ -295,6 +295,38 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
 .syncbox .tokrow input{flex:1;min-width:180px;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid rgba(15,35,71,0.126);border-radius:11px;padding:10px 12px}
 .logfoot{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
+/* ---------- aurora: flowing multi-color accents ---------- */
+:root{
+  --aurora:linear-gradient(120deg,#F5A524,#EF4E7B,#8B5CF6,#06B6D4,#10B981,#F5A524);
+  --aurora-ink:linear-gradient(120deg,#D97706,#DB2777,#7C3AED,#0891B2,#059669,#D97706);
+  --aurora-glow:rgba(139,92,246,.35);
+}
+@keyframes auroraShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.jump a.primary,.copy,.payform .go,.ytab[aria-pressed="true"],.seg label:has(input:checked),.dock a,.badge{
+  background:var(--aurora);background-size:300% 300%;animation:auroraShift 6s ease infinite;color:#fff;border-color:transparent;
+  box-shadow:0 8px 20px -8px var(--aurora-glow);text-shadow:0 1px 2px rgba(15,35,71,.25)}
+.step{color:#fff}
+.step::before{background:var(--aurora);background-size:300% 300%;animation:auroraShift 7s ease infinite}
+.prog i,.meter .fill{background:var(--aurora);background-size:300% 100%;animation:auroraShift 5s ease infinite}
+.result .val{background:var(--aurora-ink);background-size:300% 300%;animation:auroraShift 6s ease infinite;-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1{background:linear-gradient(120deg,#F7DC95,#F59EB8,#C4B5FD,#7DD3FC,#F7DC95);background-size:300% 300%;animation:auroraShift 8s ease infinite;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 30px rgba(139,92,246,.35))}
+.hero::before{content:"";position:absolute;inset:-30%;pointer-events:none;opacity:.35;filter:blur(60px);
+  background:radial-gradient(closest-side at 20% 30%,#EF4E7B,transparent),radial-gradient(closest-side at 80% 70%,#06B6D4,transparent),radial-gradient(closest-side at 60% 20%,#8B5CF6,transparent);
+  animation:drift 14s ease-in-out infinite alternate}
+.hero>*{position:relative}
+.hero>.sky{position:absolute}
+.log-head h2,.ledger h3,.notes h2{background:var(--aurora-ink);background-size:300% 300%;animation:auroraShift 9s ease infinite;-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes drift{from{transform:translate(-4%,-3%) rotate(0deg)}to{transform:translate(4%,3%) rotate(8deg)}}
+aside.ledger{background:var(--aurora);background-size:300% 300%;animation:auroraShift 8s ease infinite;padding:2px}
+.month.now{border-color:transparent;background:linear-gradient(#fff,#fff) padding-box,var(--aurora) border-box;background-size:auto,300% 300%;animation:auroraShift 6s ease infinite;border:2px solid transparent}
+.countdown{background:linear-gradient(120deg,rgba(245,165,36,.14),rgba(239,78,123,.12),rgba(139,92,246,.12));color:#7c3aed}
+body{background:
+    radial-gradient(900px 500px at 90% -5%, rgba(139,92,246,.12), transparent 60%),
+    radial-gradient(800px 520px at -5% 20%, rgba(245,165,36,.12), transparent 60%),
+    radial-gradient(800px 600px at 50% 110%, rgba(6,182,212,.10), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Cg fill='none' stroke='%230f2347' stroke-opacity='.045' stroke-width='1'%3E%3Cpath d='M24 24h40v40H24z'/%3E%3Cpath d='M44 15.7 72.3 44 44 72.3 15.7 44z'/%3E%3Ccircle cx='44' cy='44' r='8'/%3E%3Cpath d='M0 44h15.7M72.3 44H88M44 0v15.7M44 72.3V88'/%3E%3C/g%3E%3C/svg%3E"),
+    var(--bg)}
+
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -315,7 +347,8 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
     <div class="glow"></div>
     <svg viewBox="0 0 200 200">
       <defs>
-        <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dfa4"/><stop offset="1" stop-color="#a87d33"/></linearGradient>
+        <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F5A524"/><stop offset=".35" stop-color="#EF4E7B"/><stop offset=".65" stop-color="#8B5CF6"/><stop offset="1" stop-color="#06B6D4"/>
+          <animateTransform attributeName="gradientTransform" type="rotate" from="0 .5 .5" to="360 .5 .5" dur="9s" repeatCount="indefinite"/></linearGradient>
       </defs>
       <g fill="none" stroke="#d9b46a" stroke-opacity=".28">
         <rect x="42" y="42" width="116" height="116"/>
