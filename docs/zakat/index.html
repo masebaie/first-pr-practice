@@ -134,6 +134,12 @@ aside.ledger{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);min-w
 .result .val{font-size:clamp(32px,5vw,44px);font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
   background:linear-gradient(180deg,var(--gold-hi),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
 .result .cur{font-size:15px;color:var(--gold)}
+.settle{display:flex;flex-direction:column;gap:4px;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(217,180,106,.25);font-size:13.5px;font-variant-numeric:tabular-nums}
+.settle .r{display:flex;justify-content:space-between;gap:10px}
+.settle .r span:first-child{color:var(--muted)}
+.settle .r.paid span:last-child{color:var(--emerald)}
+.settle a{color:var(--gold-hi);font-size:12.5px}
+.done{display:inline-flex;align-items:center;gap:6px;margin:8px auto 0;font-size:13.5px;font-weight:600;color:var(--emerald);background:rgba(63,191,150,.14);padding:5px 12px;border-radius:99px}
 .result .monthly{font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
 
 .comp{display:flex;flex-direction:column;gap:8px}
@@ -266,6 +272,11 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
 .person b{font-weight:600;overflow-wrap:anywhere}
 .person span{color:var(--emerald);font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
 .person small{color:var(--muted);font-size:12px}
+.syncbox{display:flex;flex-direction:column;gap:10px;padding:14px;border:1px dashed var(--line-strong);border-radius:14px}
+.syncbox ol{margin:0;padding-inline-start:20px;color:var(--muted);font-size:13.5px;display:flex;flex-direction:column;gap:4px}
+.syncbox ol a{color:var(--gold-hi)}
+.syncbox .tokrow{display:flex;gap:8px;flex-wrap:wrap}
+.syncbox .tokrow input{flex:1;min-width:180px;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid rgba(159,183,177,.18);border-radius:11px;padding:10px 12px}
 .logfoot{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -299,7 +310,7 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
         stroke-dasharray="490.1" stroke-dashoffset="490.1" transform="rotate(-90 100 100)"/>
     </svg>
     <div class="center">
-      <span class="k">زكاتك هذا العام</span>
+      <span class="k" id="heroK">باقي عليك تدفعه</span>
       <span class="v" id="heroZ">0</span>
       <span class="c" id="heroCur"></span>
       <span class="s" id="heroStatus"></span>
@@ -378,9 +389,11 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
   <div class="ledger-in">
     <h3>كشف الزكاة</h3>
     <div class="result">
-      <div class="lbl">الزكاة المستحقة · ٢٫٥٪</div>
+      <div class="lbl" id="zLbl">باقي عليك تدفعه</div>
       <div class="val" id="zakat">0</div>
       <div class="cur" id="zcur"></div>
+      <div id="doneBadge"></div>
+      <div class="settle" id="settle"></div>
       <div class="monthly" id="zMonthly"></div>
     </div>
     <div class="comp">
@@ -463,8 +476,29 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
   </div>
 
   <section class="card" id="backup">
-    <div class="card-h"><div class="step"><span>⇅</span></div><h2>نسخة احتياطية<small>بياناتك محفوظة على الموبايل ده بس</small></h2></div>
-    <p class="hint">احفظ نسخة كل كام شهر في الملفات أو iCloud أو ابعتها لنفسك على واتساب. لو غيّرت الموبايل أو مسحت التطبيق، ترجّع بياناتك منها.</p>
+    <div class="card-h"><div class="step"><span>⇅</span></div><h2>المزامنة والنسخ الاحتياطي<small>نفس البيانات على الموبايل واللابتوب</small></h2></div>
+    <div class="syncbox" id="syncSetup">
+      <b>اربط أجهزتك بحسابك على GitHub</b>
+      <ol>
+        <li>افتح <a href="https://github.com/settings/tokens/new?scopes=gist&amp;description=Zakati" target="_blank" rel="noopener">صفحة إنشاء مفتاح على GitHub</a> وسجّل دخول.</li>
+        <li>في Expiration اختار <b>No expiration</b>، وسيب صلاحية <b>gist</b> بس متعلّمة، ودوس <b>Generate token</b>.</li>
+        <li>انسخ المفتاح اللي بيبدأ بـ ghp_ وحطه هنا. اعمل كده مرة واحدة على كل جهاز: التطبيق على الموبايل، وسفاري، واللابتوب.</li>
+      </ol>
+      <div class="tokrow">
+        <input type="password" id="tokIn" placeholder="ghp_…" autocomplete="off" spellcheck="false" aria-label="مفتاح GitHub">
+        <button class="mini" id="tokGo" type="button">اربط</button>
+      </div>
+    </div>
+    <div class="syncbox" id="syncOn" hidden>
+      <b>المزامنة شغالة</b>
+      <span class="hint" id="syncInfo"></span>
+      <div class="tokrow">
+        <button class="mini" id="syncNow" type="button">زامن دلوقتي</button>
+        <button class="mini" id="syncOff" type="button">افصل الجهاز ده</button>
+      </div>
+    </div>
+    <span class="formMsg" id="syncMsg" aria-live="polite"></span>
+    <p class="hint">ولو مش عاوز تربط GitHub: احفظ نسخة في الملفات أو iCloud، ورجّعها على الجهاز التاني.</p>
     <div class="logfoot">
       <button class="mini" id="exportBtn" type="button">احفظ نسخة احتياطية</button>
       <label class="mini" for="importFile" style="cursor:pointer">رجّع من نسخة</label>
@@ -490,7 +524,7 @@ input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--f
 </div>
 
 <div class="dock" aria-hidden="true">
-  <div><div class="k">زكاتك</div><div class="v" id="dockZ">0</div></div>
+  <div><div class="k" id="dockK">باقي عليك</div><div class="v" id="dockZ">0</div></div>
   <a href="#ledger">التفاصيل</a>
 </div>
 
@@ -508,6 +542,7 @@ const exampleDebts=()=>[
   {name:'بطاقة ائتمان مستحقة',kind:'now',monthly:0,bal:12000}];
 let state={props:exampleProps(),debts:exampleDebts()};
 let isExample=true;
+let calcStamp=0;
 const fieldIds=['cur','p24','pAg','g24','g21','g18','j21','j18','cash','bank','cert','inc','stk','recv','fx'];
 const moneyIds=['cash','bank','cert','inc','stk','recv','fx'];
 
@@ -531,14 +566,21 @@ function load(){
     if(Array.isArray(s.props))state.props=s.props;
     if(Array.isArray(s.debts))state.debts=s.debts;
     isExample=!!s.example;
+    calcStamp=s.u||0;
   }catch(e){}
 }
 function save(){
   try{
+    calcStamp=Date.now();
     const f={};fieldIds.forEach(id=>f[id]=$(id).value);
-    localStorage.setItem(KEY,JSON.stringify({f,incJ:$('incJ').checked,nisab:radio('nisab'),dm:radio('dm'),props:state.props,debts:state.debts,example:isExample}));
+    localStorage.setItem(KEY,JSON.stringify({f,incJ:$('incJ').checked,nisab:radio('nisab'),dm:radio('dm'),props:state.props,debts:state.debts,example:isExample,u:calcStamp}));
   }catch(e){}
+  document.dispatchEvent(new Event('zakatchange'));
 }
+// paid this zakat year, fed by the payments log
+let paidNow=0,monthsLeft=0;
+window.__zakatSetPaid=(p,m)=>{if(p===paidNow&&m===monthsLeft)return;paidNow=p;monthsLeft=m;calc()};
+window.__zakatCalcReload=()=>{load();renderProps();renderDebts();calc()};
 const trash='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
 
 function renderProps(){
@@ -634,9 +676,17 @@ function calc(){
   $('status').innerHTML=st;
   $('heroStatus').innerHTML=nisab<=0?'':due?'<span class="pill ok">بلغت النصاب</span>':'<span class="pill no">أقل من النصاب</span>';
 
-  animate($('zakat'),zakat);animate($('heroZ'),zakat);animate($('dockZ'),zakat,cur()?' '+cur():'');
+  const rest=Math.max(0,zakat-paidNow),extra=Math.max(0,paidNow-zakat),settled=zakat>0&&rest<1;
+  animate($('zakat'),rest);animate($('heroZ'),rest);animate($('dockZ'),rest,cur()?' '+cur():'');
   $('zcur').textContent=cur();$('heroCur').textContent=cur();
-  $('zMonthly').textContent=zakat?`يعني حوالي ${fmt(zakat/12)} في الشهر لو قسمتها على السنة`:'';
+  $('zLbl').textContent=$('heroK').textContent=settled?'خلّصت زكاة السنة':'باقي عليك تدفعه';
+  $('dockK').textContent=settled?'خلّصت زكاتك':'باقي عليك';
+  $('settle').innerHTML=`<div class="r"><span>الزكاة المستحقة (٢٫٥٪)</span><span>${fmt(zakat)}</span></div>`+
+    `<div class="r paid"><span>− طلّعت خلال السنة</span><span>${fmt(paidNow)}</span></div>`+
+    (extra>=1?`<div class="r"><span>زيادة عن المستحق (صدقة)</span><span>${fmt(extra)}</span></div>`:'')+
+    `<a href="#log">شوف اللي طلّعته في السجل</a>`;
+  $('doneBadge').innerHTML=settled?'<span class="done">✓ مافيش عليك حاجة تدفعها</span>':'';
+  $('zMonthly').textContent=rest>=1&&monthsLeft>0?`يعني حوالي ${fmt(rest/monthsLeft)} في الشهر للـ${n2(monthsLeft)} شهور الباقية`:'';
   // arc: progress of net wealth toward the nisab (full ring = nisab reached)
   const ratio=nisab>0?Math.min(1,net/nisab):0;
   $('arc').style.strokeDashoffset=(490.1*(1-ratio)).toFixed(1);
@@ -644,7 +694,7 @@ function calc(){
   window.__zakatCalc={zakat:Math.round(zakat),example:isExample};
   document.dispatchEvent(new Event('zakatcalc'));
 
-  calc.summary=`ملخص زكاة رمضان\n— الذهب: ${fmt(gold)}\n— الأموال: ${fmt(money)}\n— عقارات للتجارة: ${fmt(re)}\n— خصم الديون: ${fmt(debt)}\n— الصافي: ${fmt(net)}\n— النصاب: ${fmt(nisab)}\nالزكاة (2.5٪): ${fmt(zakat)}`;
+  calc.summary=`ملخص زكاة رمضان\n— الذهب: ${fmt(gold)}\n— الأموال: ${fmt(money)}\n— عقارات للتجارة: ${fmt(re)}\n— خصم الديون: ${fmt(debt)}\n— الصافي: ${fmt(net)}\n— النصاب: ${fmt(nisab)}\nالزكاة (2.5٪): ${fmt(zakat)}\nطلّعت خلال السنة: ${fmt(paidNow)}\nالباقي: ${fmt(rest)}`;
 }
 
 function onInput(e){
@@ -724,23 +774,132 @@ const zYearOf=iso=>{const h=hij(iso);return h.m>=9?h.y:h.y-1};
 const okCal=fH&&(()=>{try{const h=hij('2026-02-18');return h.y===1447&&h.m===9&&h.d===1}catch(e){return false}})();
 
 // ----- state + storage (on this device) -----
-const years={};       // H -> {h,due,payments:[]}
+const years={};       // H -> {h,due,dueAt,payments:[]}
+let deleted=[];       // ids of deleted payments, so a sync never brings them back
+const DEL_KEY='zakat-log-del',SYNC_KEY='zakat-sync',CALC_KEY='zakat-calc-v1',GIST_FILE='zakati-data.json';
 let sel=okCal?zYearOf(todayIso()):1447;
-const getYear=H=>years[H]||(years[H]={h:H,due:null,payments:[]});
+const getYear=H=>years[H]||(years[H]={h:H,due:null,dueAt:0,payments:[]});
 
 function setSync(t,cls){const s=$('sync');s.textContent=t;s.className='sync'+(cls?' '+cls:'')}
-
+function logBlob(){const all={};Object.values(years).forEach(v=>{if(v.payments.length||v.due!=null||v.dueAt)all[v.h]=v});return all}
+function writeLocal(){
+  localStorage.setItem(LOCAL_KEY,JSON.stringify(logBlob()));
+  localStorage.setItem(DEL_KEY,JSON.stringify(deleted));
+}
 function persist(){
-  try{const all={};Object.values(years).forEach(v=>{if(v.payments.length||v.due!=null)all[v.h]=v});localStorage.setItem(LOCAL_KEY,JSON.stringify(all));setSync('محفوظ على الموبايل ده','ok')}
+  try{writeLocal();setSync(syncCfg()?'محفوظ، وبيتزامن…':'محفوظ على الجهاز ده','ok')}
   catch(e){setSync('الحفظ ماتمّش، المساحة ممكن تكون مليانة','warn')}
+  scheduleSync();
 }
 function loadLocal(){
-  try{const all=JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}');Object.values(all).forEach(v=>{if(v&&v.h)years[v.h]={h:v.h,due:v.due??null,payments:Array.isArray(v.payments)?v.payments:[]}})}catch(e){}
+  for(const k in years)delete years[k];
+  try{const all=JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}');Object.values(all).forEach(v=>{if(v&&v.h)years[v.h]={h:v.h,due:v.due??null,dueAt:v.dueAt||0,payments:Array.isArray(v.payments)?v.payments:[]}})}catch(e){}
+  try{deleted=JSON.parse(localStorage.getItem(DEL_KEY)||'[]');if(!Array.isArray(deleted))deleted=[]}catch(e){deleted=[]}
 }
-function initStore(){
-  loadLocal();setSync('محفوظ على الموبايل ده','ok');
-  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+
+// ----- sync through a private GitHub gist -----
+const syncCfg=()=>{try{const c=JSON.parse(localStorage.getItem(SYNC_KEY)||'null');return c&&c.token?c:null}catch(e){return null}};
+const saveCfg=c=>{try{c?localStorage.setItem(SYNC_KEY,JSON.stringify(c)):localStorage.removeItem(SYNC_KEY)}catch(e){}};
+function smsg(t,c){const m=$('syncMsg');m.textContent=t;m.className='formMsg'+(c?' '+c:'')}
+async function gh(path,opt={}){
+  const c=syncCfg();
+  const r=await fetch('https://api.github.com'+path,Object.assign({cache:'no-store'},opt,{headers:Object.assign({Authorization:'Bearer '+c.token,Accept:'application/vnd.github+json'},opt.body?{'Content-Type':'application/json'}:{})}));
+  if(r.status===401||r.status===403)throw {code:'auth'};
+  if(!r.ok)throw {code:'http',status:r.status};
+  return r.json();
+}
+function localState(){
+  let calc=null;try{calc=JSON.parse(localStorage.getItem(CALC_KEY)||'null')}catch(e){}
+  return {app:'zakati',v:2,calc,log:logBlob(),deleted};
+}
+function merge(a,b){ // union of payments, newer calculator and due values win
+  const del=[...new Set([...(a.deleted||[]),...(b.deleted||[])])],dset=new Set(del);
+  const ca=a.calc,cb=b.calc;
+  const calc=!ca?cb:!cb?ca:((cb.u||0)>(ca.u||0)?cb:ca);
+  const log={};
+  for(const src of [a.log||{},b.log||{}])for(const k in src){
+    const v=src[k];if(!v||!v.h)continue;
+    const t=log[v.h]||(log[v.h]={h:v.h,due:null,dueAt:-1,payments:[]});
+    if((v.dueAt||0)>t.dueAt){t.due=v.due??null;t.dueAt=v.dueAt||0}
+    const ids=new Set(t.payments.map(p=>p.id));
+    (v.payments||[]).forEach(p=>{if(p&&p.id&&!ids.has(p.id)&&!dset.has(p.id)){t.payments.push(p);ids.add(p.id)}});
+  }
+  Object.values(log).forEach(t=>{if(t.dueAt<0)t.dueAt=0});
+  return {app:'zakati',v:2,calc,log,deleted:del.slice(-2000)};
+}
+function applyState(st){
+  const calcBefore=localStorage.getItem(CALC_KEY);
+  for(const k in years)delete years[k];
+  Object.values(st.log).forEach(v=>years[v.h]={h:v.h,due:v.due,dueAt:v.dueAt,payments:v.payments});
+  deleted=st.deleted;
+  writeLocal();
+  if(st.calc){const cj=JSON.stringify(st.calc);if(cj!==calcBefore){localStorage.setItem(CALC_KEY,cj);window.__zakatCalcReload&&window.__zakatCalcReload()}}
   render();
+}
+let syncing=false,again=false,syncT;
+function scheduleSync(){if(!syncCfg())return;clearTimeout(syncT);syncT=setTimeout(syncNow,1500)}
+async function findGist(){
+  for(let page=1;page<=5;page++){
+    const list=await gh('/gists?per_page=100&page='+page);
+    const g=list.find(x=>x.files&&x.files[GIST_FILE]);if(g)return g.id;
+    if(list.length<100)break;
+  }
+  return null;
+}
+async function syncNow(){
+  const c=syncCfg();if(!c)return;
+  if(!navigator.onLine){setSync('مفيش نت، هيتزامن لما النت يرجع','warn');return}
+  if(syncing){again=true;return}
+  syncing=true;setSync('بيتزامن…');
+  try{
+    if(!c.gist){c.gist=await findGist();saveCfg(c)}
+    let remote={log:{},deleted:[],calc:null};
+    if(c.gist){
+      const g=await gh('/gists/'+c.gist);const f=g.files&&g.files[GIST_FILE];
+      if(f){let txt=f.content;if(f.truncated&&f.raw_url)txt=await (await fetch(f.raw_url,{cache:'no-store'})).text();try{remote=JSON.parse(txt)}catch(e){}}
+    }
+    const merged=merge(localState(),remote);
+    applyState(merged);
+    const body=JSON.stringify(merged);
+    if(!c.gist){
+      const g=await gh('/gists',{method:'POST',body:JSON.stringify({description:'Zakati app data (private)',public:false,files:{[GIST_FILE]:{content:body}}})});
+      c.gist=g.id;saveCfg(c);
+    }else if(body!==JSON.stringify(remote)){
+      await gh('/gists/'+c.gist,{method:'PATCH',body:JSON.stringify({files:{[GIST_FILE]:{content:body}}})});
+    }
+    c.last=Date.now();saveCfg(c);
+    setSync('متزامن على كل أجهزتك','ok');renderSync();
+  }catch(e){
+    if(e&&e.code==='auth'){setSync('مفتاح GitHub مش شغال، اربط تاني','warn');smsg('المفتاح اترفض أو انتهى. اعمل مفتاح جديد واربط تاني.','err')}
+    else setSync('المزامنة ماتمّتش، هتتجرب تاني','warn');
+  }finally{syncing=false;if(again){again=false;scheduleSync()}}
+}
+function renderSync(){
+  const c=syncCfg();
+  $('syncSetup').hidden=!!c;$('syncOn').hidden=!c;
+  if(c)$('syncInfo').textContent=c.last?'آخر مزامنة: '+new Date(c.last).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'}):'لسه بيتزامن لأول مرة…';
+}
+$('tokGo').onclick=async()=>{
+  const t=$('tokIn').value.trim();
+  if(!/^(ghp_|github_pat_)[A-Za-z0-9_]{20,}$/.test(t)){smsg('المفتاح لازم يبدأ بـ ghp_ وتنسخه كله','err');return}
+  saveCfg({token:t});smsg('بنتأكد من المفتاح…');
+  try{await gh('/gists?per_page=1');$('tokIn').value='';smsg('اتربط الجهاز ده','ok');renderSync();await syncNow()}
+  catch(e){saveCfg(null);renderSync();smsg(e&&e.code==='auth'?'المفتاح ده مش شغال، اتأكد إنك علّمت صلاحية gist':'مش قادر أوصل لـ GitHub، اتأكد من النت','err')}
+};
+$('syncNow').onclick=()=>syncNow();
+let offArm=false;
+$('syncOff').onclick=()=>{
+  if(!offArm){offArm=true;$('syncOff').textContent='متأكد؟ دوس تاني';setTimeout(()=>{offArm=false;$('syncOff').textContent='افصل الجهاز ده'},2500);return}
+  saveCfg(null);renderSync();setSync('محفوظ على الجهاز ده','ok');smsg('الجهاز ده اتفصل. بياناتك لسه موجودة عليه وعلى GitHub.','ok');
+};
+document.addEventListener('zakatchange',scheduleSync);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncNow()});
+addEventListener('online',()=>syncNow());
+
+function initStore(){
+  loadLocal();setSync(syncCfg()?'بيتزامن…':'محفوظ على الجهاز ده','ok');
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  renderSync();render();syncNow();
 }
 
 // ----- render -----
@@ -767,10 +926,17 @@ function render(){
   else if(today<info.start){cd.hidden=false;cd.textContent=`السنة دي لسه مابدأتش، بتبدأ بعد ${n2(daysBetween(today,info.start))} يوم`}
   else cd.hidden=true;
 
+  const calcZ=window.__zakatCalc?window.__zakatCalc.zakat:null;
   const dueEl=$('yDue');
   if(document.activeElement!==dueEl)dueEl.value=y.due==null?'':y.due;
+  dueEl.placeholder=sel===curH&&calcZ!=null?`من الحاسبة: ${n2(calcZ)}`:'اكتب المبلغ';
   const paid=y.payments.reduce((s,p)=>s+num(p.amount),0);
-  const due=y.due==null?null:num(y.due);
+  const due=y.due!=null?num(y.due):(sel===curH&&calcZ!=null?calcZ:null);
+  // feed the calculator: what was paid in the current zakat year, and months left
+  const cy=getYear(curH),cinfo=yearInfo(curH);
+  const cpaid=cy.payments.reduce((s,p)=>s+num(p.amount),0);
+  const mleft=cinfo.months.filter(mo=>mo.last>=today).length;
+  window.__zakatSetPaid&&window.__zakatSetPaid(cpaid,mleft);
   $('sPaid').textContent=fmt(paid);
   const box=$('sLeftBox');
   if(due==null){box.className='stat left';$('sLeftK').textContent='باقي عليك';$('sLeft').textContent='—'}
@@ -814,15 +980,15 @@ $('years').addEventListener('click',e=>{
 });
 let dueT;
 $('yDue').addEventListener('input',e=>{
-  const v=e.target.value;getYear(sel).due=v===''?null:num(v);
+  const v=e.target.value;const yy=getYear(sel);yy.due=v===''?null:num(v);yy.dueAt=Date.now();
   clearTimeout(dueT);dueT=setTimeout(persist,500);render();
 });
 $('fromCalc').onclick=()=>{
   const c=window.__zakatCalc;if(!c)return;
-  getYear(sel).due=c.zakat;$('yDue').value=c.zakat;persist();render();
+  const yy=getYear(sel);yy.due=c.zakat;yy.dueAt=Date.now();$('yDue').value=c.zakat;persist();render();
   msg(c.example?'اتنقل رقم الحاسبة، بس خلي بالك الحاسبة لسه فيها أرقام الأمثلة':'اتنقل رقم الحاسبة',c.example?'err':'ok');
 };
-document.addEventListener('zakatcalc',()=>{});
+let rT;document.addEventListener('zakatcalc',()=>{clearTimeout(rT);rT=setTimeout(render,60)});
 function msg(t,c){const m=$('formMsg');m.textContent=t;m.className='formMsg'+(c?' '+c:'')}
 $('payForm').addEventListener('submit',e=>{
   e.preventDefault();
@@ -840,12 +1006,13 @@ $('payForm').addEventListener('submit',e=>{
 $('months').addEventListener('click',e=>{
   const b=e.target.closest('[data-delpay]');if(!b)return;
   if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='متأكد؟';setTimeout(()=>{if(b.isConnected){b.classList.remove('arm');b.textContent='مسح'}},2500);return}
-  const y=getYear(sel);y.payments=y.payments.filter(p=>p.id!==b.dataset.delpay);persist();render();
+  const y=getYear(sel);y.payments=y.payments.filter(p=>p.id!==b.dataset.delpay);deleted.push(b.dataset.delpay);persist();render();
 });
 $('copyYear').onclick=()=>{
   const y=getYear(sel),info=yearInfo(sel),paid=y.payments.reduce((s,p)=>s+num(p.amount),0);
   let t=`كشف زكاة سنة ${sel}–${sel+1} هـ\nمن ${gText(info.start)} إلى ${gText(info.end)}\n`;
-  if(y.due!=null)t+=`المستحق: ${fmt(num(y.due))}\n`;
+  const cz=window.__zakatCalc;const dd=y.due!=null?num(y.due):(sel===zYearOf(todayIso())&&cz?cz.zakat:null);
+  if(dd!=null)t+=`المستحق: ${fmt(dd)}\nالباقي: ${fmt(Math.max(0,dd-paid))}\n`;
   t+=`المدفوع: ${fmt(paid)}\n`;
   info.months.forEach(mo=>{const ps=y.payments.filter(p=>{const h=hij(p.date);return h.y===mo.y&&h.m===mo.m});
     if(ps.length){t+=`\n${HM[mo.m-1]} ${mo.y}:\n`;ps.forEach(p=>t+=`  • ${p.to} — ${fmt(num(p.amount))}${p.note?' ('+p.note+')':''} — ${gText(p.date)}\n`)}});
@@ -886,7 +1053,8 @@ $('importYes').onclick=()=>{
   if(!pending)return;
   try{
     localStorage.setItem(LOCAL_KEY,JSON.stringify(pending.log||{}));
-    if(pending.calc)localStorage.setItem('zakat-calc-v1',JSON.stringify(pending.calc));
+    if(pending.calc){pending.calc.u=Date.now();localStorage.setItem('zakat-calc-v1',JSON.stringify(pending.calc))}
+    Object.values(pending.log||{}).forEach(v=>{if(v)v.dueAt=Date.now()});localStorage.setItem(LOCAL_KEY,JSON.stringify(pending.log||{}));
     location.reload();
   }catch(e){bmsg('الاسترجاع ماتمّش','err')}
 };
