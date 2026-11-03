@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>حاسبة زكاة رمضان</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08161b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="زكاتي">
+<meta name="description" content="حاسبة زكاة الذهب والأموال والعقارات مع خصم التمويلات، وسجل شهري للزكاة اللي بتطلّعها.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: "Ramadan night" — a lantern-lit hero with the live result, then numbered step cards (right) beside a sticky gold-framed ledger (left). Deliberately single dark theme. */
+:root{
+  --night:#08161b; --night-2:#0d2329; --panel:rgba(18,44,50,.72); --panel-solid:#112a30;
+  --ink:#eef3ee; --muted:#9fb7b1; --line:rgba(212,175,98,.18); --line-strong:rgba(212,175,98,.42);
+  --gold:#d9b46a; --gold-hi:#f6dfa4; --gold-lo:#a87d33; --emerald:#3fbf96; --rose:#e98f6f; --sky:#7fb7d6;
+  --field:rgba(4,14,17,.55);
+  --display:"Aref Ruqaa","Amiri",serif;
+  --body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--night);-webkit-text-size-adjust:100%}
+body{margin:0;padding-top:env(safe-area-inset-top,0px)}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{
+  background:
+    radial-gradient(1200px 520px at 80% -10%, rgba(63,191,150,.16), transparent 60%),
+    radial-gradient(900px 600px at 0% 10%, rgba(217,180,106,.10), transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='88' height='88' viewBox='0 0 88 88'%3E%3Cg fill='none' stroke='%23d9b46a' stroke-opacity='.075' stroke-width='1'%3E%3Cpath d='M24 24h40v40H24z'/%3E%3Cpath d='M44 15.7 72.3 44 44 72.3 15.7 44z'/%3E%3Ccircle cx='44' cy='44' r='8'/%3E%3Cpath d='M0 44h15.7M72.3 44H88M44 0v15.7M44 72.3V88'/%3E%3C/g%3E%3C/svg%3E"),
+    var(--night);
+  color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;align-items:center;padding-block:44px 8px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);padding-block:32px 0}}
+.sky{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.sky i{position:absolute;width:3px;height:3px;border-radius:50%;background:var(--gold-hi);opacity:.6;animation:tw 4s ease-in-out infinite}
+@keyframes tw{50%{opacity:.12}}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--gold);font-size:13px;letter-spacing:.06em;font-weight:500}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--gold)}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(46px,8vw,88px);line-height:1.05;margin:10px 0 12px;text-wrap:balance;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 30px rgba(217,180,106,.25))}
+.hero p.lead{color:var(--muted);max-width:52ch;margin:0;font-size:16px}
+.verse{margin-top:18px;font-family:var(--display);font-size:22px;color:var(--ink);opacity:.85}
+.verse small{display:block;font-family:var(--body);font-size:12px;color:var(--muted);margin-top:2px}
+
+.moon{position:relative;justify-self:center;width:min(360px,100%);aspect-ratio:1;max-width:100%}
+.moon svg{width:100%;height:100%;overflow:visible}
+.moon .glow{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,rgba(246,223,164,.22),transparent 65%);filter:blur(10px)}
+.moon .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22%}
+.moon .center .k{font-size:13px;color:var(--muted)}
+.moon .center .v{font-size:clamp(26px,4.4vw,38px);font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--gold-hi);overflow-wrap:anywhere}
+.moon .center .c{font-size:13px;color:var(--gold)}
+.moon .center .s{margin-top:6px}
+#arc{transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+
+/* ---------- layout ---------- */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start}
+@media (max-width:960px){.grid{grid-template-columns:minmax(0,1fr)}}
+.inputs{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+.card{position:relative;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:16px;transition:border-color .25s}
+.card:focus-within{border-color:var(--line-strong)}
+.card-h{display:flex;align-items:center;gap:14px}
+.step{flex:none;width:42px;height:42px;display:grid;place-items:center;position:relative;color:var(--night);font-weight:700;font-size:15px}
+.step::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,var(--gold-hi),var(--gold-lo));clip-path:polygon(29% 0,71% 0,100% 29%,100% 71%,71% 100%,29% 100%,0 71%,0 29%)}
+.step span{position:relative}
+.card-h h2{margin:0;font-size:19px;font-weight:600;line-height:1.3}
+.card-h h2 small{display:block;font-size:13px;font-weight:400;color:var(--muted)}
+.card-h .sum{margin-inline-start:auto;font-variant-numeric:tabular-nums;font-weight:600;color:var(--gold-hi);white-space:nowrap;font-size:15px}
+
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);min-width:0}
+input[type=number],input[type=text],select{
+  font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid rgba(159,183,177,.18);border-radius:11px;padding:10px 12px;width:100%;
+  font-variant-numeric:tabular-nums;transition:border-color .2s, box-shadow .2s}
+input:hover,select:hover{border-color:rgba(217,180,106,.35)}
+input:focus-visible,select:focus-visible{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(217,180,106,.18)}
+button:focus-visible,.seg label:focus-within,.toggle:focus-within{outline:2px solid var(--gold);outline-offset:2px}
+select option{background:var(--panel-solid);color:var(--ink)}
+.hint{font-size:13px;color:var(--muted);margin:0;max-width:70ch}
+
+.seg{display:flex;flex-wrap:wrap;gap:6px;padding:5px;background:var(--field);border:1px solid rgba(159,183,177,.14);border-radius:13px;width:fit-content;max-width:100%}
+.seg label{position:relative;padding:8px 14px;border-radius:9px;cursor:pointer;font-size:14px;color:var(--muted);transition:background .2s,color .2s}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg label:has(input:checked){background:linear-gradient(135deg,rgba(246,223,164,.95),rgba(217,180,106,.95));color:var(--night);font-weight:600}
+
+.toggle{display:flex;gap:12px;align-items:flex-start;font-size:14px;cursor:pointer;padding:12px 14px;border:1px dashed var(--line);border-radius:12px}
+.toggle input{position:absolute;opacity:0;width:1px;height:1px}
+.toggle .sw{flex:none;width:40px;height:22px;border-radius:99px;background:rgba(159,183,177,.25);position:relative;transition:background .2s;margin-top:2px}
+.toggle .sw::after{content:"";position:absolute;top:3px;right:3px;width:16px;height:16px;border-radius:50%;background:var(--ink);transition:transform .2s}
+.toggle input:checked+.sw{background:var(--emerald)}
+.toggle input:checked+.sw::after{transform:translateX(-18px)}
+.toggle b{color:var(--ink);font-weight:600}
+.toggle span.t{color:var(--muted)}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.item{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1.2fr) minmax(0,1.4fr) auto;gap:10px;align-items:end;padding:14px;background:rgba(4,14,17,.35);border:1px solid rgba(159,183,177,.12);border-radius:14px;animation:in .35s ease}
+@keyframes in{from{opacity:.3;transform:translateY(6px)}}
+@media (max-width:620px){.item{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.item>.full{grid-column:1/-1}}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.item .note{grid-column:1/-1;font-size:12.5px;color:var(--muted);margin-top:-2px;font-variant-numeric:tabular-nums}
+.item .note b{color:var(--gold);font-weight:600}
+button{font:inherit;cursor:pointer}
+.add{align-self:flex-start;display:inline-flex;gap:8px;align-items:center;background:transparent;border:1px solid var(--line-strong);color:var(--gold-hi);padding:8px 16px;border-radius:99px;font-size:14px;transition:background .2s}
+.add:hover{background:rgba(217,180,106,.1)}
+.del{background:transparent;border:1px solid rgba(233,143,111,.3);color:var(--rose);width:42px;height:42px;border-radius:11px;display:grid;place-items:center;transition:background .2s}
+.del:hover{background:rgba(233,143,111,.12)}
+.del svg{width:16px;height:16px}
+
+/* ---------- ledger ---------- */
+aside.ledger{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);min-width:0;border-radius:20px;padding:1px;
+  background:linear-gradient(160deg,var(--gold-hi),rgba(217,180,106,.15) 35%,rgba(217,180,106,.08) 65%,var(--gold-lo))}
+@media (max-width:960px){aside.ledger{position:static}}
+.ledger-in{background:linear-gradient(180deg,#10282e,#0a1c21);border-radius:19px;padding:22px;display:flex;flex-direction:column;gap:18px}
+.ledger h3{margin:0;font-family:var(--display);font-size:28px;font-weight:700;color:var(--gold)}
+.result{text-align:center;padding:18px 12px;border-radius:14px;background:radial-gradient(120% 120% at 50% 0%,rgba(217,180,106,.2),rgba(217,180,106,.03))}
+.result .lbl{font-size:13px;color:var(--muted)}
+.result .val{font-size:clamp(32px,5vw,44px);font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;
+  background:linear-gradient(180deg,var(--gold-hi),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.result .cur{font-size:15px;color:var(--gold)}
+.result .monthly{font-size:12.5px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+
+.comp{display:flex;flex-direction:column;gap:8px}
+.bar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:rgba(159,183,177,.12)}
+.bar i{display:block;height:100%;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend span::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--c)}
+
+.lines{display:flex;flex-direction:column;gap:2px;font-variant-numeric:tabular-nums}
+.ln{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:6px 0;border-bottom:1px dashed rgba(159,183,177,.12)}
+.ln span:first-child{color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.ln span:last-child{white-space:nowrap}
+.ln.neg span:last-child{color:var(--rose)}
+.ln.tot{border-bottom:0;border-top:1px solid var(--line-strong);margin-top:4px;padding-top:10px;font-weight:600}
+.ln.tot span:first-child{color:var(--ink)}
+
+.meter{display:flex;flex-direction:column;gap:6px}
+.meter .track{position:relative;height:8px;border-radius:99px;background:rgba(159,183,177,.14)}
+.meter .fill{position:absolute;inset-block:0;right:0;border-radius:99px;background:linear-gradient(90deg,var(--emerald),#8fe0c2);transition:width .6s}
+.meter .mark{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--gold-hi);border-radius:2px}
+.meter .cap{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 12px;border-radius:99px;font-weight:500}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{background:rgba(63,191,150,.14);color:var(--emerald)}
+.pill.no{background:rgba(233,143,111,.14);color:var(--rose)}
+
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.copy{flex:1;background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:var(--night);border:0;padding:12px 16px;border-radius:12px;font-weight:700;transition:transform .15s, box-shadow .2s}
+.copy:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(217,180,106,.25)}
+.reset{background:transparent;border:1px solid rgba(159,183,177,.25);color:var(--muted);padding:12px 14px;border-radius:12px}
+.toast{font-size:13px;color:var(--emerald)}
+.ex{font-size:12.5px;color:var(--rose);margin:0;text-align:center}
+
+/* ---------- notes ---------- */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.notes h2{grid-column:1/-1;font-family:var(--display);font-size:34px;color:var(--gold);margin:12px 0 0;font-weight:700}
+.note-c{padding:18px;border-radius:16px;border:1px solid var(--line);background:rgba(18,44,50,.45);font-size:14px;color:var(--muted)}
+.note-c b{display:block;color:var(--ink);font-size:15px;margin-bottom:4px}
+.disclaimer{font-size:13px;color:var(--muted);text-align:center;margin:0}
+
+/* mobile dock */
+.dock{display:none}
+@media (max-width:960px){
+  .dock{display:flex;position:fixed;inset:auto 0 0;z-index:20;justify-content:space-between;align-items:center;gap:12px;
+    padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+    background:rgba(8,22,27,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line-strong)}
+  .dock .k{font-size:12.5px;color:var(--muted)}
+  .dock .v{font-weight:700;font-size:20px;color:var(--gold-hi);font-variant-numeric:tabular-nums}
+  .dock a{color:var(--night);background:var(--gold);padding:8px 14px;border-radius:10px;font-weight:600;text-decoration:none;font-size:14px}
+}
+/* ---------- jump links ---------- */
+.jump{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.jump a{color:var(--gold-hi);text-decoration:none;border:1px solid var(--line-strong);padding:7px 16px;border-radius:99px;font-size:14px;transition:background .2s}
+.jump a:hover{background:rgba(217,180,106,.1)}
+.jump a.primary{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:var(--night);border-color:transparent;font-weight:600}
+
+/* ---------- payments log ---------- */
+.log{display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
+.log-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px}
+.log-head h2{font-family:var(--display);font-size:clamp(34px,5vw,48px);color:var(--gold);margin:0;font-weight:700;line-height:1.1}
+.log-head p{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.sync{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.sync.ok::before{background:var(--emerald)}
+.sync.warn{color:var(--rose)}.sync.warn::before{background:var(--rose)}
+.years{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ytab{background:var(--field);border:1px solid rgba(159,183,177,.18);color:var(--muted);padding:8px 16px;border-radius:12px;font-size:14px;line-height:1.3;text-align:center}
+.ytab small{display:block;font-size:11.5px;opacity:.8}
+.ytab[aria-pressed="true"]{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:var(--night);border-color:transparent;font-weight:600}
+.ytab.ghost{border-style:dashed;color:var(--gold-hi)}
+
+.ysum{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px}
+@media (max-width:860px){.ysum{grid-template-columns:minmax(0,1fr)}}
+.period{display:flex;flex-direction:column;gap:10px}
+.tl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;align-items:start;font-size:14px}
+.tl .dot{width:12px;height:12px;margin-top:6px;transform:rotate(45deg);border:2px solid var(--gold)}
+.tl .dot.fill{background:var(--gold)}
+.tl b{color:var(--ink);font-weight:600}
+.tl span{color:var(--muted);display:block;font-size:13px}
+.countdown{font-size:13px;color:var(--gold-hi);background:rgba(217,180,106,.1);border-radius:10px;padding:8px 12px;width:fit-content}
+.dueRow{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.dueRow label{flex:1;min-width:160px}
+.mini{background:transparent;border:1px solid var(--line-strong);color:var(--gold-hi);padding:10px 12px;border-radius:11px;font-size:13.5px;white-space:nowrap}
+.mini:hover{background:rgba(217,180,106,.1)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stat{background:rgba(4,14,17,.35);border:1px solid rgba(159,183,177,.12);border-radius:12px;padding:12px;min-width:0}
+.stat .k{font-size:12.5px;color:var(--muted)}
+.stat .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;line-height:1.35}
+.stat.paid .v{color:var(--emerald)}
+.stat.left .v{color:var(--gold-hi)}
+.stat.over .v{color:var(--sky)}
+@media (max-width:480px){.stats{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.stats .stat:last-child{grid-column:1/-1}}
+.prog{height:10px;border-radius:99px;background:rgba(159,183,177,.14);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--emerald),#8fe0c2);border-radius:99px;transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.prog-cap{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+.payform{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.4fr) minmax(0,1.3fr) auto;gap:10px;align-items:end}
+@media (max-width:860px){.payform{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.payform .wide{grid-column:1/-1}}
+input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid rgba(159,183,177,.18);border-radius:11px;padding:9px 12px;width:100%}
+.payform .go{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:var(--night);border:0;padding:11px 20px;border-radius:11px;font-weight:700;white-space:nowrap}
+.formMsg{font-size:13px;margin:0;min-height:1.2em;color:var(--muted)}
+.formMsg.err{color:var(--rose)}.formMsg.ok{color:var(--emerald)}
+
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.month{background:rgba(18,44,50,.5);border:1px solid rgba(159,183,177,.12);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.month.now{border-color:var(--gold);box-shadow:0 0 0 1px rgba(217,180,106,.25),0 10px 30px rgba(217,180,106,.08)}
+.month.future{opacity:.62}
+.month-h{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.month-h b{font-family:var(--display);font-size:22px;font-weight:700;color:var(--ink);line-height:1.2}
+.month-h b em{font-style:normal;font-family:var(--body);font-size:12px;color:var(--muted);font-weight:400;margin-inline-start:6px}
+.month-h .gr{display:block;font-size:12px;color:var(--muted)}
+.month-h .tot{font-weight:700;color:var(--emerald);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:15px}
+.month-h .tot.zero{color:var(--muted);font-weight:400}
+.badge{font-size:11.5px;color:var(--night);background:var(--gold);padding:1px 8px;border-radius:99px;margin-inline-start:6px;vertical-align:middle;font-family:var(--body);font-weight:600}
+.pays{display:flex;flex-direction:column;gap:2px}
+.pay{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:7px 0;border-top:1px dashed rgba(159,183,177,.14);font-size:14px}
+.pay .d{font-size:11px;color:var(--muted);width:58px;text-align:center;line-height:1.2;font-variant-numeric:tabular-nums}
+.pay .d strong{display:block;font-size:16px;color:var(--ink)}
+.pay .who{min-width:0;overflow-wrap:anywhere}
+.pay .who small{display:block;color:var(--muted);font-size:12px}
+.pay .amt{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.pay .x{background:transparent;border:1px solid transparent;color:var(--muted);border-radius:8px;padding:4px 8px;font-size:12px}
+.pay .x:hover{border-color:rgba(233,143,111,.35);color:var(--rose)}
+.pay .x.arm{background:rgba(233,143,111,.15);color:var(--rose);border-color:rgba(233,143,111,.4)}
+.empty{font-size:13px;color:var(--muted);margin:0;padding:6px 0;border-top:1px dashed rgba(159,183,177,.14)}
+
+.people{display:flex;flex-wrap:wrap;gap:8px}
+.person{display:flex;gap:10px;align-items:baseline;background:rgba(4,14,17,.35);border:1px solid rgba(159,183,177,.14);border-radius:12px;padding:8px 12px;font-size:14px;min-width:0}
+.person b{font-weight:600;overflow-wrap:anywhere}
+.person span{color:var(--emerald);font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.person small{color:var(--muted);font-size:12px}
+.logfoot{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap" dir="rtl" lang="ar">
+
+<header class="hero">
+  <div class="sky" id="sky" aria-hidden="true"></div>
+  <div>
+    <span class="eyebrow">زكاة المال · تُخرج أول يوم رمضان</span>
+    <h1>حاسبة زكاة رمضان</h1>
+    <p class="lead">اكتب ذهبك وفلوسك وعقاراتك، وأقساط التمويل اللي عليك، والحاسبة تقولك زكاتك في ثانية. الأرقام اللي ظاهرة أمثلة، وأرقامك بتتحفظ على موبايلك بس.</p>
+    <div class="verse">﴿خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا﴾<small>سورة التوبة · 103</small></div>
+    <nav class="jump"><a class="primary" href="#log">سجل الزكاة اللي طلّعتها</a><a href="#ledger">كشف الحساب</a></nav>
+  </div>
+  <div class="moon" aria-hidden="true">
+    <div class="glow"></div>
+    <svg viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="gg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dfa4"/><stop offset="1" stop-color="#a87d33"/></linearGradient>
+      </defs>
+      <g fill="none" stroke="#d9b46a" stroke-opacity=".28">
+        <rect x="42" y="42" width="116" height="116"/>
+        <rect x="42" y="42" width="116" height="116" transform="rotate(45 100 100)"/>
+      </g>
+      <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(159,183,177,.15)" stroke-width="6"/>
+      <circle id="arc" cx="100" cy="100" r="78" fill="none" stroke="url(#gg)" stroke-width="6" stroke-linecap="round"
+        stroke-dasharray="490.1" stroke-dashoffset="490.1" transform="rotate(-90 100 100)"/>
+    </svg>
+    <div class="center">
+      <span class="k">زكاتك هذا العام</span>
+      <span class="v" id="heroZ">0</span>
+      <span class="c" id="heroCur"></span>
+      <span class="s" id="heroStatus"></span>
+    </div>
+  </div>
+</header>
+
+<div class="grid">
+<div class="inputs">
+
+  <section class="card">
+    <div class="card-h"><div class="step"><span>١</span></div><h2>الأسعار والنصاب<small>حدّث سعر الذهب يوم الحساب</small></h2><span class="sum" id="sumNisab"></span></div>
+    <div class="row">
+      <label class="f">العملة<input type="text" id="cur" value="ج.م"></label>
+      <label class="f">سعر جرام الذهب عيار 24<input type="number" id="p24" min="0" step="any" value="5200" inputmode="decimal"></label>
+      <label class="f">سعر جرام الفضة<input type="number" id="pAg" min="0" step="any" value="70" inputmode="decimal"></label>
+    </div>
+    <div class="seg" role="radiogroup" aria-label="أساس النصاب">
+      <label><input type="radio" name="nisab" value="gold" checked>نصاب الذهب · 85 جم</label>
+      <label><input type="radio" name="nisab" value="silver">نصاب الفضة · 595 جم</label>
+    </div>
+    <p class="hint">سعر عيار 21 و18 بيتحسب تلقائي من عيار 24. نصاب الفضة أقل بكتير، وبعض العلماء بيرجّحوه لأنه أنفع للفقير.</p>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><div class="step"><span>٢</span></div><h2>الذهب<small>الوزن بالجرام</small></h2><span class="sum" id="sumGold"></span></div>
+    <div class="row">
+      <label class="f">سبائك وجنيهات · عيار 24<input type="number" id="g24" min="0" step="any" value="20" inputmode="decimal"></label>
+      <label class="f">ذهب ادخار · عيار 21<input type="number" id="g21" min="0" step="any" value="16" inputmode="decimal"></label>
+      <label class="f">ذهب ادخار · عيار 18<input type="number" id="g18" min="0" step="any" value="0" inputmode="decimal"></label>
+    </div>
+    <div class="row">
+      <label class="f">مصوغات للّبس · عيار 21<input type="number" id="j21" min="0" step="any" value="40" inputmode="decimal"></label>
+      <label class="f">مصوغات للّبس · عيار 18<input type="number" id="j18" min="0" step="any" value="0" inputmode="decimal"></label>
+    </div>
+    <label class="toggle"><input type="checkbox" id="incJ"><span class="sw"></span>
+      <span><b>أدخل الذهب الملبوس في الزكاة</b><span class="t">الجمهور ودار الإفتاء المصرية: لا زكاة على الحُلي المعتاد للزينة. الحنفية: فيه زكاة. فعّلها لو بتاخد برأي الحنفية أو للاحتياط.</span></span>
+    </label>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><div class="step"><span>٣</span></div><h2>الأموال<small>كل اللي معاك يوم 1 رمضان</small></h2><span class="sum" id="sumMoney"></span></div>
+    <div class="row">
+      <label class="f">كاش في البيت<input type="number" id="cash" min="0" step="any" value="15000" inputmode="decimal"></label>
+      <label class="f">أرصدة الحسابات البنكية<input type="number" id="bank" min="0" step="any" value="120000" inputmode="decimal"></label>
+      <label class="f">شهادات وودائع (الأصل)<input type="number" id="cert" min="0" step="any" value="300000" inputmode="decimal"></label>
+      <label class="f">عوائد وأرباح متجمّعة<input type="number" id="inc" min="0" step="any" value="0" inputmode="decimal"></label>
+      <label class="f">أسهم وصناديق (القيمة السوقية)<input type="number" id="stk" min="0" step="any" value="0" inputmode="decimal"></label>
+      <label class="f">فلوس ليك عند ناس (مضمونة)<input type="number" id="recv" min="0" step="any" value="0" inputmode="decimal"></label>
+      <label class="f">عملات أجنبية (بعد التحويل)<input type="number" id="fx" min="0" step="any" value="0" inputmode="decimal"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><div class="step"><span>٤</span></div><h2>العقارات<small>الزكاة على عقار التجارة بس</small></h2><span class="sum" id="sumRE"></span></div>
+    <p class="hint">السكن مالوش زكاة. العقار المؤجَّر مافيش زكاة على قيمته، والإيجار اللي معاك بيدخل في الأموال فوق.</p>
+    <div class="list" id="props"></div>
+    <button class="add" id="addProp" type="button">+ أضف عقار</button>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><div class="step"><span>٥</span></div><h2>الديون والتمويلات<small>بنوك · سيارة · عقاري</small></h2><span class="sum" id="sumDebt"></span></div>
+    <div class="seg" role="radiogroup" aria-label="طريقة خصم التمويل">
+      <label><input type="radio" name="dm" value="year" checked>أقساط 12 شهر بس</label>
+      <label><input type="radio" name="dm" value="full">الرصيد كله</label>
+      <label><input type="radio" name="dm" value="none">بدون خصم</label>
+    </div>
+    <p class="hint">الأرجح في التمويلات الطويلة (مجمع الفقه الإسلامي وهيئة أيوفي): يُخصم المستحق خلال سنة الزكاة بس، عشان الزكاة ماتسقطش عن مال حاضر بسبب دين على سنين.</p>
+    <div class="list" id="debts"></div>
+    <button class="add" id="addDebt" type="button">+ أضف دين أو تمويل</button>
+  </section>
+
+</div>
+
+<aside class="ledger" id="ledger" aria-live="polite">
+  <div class="ledger-in">
+    <h3>كشف الزكاة</h3>
+    <div class="result">
+      <div class="lbl">الزكاة المستحقة · ٢٫٥٪</div>
+      <div class="val" id="zakat">0</div>
+      <div class="cur" id="zcur"></div>
+      <div class="monthly" id="zMonthly"></div>
+    </div>
+    <div class="comp">
+      <div class="bar" id="bar"></div>
+      <div class="legend">
+        <span style="--c:var(--gold)">ذهب</span><span style="--c:var(--emerald)">أموال</span><span style="--c:var(--sky)">عقار تجارة</span><span style="--c:var(--rose)">ديون مخصومة</span>
+      </div>
+    </div>
+    <div class="lines" id="lines"></div>
+    <div class="meter">
+      <div id="status"></div>
+      <div class="track"><div class="fill" id="mFill"></div><div class="mark" id="mMark"></div></div>
+      <div class="cap"><span>صافي مالك</span><span id="mCap"></span></div>
+    </div>
+    <div class="actions">
+      <button class="copy" id="copy" type="button">انسخ الملخص</button>
+      <button class="reset" id="reset" type="button">ابدأ من الصفر</button>
+    </div>
+    <span class="toast" id="toast" hidden></span>
+    <p class="ex" id="exNote">الأرقام الحالية أمثلة توضيحية، غيّرها بأرقامك.</p>
+  </div>
+</aside>
+</div>
+
+<section class="log" id="log">
+  <div class="log-head">
+    <div>
+      <h2>سجل الزكاة</h2>
+      <p>سنة الزكاة بتبدأ 1 رمضان وتخلص آخر يوم في شعبان، ويوم الحساب هو 1 رمضان اللي بعدها. سجّل كل مبلغ طلّعته واسم اللي أخده، والسجل بيقسمه على الشهور لوحده.</p>
+    </div>
+    <span class="sync" id="sync">بنجيب سجلك…</span>
+  </div>
+
+  <div class="years" id="years" role="group" aria-label="سنة الزكاة"></div>
+
+  <div class="ysum">
+    <section class="card period">
+      <div class="card-h"><div class="step"><span>هـ</span></div><h2 id="yTitle">سنة الزكاة<small id="ySub"></small></h2></div>
+      <div class="tl" id="timeline"></div>
+      <div class="countdown" id="countdown" hidden></div>
+    </section>
+    <section class="card">
+      <div class="dueRow">
+        <label class="f">الزكاة المستحقة عن السنة دي<input type="number" id="yDue" min="0" step="any" inputmode="decimal" placeholder="اكتب تقديرك أو خده من الحاسبة"></label>
+        <button class="mini" id="fromCalc" type="button">خد الرقم من الحاسبة</button>
+      </div>
+      <div class="stats">
+        <div class="stat paid"><div class="k">طلّعت لحد دلوقتي</div><div class="v" id="sPaid">0</div></div>
+        <div class="stat left" id="sLeftBox"><div class="k" id="sLeftK">باقي عليك</div><div class="v" id="sLeft">—</div></div>
+        <div class="stat"><div class="k">عدد المستحقين</div><div class="v" id="sPeople">0</div></div>
+      </div>
+      <div class="prog"><i id="yProg"></i></div>
+      <div class="prog-cap" id="yProgCap"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <div class="card-h"><div class="step"><span>+</span></div><h2>سجّل مبلغ طلّعته<small>الشهر بيتحدد لوحده من التاريخ</small></h2></div>
+    <form class="payform" id="payForm" novalidate>
+      <label class="f">التاريخ<input type="date" id="pDate" required></label>
+      <label class="f">المبلغ<input type="number" id="pAmt" min="0" step="any" inputmode="decimal" required placeholder="0"></label>
+      <label class="f wide">اسم اللي أخد الزكاة<input type="text" id="pTo" required placeholder="مثلًا: أم محمد، جمعية …" autocomplete="off" list="peopleList"></label>
+      <label class="f wide">ملاحظة (اختياري)<input type="text" id="pNote" placeholder="مصاريف مدرسة، علاج، تحويل بنكي…"></label>
+      <button class="go wide" type="submit">سجّل</button>
+      <datalist id="peopleList"></datalist>
+    </form>
+    <p class="formMsg" id="formMsg" aria-live="polite"></p>
+  </section>
+
+  <div class="months" id="months"></div>
+
+  <section class="card" id="peopleCard" hidden>
+    <div class="card-h"><div class="step"><span>✦</span></div><h2>المستحقين في السنة دي<small>إجمالي كل واحد</small></h2></div>
+    <div class="people" id="people"></div>
+  </section>
+
+  <div class="logfoot">
+    <button class="mini" id="copyYear" type="button">انسخ كشف السنة</button>
+    <span class="toast" id="logToast" hidden></span>
+  </div>
+
+  <section class="card" id="backup">
+    <div class="card-h"><div class="step"><span>⇅</span></div><h2>نسخة احتياطية<small>بياناتك محفوظة على الموبايل ده بس</small></h2></div>
+    <p class="hint">احفظ نسخة كل كام شهر في الملفات أو iCloud أو ابعتها لنفسك على واتساب. لو غيّرت الموبايل أو مسحت التطبيق، ترجّع بياناتك منها.</p>
+    <div class="logfoot">
+      <button class="mini" id="exportBtn" type="button">احفظ نسخة احتياطية</button>
+      <label class="mini" for="importFile" style="cursor:pointer">رجّع من نسخة</label>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+    </div>
+    <div class="logfoot" id="importConfirm" hidden>
+      <span class="hint" id="importInfo"></span>
+      <button class="mini" id="importYes" type="button" style="border-color:var(--rose);color:var(--rose)">أيوه، استبدل بياناتي</button>
+      <button class="mini" id="importNo" type="button">إلغاء</button>
+    </div>
+    <span class="formMsg" id="backupMsg" aria-live="polite"></span>
+  </section>
+</section>
+
+<section class="notes">
+  <h2>إخراج الزكاة مقدّمًا</h2>
+  <div class="note-c"><b>جائز عند الجمهور</b>تعجيل الزكاة قبل تمام الحول جائز عند الحنفية والشافعية والحنابلة، بشرط ملك النصاب وقت الإخراج، لحديث العباس رضي الله عنه لما استأذن النبي ﷺ في تعجيل صدقته فأذن له.</div>
+  <div class="note-c"><b>1 رمضان هو يوم حولك</b>احسب كل اللي عندك في اليوم ده، حتى الفلوس اللي دخلت خلال السنة ولسه ماكملتش حول. أسهل وأحوط، وفيه زيادة خير للفقير.</div>
+  <div class="note-c"><b>السنة هجرية، فالنسبة ٢٫٥٪</b>بما إنك بتطلّع كل رمضان فإنت ماشي بالسنة القمرية. لو حسبت بالسنة الميلادية النسبة تبقى ٢٫٥٧٧٪.</div>
+  <div class="note-c"><b>لو مالك زاد أو قلّ</b>لو زاد كتير قبل رمضان الجاي كمّل الفرق. ولو اللي طلّعته طلع أكتر من المستحق، الزيادة صدقة ليك.</div>
+  <p class="disclaimer" style="grid-column:1/-1">حاسبة استرشادية. في الحالات الخاصة (شركة، أرض مش واضح نيتها، دين مشكوك فيه) راجع دار الإفتاء أو عالم موثوق.</p>
+</section>
+</div>
+
+<div class="dock" aria-hidden="true">
+  <div><div class="k">زكاتك</div><div class="v" id="dockZ">0</div></div>
+  <a href="#ledger">التفاصيل</a>
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const KEY='zakat-calc-v1';
+const num=v=>{const n=parseFloat(v);return isFinite(n)&&n>0?n:0};
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const exampleProps=()=>[{name:'شقة السكن',type:'home',val:2500000},{name:'أرض للبيع',type:'trade',val:600000}];
+const exampleDebts=()=>[
+  {name:'تمويل عقاري',kind:'inst',monthly:9000,bal:850000},
+  {name:'تمويل سيارة',kind:'inst',monthly:6500,bal:180000},
+  {name:'قرض شخصي من البنك',kind:'inst',monthly:4000,bal:60000},
+  {name:'بطاقة ائتمان مستحقة',kind:'now',monthly:0,bal:12000}];
+let state={props:exampleProps(),debts:exampleDebts()};
+let isExample=true;
+const fieldIds=['cur','p24','pAg','g24','g21','g18','j21','j18','cash','bank','cert','inc','stk','recv','fx'];
+const moneyIds=['cash','bank','cert','inc','stk','recv','fx'];
+
+// stars
+(function(){const s=$('sky');let h='';for(let i=0;i<26;i++){h+=`<i style="top:${(Math.random()*90).toFixed(1)}%;left:${(Math.random()*100).toFixed(1)}%;animation-delay:${(Math.random()*4).toFixed(2)}s;transform:scale(${(.5+Math.random()).toFixed(2)})"></i>`}s.innerHTML=h})();
+
+const radio=n=>document.querySelector(`input[name=${n}]:checked`).value;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cur=()=>$('cur').value.trim();
+const n2=n=>Math.round(n).toLocaleString('ar-EG');
+const fmt=n=>n2(n)+(cur()?' '+cur():'');
+
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(!s)return;
+    fieldIds.forEach(id=>{if(s.f&&s.f[id]!=null)$(id).value=s.f[id]});
+    if(s.incJ!=null)$('incJ').checked=s.incJ;
+    if(s.nisab)document.querySelector(`input[name=nisab][value=${s.nisab}]`).checked=true;
+    if(s.dm)document.querySelector(`input[name=dm][value=${s.dm}]`).checked=true;
+    if(Array.isArray(s.props))state.props=s.props;
+    if(Array.isArray(s.debts))state.debts=s.debts;
+    isExample=!!s.example;
+  }catch(e){}
+}
+function save(){
+  try{
+    const f={};fieldIds.forEach(id=>f[id]=$(id).value);
+    localStorage.setItem(KEY,JSON.stringify({f,incJ:$('incJ').checked,nisab:radio('nisab'),dm:radio('dm'),props:state.props,debts:state.debts,example:isExample}));
+  }catch(e){}
+}
+const trash='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+
+function renderProps(){
+  $('props').innerHTML=state.props.map((p,i)=>`
+    <div class="item">
+      <label class="f full">الوصف<input type="text" id="pn${i}" data-l="props" data-i="${i}" data-k="name" value="${esc(p.name)}" placeholder="مثلًا: شقة، أرض، محل"></label>
+      <label class="f full">النوع<select id="pt${i}" data-l="props" data-i="${i}" data-k="type">
+        <option value="trade"${p.type==='trade'?' selected':''}>للتجارة والبيع · فيه زكاة</option>
+        <option value="rent"${p.type==='rent'?' selected':''}>للإيجار · الزكاة على الإيجار</option>
+        <option value="home"${p.type==='home'?' selected':''}>سكن أو استخدام · لا زكاة</option>
+      </select></label>
+      <label class="f">القيمة السوقية<input type="number" min="0" step="any" inputmode="decimal" id="pv${i}" data-l="props" data-i="${i}" data-k="val" value="${p.val}"></label>
+      <button class="del" type="button" data-del="props" data-i="${i}" aria-label="احذف العقار">${trash}</button>
+    </div>`).join('');
+}
+function renderDebts(){
+  $('debts').innerHTML=state.debts.map((d,i)=>`
+    <div class="item">
+      <label class="f full">الوصف<input type="text" id="dn${i}" data-l="debts" data-i="${i}" data-k="name" value="${esc(d.name)}" placeholder="مثلًا: تمويل سيارة"></label>
+      <label class="f full">النوع<select id="dk${i}" data-l="debts" data-i="${i}" data-k="kind">
+        <option value="inst"${d.kind==='inst'?' selected':''}>تمويل بأقساط</option>
+        <option value="now"${d.kind==='now'?' selected':''}>مستحق دلوقتي كله</option>
+      </select></label>
+      <div class="pair">
+        <label class="f"${d.kind==='now'?' hidden':''}>القسط الشهري<input type="number" min="0" step="any" inputmode="decimal" id="dm${i}" data-l="debts" data-i="${i}" data-k="monthly" value="${d.monthly}"></label>
+        <label class="f">${d.kind==='now'?'المبلغ':'الرصيد المتبقي'}<input type="number" min="0" step="any" inputmode="decimal" id="db${i}" data-l="debts" data-i="${i}" data-k="bal" value="${d.bal}"></label>
+      </div>
+      <button class="del" type="button" data-del="debts" data-i="${i}" aria-label="احذف الدين">${trash}</button>
+      <div class="note" id="dnote${i}"></div>
+    </div>`).join('');
+}
+
+// count-up animation
+const anims={};
+function animate(el,to,suffix){
+  const from=anims[el.id]?.cur??0;
+  if(reduce||from===to){el.textContent=n2(to)+(suffix||'');anims[el.id]={cur:to};return}
+  const t0=performance.now(),d=650;const a={cur:from};anims[el.id]=a;
+  (function step(t){if(anims[el.id]!==a)return;const k=Math.min(1,(t-t0)/d),e=1-Math.pow(1-k,3);a.cur=from+(to-from)*e;el.textContent=n2(a.cur)+(suffix||'');if(k<1)requestAnimationFrame(step);else a.cur=to})(t0);
+}
+
+function calc(){
+  const p24=num($('p24').value),p21=p24*21/24,p18=p24*18/24,pAg=num($('pAg').value);
+  const goldSave=num($('g24').value)*p24+num($('g21').value)*p21+num($('g18').value)*p18;
+  const jewel=num($('j21').value)*p21+num($('j18').value)*p18;
+  const incJ=$('incJ').checked;
+  const gold=goldSave+(incJ?jewel:0);
+  const money=moneyIds.reduce((s,id)=>s+num($(id).value),0);
+  const re=state.props.filter(p=>p.type==='trade').reduce((s,p)=>s+num(p.val),0);
+  const dm=radio('dm');
+  let debt=0;
+  const debtLines=state.debts.map((d,i)=>{
+    const bal=num(d.bal);let v=0;
+    if(dm==='none')v=0;else if(d.kind==='now'||dm==='full')v=bal;else v=Math.min(num(d.monthly)*12,bal);
+    debt+=v;
+    const nt=$('dnote'+i);
+    if(nt)nt.innerHTML=dm==='none'?'مش هيتخصم':`هيتخصم من الزكاة: <b>${fmt(v)}</b>`+(d.kind==='inst'&&dm==='year'?` (12 قسط × ${n2(num(d.monthly))}${num(d.monthly)*12>bal?'، محدود بالرصيد':''})`:'');
+    return {name:d.name||'دين',v};
+  });
+  const gross=gold+money+re;
+  const net=Math.max(0,gross-debt);
+  const nisab=radio('nisab')==='gold'?85*p24:595*pAg;
+  const due=net>=nisab&&nisab>0;
+  const zakat=due?net*0.025:0;
+
+  $('sumNisab').textContent='النصاب '+fmt(nisab);
+  $('sumGold').textContent=fmt(gold);
+  $('sumMoney').textContent=fmt(money);
+  $('sumRE').textContent=fmt(re);
+  $('sumDebt').textContent=debt?'− '+fmt(debt):fmt(0);
+
+  const L=(a,b,c='')=>`<div class="ln ${c}"><span>${a}</span><span>${b}</span></div>`;
+  let h=L('الذهب'+(incJ?' (شامل الملبوس)':''),fmt(gold))+L('الأموال والاستثمارات',fmt(money))+L('عقارات للتجارة',fmt(re))+L('إجمالي الأصول',fmt(gross),'tot');
+  debtLines.forEach(x=>{if(x.v>0)h+=L('− '+esc(x.name),fmt(x.v),'neg')});
+  h+=L('الصافي الخاضع للزكاة',fmt(net),'tot');
+  $('lines').innerHTML=h;
+
+  const tot=gross+0.0001,dShow=Math.min(debt,gross);
+  // composition bar, with the deducted debt carved out at the end
+  const parts=[[gold,'var(--gold)'],[money,'var(--emerald)'],[re,'var(--sky)']];
+  let remain=dShow,html='',segs=[];
+  for(let i=parts.length-1;i>=0;i--){const take=Math.min(parts[i][0],remain);remain-=take;segs[i]=[parts[i][0]-take,parts[i][1]]}
+  segs.forEach(([v,c])=>html+=`<i style="width:${(v/tot*100).toFixed(2)}%;background:${c}"></i>`);
+  html+=`<i style="width:${(dShow/tot*100).toFixed(2)}%;background:repeating-linear-gradient(45deg,var(--rose) 0 4px,rgba(233,143,111,.45) 4px 8px)"></i>`;
+  $('bar').innerHTML=html;
+
+  const scale=Math.max(net,nisab)*1.1||1;
+  $('mFill').style.width=(net/scale*100).toFixed(2)+'%';
+  $('mMark').style.right=(nisab/scale*100).toFixed(2)+'%';
+  $('mCap').textContent='النصاب '+fmt(nisab);
+  const st=nisab<=0?'<span class="pill no">اكتب سعر الجرام عشان نحسب النصاب</span>':
+    due?'<span class="pill ok">بلغت النصاب، الزكاة واجبة</span>':'<span class="pill no">أقل من النصاب، مافيش زكاة</span>';
+  $('status').innerHTML=st;
+  $('heroStatus').innerHTML=nisab<=0?'':due?'<span class="pill ok">بلغت النصاب</span>':'<span class="pill no">أقل من النصاب</span>';
+
+  animate($('zakat'),zakat);animate($('heroZ'),zakat);animate($('dockZ'),zakat,cur()?' '+cur():'');
+  $('zcur').textContent=cur();$('heroCur').textContent=cur();
+  $('zMonthly').textContent=zakat?`يعني حوالي ${fmt(zakat/12)} في الشهر لو قسمتها على السنة`:'';
+  // arc: progress of net wealth toward the nisab (full ring = nisab reached)
+  const ratio=nisab>0?Math.min(1,net/nisab):0;
+  $('arc').style.strokeDashoffset=(490.1*(1-ratio)).toFixed(1);
+  $('exNote').hidden=!isExample;
+  window.__zakatCalc={zakat:Math.round(zakat),example:isExample};
+  document.dispatchEvent(new Event('zakatcalc'));
+
+  calc.summary=`ملخص زكاة رمضان\n— الذهب: ${fmt(gold)}\n— الأموال: ${fmt(money)}\n— عقارات للتجارة: ${fmt(re)}\n— خصم الديون: ${fmt(debt)}\n— الصافي: ${fmt(net)}\n— النصاب: ${fmt(nisab)}\nالزكاة (2.5٪): ${fmt(zakat)}`;
+}
+
+function onInput(e){
+  const t=e.target;
+  if(t.closest&&t.closest('#log'))return;
+  if(t.dataset&&t.dataset.l){
+    state[t.dataset.l][+t.dataset.i][t.dataset.k]=t.value;
+    if(t.dataset.k==='kind')renderDebts();
+  }
+  isExample=false;calc();save();
+}
+document.addEventListener('input',onInput);
+document.addEventListener('change',e=>{if(e.target.tagName==='SELECT'||e.target.type==='radio'||e.target.type==='checkbox')onInput(e)});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-del]');
+  if(b){state[b.dataset.del].splice(+b.dataset.i,1);b.dataset.del==='props'?renderProps():renderDebts();isExample=false;calc();save();}
+});
+$('addProp').onclick=()=>{state.props.push({name:'',type:'trade',val:0});renderProps();calc();save();$('pn'+(state.props.length-1)).focus()};
+$('addDebt').onclick=()=>{state.debts.push({name:'',kind:'inst',monthly:0,bal:0});renderDebts();calc();save();$('dn'+(state.debts.length-1)).focus()};
+let armed=false;
+$('reset').onclick=()=>{
+  if(!armed){armed=true;$('reset').textContent='متأكد؟ اضغط تاني';setTimeout(()=>{armed=false;$('reset').textContent='ابدأ من الصفر'},2500);return}
+  armed=false;$('reset').textContent='ابدأ من الصفر';
+  ['g24','g21','g18','j21','j18',...moneyIds].forEach(id=>$(id).value=0);
+  state.props=[];state.debts=[];isExample=false;renderProps();renderDebts();calc();save();
+};
+function toast(m){$('toast').textContent=m;$('toast').hidden=false;setTimeout(()=>$('toast').hidden=true,2000)}
+$('copy').onclick=()=>{
+  try{navigator.clipboard.writeText(calc.summary).then(()=>toast('اتنسخ الملخص')).catch(()=>toast('النسخ مش متاح هنا'))}catch(e){toast('النسخ مش متاح هنا')}
+};
+load();renderProps();renderDebts();calc();
+})();
+</script>
+
+<script>
+/* ---------- payments log ---------- */
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>{const n=parseFloat(v);return isFinite(n)&&n>0?n:0};
+const cur=()=>($('cur').value||'').trim();
+const n2=n=>Math.round(n).toLocaleString('ar-EG');
+const fmt=n=>n2(n)+(cur()?' '+cur():'');
+const HM=['محرم','صفر','ربيع الأول','ربيع الآخر','جمادى الأولى','جمادى الآخرة','رجب','شعبان','رمضان','شوال','ذو القعدة','ذو الحجة'];
+const LOCAL_KEY='zakat-log-v1';
+
+// Hijri (Umm al-Qura) helpers — dates are ISO yyyy-mm-dd, handled in UTC
+let fH;
+try{fH=new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn',{year:'numeric',month:'numeric',day:'numeric',timeZone:'UTC'})}catch(e){}
+const hcache={};
+function hij(iso){
+  if(hcache[iso])return hcache[iso];
+  const p=fH.formatToParts(new Date(iso+'T00:00:00Z'));const g=t=>parseInt(p.find(x=>x.type===t).value,10);
+  return hcache[iso]={y:g('year'),m:g('month'),d:g('day')};
+}
+const addDays=(iso,n)=>{const d=new Date(iso+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)};
+const gText=(iso,o)=>new Date(iso+'T00:00:00Z').toLocaleDateString('ar-EG',Object.assign({day:'numeric',month:'long',year:'numeric',timeZone:'UTC'},o||{}));
+const todayIso=()=>{const d=new Date();return new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())).toISOString().slice(0,10)};
+const daysBetween=(a,b)=>Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5);
+
+const yCache={};
+function ramadan1(H){
+  const est=addDays('2026-02-18',Math.round((H-1447)*354.367));
+  for(let k=0;k<=30;k++){for(const s of [k,-k]){const iso=addDays(est,s),h=hij(iso);if(h.y===H&&h.m===9&&h.d===1)return iso}}
+  return est;
+}
+function yearInfo(H){
+  if(yCache[H])return yCache[H];
+  const start=ramadan1(H),calcDay=ramadan1(H+1),end=addDays(calcDay,-1);
+  const months=[];let iso=start;
+  while(iso<=end){const h=hij(iso);const last=months[months.length-1];
+    if(!last||last.m!==h.m){months.push({y:h.y,m:h.m,first:iso,last:iso})}else last.last=iso;iso=addDays(iso,1)}
+  return yCache[H]={H,start,end,calcDay,months};
+}
+const zYearOf=iso=>{const h=hij(iso);return h.m>=9?h.y:h.y-1};
+
+const okCal=fH&&(()=>{try{const h=hij('2026-02-18');return h.y===1447&&h.m===9&&h.d===1}catch(e){return false}})();
+
+// ----- state + storage (on this device) -----
+const years={};       // H -> {h,due,payments:[]}
+let sel=okCal?zYearOf(todayIso()):1447;
+const getYear=H=>years[H]||(years[H]={h:H,due:null,payments:[]});
+
+function setSync(t,cls){const s=$('sync');s.textContent=t;s.className='sync'+(cls?' '+cls:'')}
+
+function persist(){
+  try{const all={};Object.values(years).forEach(v=>{if(v.payments.length||v.due!=null)all[v.h]=v});localStorage.setItem(LOCAL_KEY,JSON.stringify(all));setSync('محفوظ على الموبايل ده','ok')}
+  catch(e){setSync('الحفظ ماتمّش، المساحة ممكن تكون مليانة','warn')}
+}
+function loadLocal(){
+  try{const all=JSON.parse(localStorage.getItem(LOCAL_KEY)||'{}');Object.values(all).forEach(v=>{if(v&&v.h)years[v.h]={h:v.h,due:v.due??null,payments:Array.isArray(v.payments)?v.payments:[]}})}catch(e){}
+}
+function initStore(){
+  loadLocal();setSync('محفوظ على الموبايل ده','ok');
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+  render();
+}
+
+// ----- render -----
+function yearLabel(H){const a=yearInfo(H);return {h:`${H}–${H+1} هـ`,g:`${a.start.slice(0,4)}–${a.end.slice(0,4)}`}}
+function render(){
+  if(!okCal){$('months').innerHTML='<p class="empty">المتصفح ده مش بيدعم التقويم الهجري، جرّب من كروم أو سفاري.</p>';return}
+  const today=todayIso(),curH=zYearOf(today);
+  const list=new Set(Object.keys(years).map(Number).filter(H=>years[H].payments.length||years[H].due!=null));
+  list.add(curH);list.add(sel);
+  const sorted=[...list].sort((a,b)=>a-b);
+  $('years').innerHTML=`<button type="button" class="ytab ghost" data-ynew="${sorted[0]-1}" aria-label="أضف السنة اللي قبلها">+ سنة أقدم</button>`+
+    sorted.map(H=>{const l=yearLabel(H);return `<button type="button" class="ytab" data-y="${H}" aria-pressed="${H===sel}">${l.h}<small>${l.g}${H===curH?' · الحالية':''}</small></button>`}).join('')+
+    `<button type="button" class="ytab ghost" data-ynew="${sorted[sorted.length-1]+1}">+ سنة جديدة</button>`;
+
+  const info=yearInfo(sel),y=getYear(sel),l=yearLabel(sel);
+  $('yTitle').innerHTML=`سنة زكاة ${esc(l.h)}<small>${esc(l.g)}</small>`;
+  $('timeline').innerHTML=
+    `<i class="dot fill"></i><div><b>البداية: 1 رمضان ${sel} هـ</b><span>${gText(info.start)}</span></div>`+
+    `<i class="dot"></i><div><b>النهاية: ${hij(info.end).d} شعبان ${sel+1} هـ</b><span>${gText(info.end)}</span></div>`+
+    `<i class="dot fill" style="border-color:var(--emerald);background:var(--emerald)"></i><div><b>يوم الحساب: 1 رمضان ${sel+1} هـ</b><span>${gText(info.calcDay)} · احسب زكاتك بالحاسبة فوق</span></div>`;
+  const left=daysBetween(today,info.calcDay);
+  const cd=$('countdown');
+  if(today>=info.start&&today<=info.end){cd.hidden=false;cd.textContent=`فاضل ${n2(left)} يوم على يوم الحساب`}
+  else if(today<info.start){cd.hidden=false;cd.textContent=`السنة دي لسه مابدأتش، بتبدأ بعد ${n2(daysBetween(today,info.start))} يوم`}
+  else cd.hidden=true;
+
+  const dueEl=$('yDue');
+  if(document.activeElement!==dueEl)dueEl.value=y.due==null?'':y.due;
+  const paid=y.payments.reduce((s,p)=>s+num(p.amount),0);
+  const due=y.due==null?null:num(y.due);
+  $('sPaid').textContent=fmt(paid);
+  const box=$('sLeftBox');
+  if(due==null){box.className='stat left';$('sLeftK').textContent='باقي عليك';$('sLeft').textContent='—'}
+  else if(paid<=due){box.className='stat left';$('sLeftK').textContent='باقي عليك';$('sLeft').textContent=fmt(due-paid)}
+  else{box.className='stat over';$('sLeftK').textContent='زيادة (صدقة)';$('sLeft').textContent=fmt(paid-due)}
+  const ppl={};y.payments.forEach(p=>{const k=(p.to||'').trim()||'بدون اسم';(ppl[k]=ppl[k]||{n:0,t:0});ppl[k].n++;ppl[k].t+=num(p.amount)});
+  $('sPeople').textContent=n2(Object.keys(ppl).length);
+  const pct=due?Math.min(100,paid/due*100):0;
+  $('yProg').style.width=pct.toFixed(1)+'%';
+  $('yProgCap').textContent=due==null?'اكتب الزكاة المستحقة عشان تشوف نسبة اللي طلّعته.':due===0?'':`طلّعت ${Math.round(paid/due*100).toLocaleString('ar-EG')}٪ من المستحق`;
+
+  // months
+  const byMonth={};y.payments.forEach(p=>{const h=hij(p.date);const k=h.y+'-'+h.m;(byMonth[k]=byMonth[k]||[]).push(p)});
+  $('months').innerHTML=info.months.map(mo=>{
+    const k=mo.y+'-'+mo.m,ps=(byMonth[k]||[]).slice().sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+    const tot=ps.reduce((s,p)=>s+num(p.amount),0);
+    const isNow=today>=mo.first&&today<=mo.last,fut=today<mo.first;
+    const rng=`${gText(mo.first,{year:undefined})} – ${gText(mo.last)}`;
+    return `<article class="month${isNow?' now':''}${fut?' future':''}">
+      <div class="month-h"><div><b>${HM[mo.m-1]}<em>${mo.y}</em>${isNow?'<span class="badge">الشهر ده</span>':''}</b><span class="gr">${rng}</span></div>
+      <span class="tot${tot?'':' zero'}">${tot?fmt(tot):'—'}</span></div>
+      ${ps.length?`<div class="pays">${ps.map(p=>`<div class="pay">
+        <div class="d"><strong>${hij(p.date).d.toLocaleString('ar-EG')}</strong>${HM[hij(p.date).m-1]}</div>
+        <div class="who">${esc(p.to||'بدون اسم')}${p.note?`<small>${esc(p.note)}</small>`:''}<small>${gText(p.date)}</small></div>
+        <div class="amt">${fmt(num(p.amount))}</div>
+        <button type="button" class="x" data-delpay="${esc(p.id)}" aria-label="امسح المبلغ ده">مسح</button></div>`).join('')}</div>`
+        :`<p class="empty">${fut?'لسه ماجاش':'مافيش مبالغ متسجلة'}</p>`}
+    </article>`}).join('');
+
+  const pk=Object.entries(ppl).sort((a,b)=>b[1].t-a[1].t);
+  $('peopleCard').hidden=!pk.length;
+  $('people').innerHTML=pk.map(([n,v])=>`<div class="person"><b>${esc(n)}</b><span>${fmt(v.t)}</span><small>${v.n>1?n2(v.n)+' مرات':'مرة'}</small></div>`).join('');
+  const all=new Set();Object.values(years).forEach(v=>v.payments.forEach(p=>p.to&&all.add(p.to.trim())));
+  $('peopleList').innerHTML=[...all].map(n=>`<option value="${esc(n)}"></option>`).join('');
+}
+
+// ----- events -----
+$('years').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  sel=+(b.dataset.y||b.dataset.ynew);getYear(sel);render();
+});
+let dueT;
+$('yDue').addEventListener('input',e=>{
+  const v=e.target.value;getYear(sel).due=v===''?null:num(v);
+  clearTimeout(dueT);dueT=setTimeout(persist,500);render();
+});
+$('fromCalc').onclick=()=>{
+  const c=window.__zakatCalc;if(!c)return;
+  getYear(sel).due=c.zakat;$('yDue').value=c.zakat;persist();render();
+  msg(c.example?'اتنقل رقم الحاسبة، بس خلي بالك الحاسبة لسه فيها أرقام الأمثلة':'اتنقل رقم الحاسبة',c.example?'err':'ok');
+};
+document.addEventListener('zakatcalc',()=>{});
+function msg(t,c){const m=$('formMsg');m.textContent=t;m.className='formMsg'+(c?' '+c:'')}
+$('payForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const date=$('pDate').value,amount=num($('pAmt').value),to=$('pTo').value.trim(),note=$('pNote').value.trim();
+  if(!date){msg('اختار التاريخ','err');$('pDate').focus();return}
+  if(!amount){msg('اكتب المبلغ','err');$('pAmt').focus();return}
+  if(!to){msg('اكتب اسم اللي أخد الزكاة','err');$('pTo').focus();return}
+  const H=zYearOf(date);
+  getYear(H).payments.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),date,amount,to,note});
+  persist();
+  const moved=H!==sel;sel=H;render();
+  msg(`اتسجل ${fmt(amount)} لـ ${to} في شهر ${HM[hij(date).m-1]}`+(moved?` (سنة ${H}–${H+1} هـ)`:''),'ok');
+  $('pAmt').value='';$('pTo').value='';$('pNote').value='';$('pAmt').focus();
+});
+$('months').addEventListener('click',e=>{
+  const b=e.target.closest('[data-delpay]');if(!b)return;
+  if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='متأكد؟';setTimeout(()=>{if(b.isConnected){b.classList.remove('arm');b.textContent='مسح'}},2500);return}
+  const y=getYear(sel);y.payments=y.payments.filter(p=>p.id!==b.dataset.delpay);persist();render();
+});
+$('copyYear').onclick=()=>{
+  const y=getYear(sel),info=yearInfo(sel),paid=y.payments.reduce((s,p)=>s+num(p.amount),0);
+  let t=`كشف زكاة سنة ${sel}–${sel+1} هـ\nمن ${gText(info.start)} إلى ${gText(info.end)}\n`;
+  if(y.due!=null)t+=`المستحق: ${fmt(num(y.due))}\n`;
+  t+=`المدفوع: ${fmt(paid)}\n`;
+  info.months.forEach(mo=>{const ps=y.payments.filter(p=>{const h=hij(p.date);return h.y===mo.y&&h.m===mo.m});
+    if(ps.length){t+=`\n${HM[mo.m-1]} ${mo.y}:\n`;ps.forEach(p=>t+=`  • ${p.to} — ${fmt(num(p.amount))}${p.note?' ('+p.note+')':''} — ${gText(p.date)}\n`)}});
+  const show=s=>{$('logToast').textContent=s;$('logToast').hidden=false;setTimeout(()=>$('logToast').hidden=true,2000)};
+  try{navigator.clipboard.writeText(t).then(()=>show('اتنسخ الكشف')).catch(()=>show('النسخ مش متاح هنا'))}catch(err){show('النسخ مش متاح هنا')}
+};
+$('cur').addEventListener('input',render);
+
+// ----- backup / restore -----
+function bmsg(t,c){const m=$('backupMsg');m.textContent=t;m.className='formMsg'+(c?' '+c:'')}
+$('exportBtn').onclick=async()=>{
+  let calc=null;try{calc=JSON.parse(localStorage.getItem('zakat-calc-v1')||'null')}catch(e){}
+  const all={};Object.values(years).forEach(v=>{if(v.payments.length||v.due!=null)all[v.h]=v});
+  const data={app:'zakati',version:1,exportedAt:new Date().toISOString(),calc,log:all};
+  const name='zakat-backup-'+todayIso()+'.json';
+  const blob=new Blob([JSON.stringify(data,null,1)],{type:'application/json'});
+  try{
+    const file=new File([blob],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:'نسخة احتياطية للزكاة'});bmsg('اتحفظت النسخة','ok');return}
+  }catch(e){if(e&&e.name==='AbortError'){bmsg('');return}}
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);bmsg('اتحفظت النسخة في التنزيلات','ok');
+};
+let pending=null;
+$('importFile').onchange=async e=>{
+  const f=e.target.files&&e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text());
+    if(!d||d.app!=='zakati'||typeof d.log!=='object')throw 0;
+    pending=d;
+    const n=Object.values(d.log).reduce((s,v)=>s+((v&&v.payments)||[]).length,0);
+    $('importInfo').textContent=`النسخة فيها ${n2(n)} مبلغ متسجل. هتستبدل البيانات اللي على الموبايل دلوقتي.`;
+    $('importConfirm').hidden=false;bmsg('');
+  }catch(err){bmsg('الملف ده مش نسخة احتياطية من التطبيق','err')}
+};
+$('importNo').onclick=()=>{pending=null;$('importConfirm').hidden=true};
+$('importYes').onclick=()=>{
+  if(!pending)return;
+  try{
+    localStorage.setItem(LOCAL_KEY,JSON.stringify(pending.log||{}));
+    if(pending.calc)localStorage.setItem('zakat-calc-v1',JSON.stringify(pending.calc));
+    location.reload();
+  }catch(e){bmsg('الاسترجاع ماتمّش','err')}
+};
+
+$('pDate').value=todayIso();
+render();
+initStore();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>

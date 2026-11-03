@@ -48,3 +48,25 @@ https://masebaie.github.io/first-pr-practice/mounjaro/
 Every other small app in this repo should publish under its own
 `docs/<app-name>/` folder the same way, so they all stay live
 simultaneously without fighting over the Pages branch/folder setting.
+
+## Zakat app (زكاتي)
+
+`docs/zakat/` is an installable Arabic (RTL) web app for calculating yearly
+zakat and logging what was paid:
+
+- A calculator for gold (by karat), cash and savings, and trade real estate,
+  minus bank, car, and mortgage financing (by default only the next 12
+  months of installments are deducted).
+- A payments log per zakat year (1 Ramadan → end of Sha'ban, calculation
+  day on the next 1 Ramadan, Umm al-Qura calendar). Each payment records
+  its date, amount, and recipient, and is grouped by Hijri month.
+- Works offline (service worker) and keeps data on the device only, with
+  a backup/restore button that exports a JSON file.
+
+Live at:
+
+```
+https://masebaie.github.io/first-pr-practice/zakat/
+```
+
+On iPhone: open it in Safari → Share → "Add to Home Screen".
