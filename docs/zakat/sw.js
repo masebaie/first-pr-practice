@@ -1,5 +1,5 @@
 // Offline support for the Zakat app: app shell is pre-cached, Google Fonts are cached on first use.
-const VERSION = 'zakati-v1';
+const VERSION = 'zakati-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
