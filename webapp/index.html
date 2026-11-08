@@ -267,6 +267,8 @@
                justify-content:center; flex-shrink:0; }
   .wd-add-exercise{ appearance:none; border:1.5px dashed var(--line); background:transparent; color:var(--steel);
       border-radius:9px; padding:9px; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font-ui); }
+  .wd-repeat-set{ appearance:none; border:none; background:var(--accent-tint); color:var(--accent);
+      border-radius:9px; padding:8px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:var(--font-ui); }
   .wd-save{ appearance:none; border:none; border-radius:11px; padding:11px; font-size:13px;
       font-weight:700; cursor:pointer; background:var(--primary); color:#fff; font-family:var(--font-ui); }
   .wd-save:active{ opacity:0.85; }
@@ -508,7 +510,8 @@
       saveWorkout: 'Save workout', workoutSaved: 'Workout saved', notLogged: 'Not logged yet',
       logTodayWorkout: "+ Log today's workout",
       chooseExercise: 'Choose exercise', otherExercise: 'Other', customNamePlaceholder: 'Exercise name',
-      lastStat: (w, r, d) => `Last time: ${w}kg × ${r} reps (${d})`, noHistory: 'No history yet for this exercise'
+      lastStat: (w, r, d) => `Last time: ${w}kg × ${r} reps (${d})`, noHistory: 'No history yet for this exercise',
+      repeatSet: '+ Add another set'
     },
     ar: {
       eyebrow: 'تتبّع الحضور',
@@ -551,7 +554,8 @@
       saveWorkout: 'حفظ التمرين', workoutSaved: 'اتحفظ التمرين', notLogged: 'لسه متسجلش',
       logTodayWorkout: '+ سجّل تمرين النهاردة',
       chooseExercise: 'اختار التمرين', otherExercise: 'تمرين تاني', customNamePlaceholder: 'اسم التمرين',
-      lastStat: (w, r, d) => `آخر مرة: ${w} كجم × ${r} عدة (${d})`, noHistory: 'لسه معملتش التمرين ده قبل كده'
+      lastStat: (w, r, d) => `آخر مرة: ${w} كجم × ${r} عدة (${d})`, noHistory: 'لسه معملتش التمرين ده قبل كده',
+      repeatSet: '+ إضافة جولة تانية لنفس التمرين'
     }
   };
   function t(key){ return STRINGS[state.lang][key]; }
@@ -835,19 +839,31 @@
         <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${ex.weight || ''}" />
         <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${ex.reps || ''}" />
       </div>
+      <button type="button" class="wd-repeat-set${selectedId && selectedId !== 'other' ? '' : ' hidden'}">${t('repeatSet')}</button>
     `;
     const selectEl = row.querySelector('.wd-exercise-select');
     const customInput = row.querySelector('.wd-custom-name');
     const statEl = row.querySelector('.wd-last-stat');
     const howToEl = row.querySelector('.wd-howto');
     const photoEl = row.querySelector('.wd-photo');
+    const repeatBtn = row.querySelector('.wd-repeat-set');
     selectEl.addEventListener('change', () => {
       customInput.classList.toggle('hidden', selectEl.value !== 'other');
       if(selectEl.value === 'other') customInput.focus();
       updateLastStat(statEl, howToEl, photoEl, selectEl.value, excludeDateStr);
+      repeatBtn.classList.toggle('hidden', !selectEl.value);
     });
     updateLastStat(statEl, howToEl, photoEl, selectedId, excludeDateStr);
     row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
+    repeatBtn.addEventListener('click', () => {
+      const newRow = buildExerciseRow({
+        exerciseId: selectEl.value !== 'other' ? selectEl.value : '',
+        customName: selectEl.value === 'other' ? customInput.value.trim() : '',
+        weight: '', reps: ''
+      }, excludeDateStr);
+      row.after(newRow);
+      newRow.querySelector('.wd-weight').focus();
+    });
     return row;
   }
 
