@@ -106,6 +106,12 @@
   .quick-log-btn:disabled{ opacity:0.55; cursor:not-allowed; }
   .quick-log-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 
+  .log-workout-btn{ appearance:none; width:100%; border:1px solid var(--line); background:var(--surface); color:var(--ink);
+                     border-radius:12px; padding:10px; font-size:12.5px; font-weight:700; cursor:pointer;
+                     font-family:var(--font-ui); margin-top:8px; }
+  .log-workout-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .log-workout-btn:active{ opacity:0.85; }
+
   .section-head{ margin-bottom:10px; }
   .section-head h2{ font-family:var(--font-display); font-size:14px; font-weight:800; margin:0; }
 
@@ -223,6 +229,40 @@
       font-weight:700; cursor:pointer; background:var(--surface-2); color:var(--ink); font-family:var(--font-ui); }
   .pause-add .btn-add-pause:active{ opacity:0.85; }
 
+  .workout-log-section{ margin-bottom:14px; }
+  .workout-log-section summary{ cursor:pointer; font-size:12.5px; font-weight:700; color:var(--accent); list-style:none;
+                        display:flex; align-items:center; gap:6px; padding:8px 2px; }
+  .workout-log-section summary::-webkit-details-marker{ display:none; }
+  .workout-log-section summary::before{ content:'›'; display:inline-block; font-size:16px; transition:transform .15s ease; }
+  .workout-log-section[open] summary::before{ transform:rotate(90deg); }
+  .workout-log-empty{ font-size:12px; color:var(--steel); margin:2px 0 0; }
+  .workout-day{ background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:2px 12px;
+                margin-top:8px; }
+  .workout-day summary{ cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between;
+                         gap:8px; padding:10px 0; font-size:12.5px; }
+  .workout-day summary::-webkit-details-marker{ display:none; }
+  .workout-day-date{ font-weight:700; color:var(--ink); flex-shrink:0; direction:ltr; }
+  .workout-day-summary{ color:var(--steel); font-size:11.5px; text-align:end; }
+  .workout-day-body{ display:flex; flex-direction:column; gap:10px; padding:0 0 14px; }
+  .wd-field{ display:flex; flex-direction:column; gap:5px; font-size:11px; color:var(--steel); font-weight:600; }
+  .wd-field select{ border:1px solid var(--line); background:var(--surface); border-radius:9px; padding:9px 10px;
+                     font-size:13px; color:var(--ink); font-family:var(--font-ui); }
+  .wd-exercises{ display:flex; flex-direction:column; gap:8px; }
+  .wd-exercise-row{ display:flex; gap:6px; align-items:center; }
+  .wd-exercise-row .wd-machine{ flex:2; min-width:0; }
+  .wd-exercise-row .wd-weight, .wd-exercise-row .wd-reps{ flex:1; min-width:0; }
+  .wd-exercise-row input{ border:1px solid var(--line); background:var(--surface); border-radius:9px; padding:8px 9px;
+                           font-size:12.5px; color:var(--ink); font-family:var(--font-ui); width:100%; box-sizing:border-box; }
+  .wd-exercise-row input::placeholder{ color:var(--steel); }
+  .wd-remove-exercise{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
+               width:26px; height:26px; line-height:1; font-size:15px; cursor:pointer; display:flex; align-items:center;
+               justify-content:center; flex-shrink:0; }
+  .wd-add-exercise{ appearance:none; border:1.5px dashed var(--line); background:transparent; color:var(--steel);
+      border-radius:9px; padding:9px; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font-ui); }
+  .wd-save{ appearance:none; border:none; border-radius:11px; padding:11px; font-size:13px;
+      font-weight:700; cursor:pointer; background:var(--primary); color:#fff; font-family:var(--font-ui); }
+  .wd-save:active{ opacity:0.85; }
+
   .comparison{ margin-bottom:24px; }
   .comparison-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface);
                     border:1px solid var(--line); border-radius:12px; padding:11px 14px; margin-bottom:8px; }
@@ -319,6 +359,7 @@
 
   <section class="quick-log">
     <button id="btnQuickLog" type="button" class="quick-log-btn"></button>
+    <button id="btnLogWorkout" type="button" class="log-workout-btn hidden"></button>
   </section>
 
   <div id="monthsContainer"></div>
@@ -359,6 +400,12 @@
   };
   const WEEKDAYS = { en: ['S','M','T','W','T','F','S'], ar: ['ح','ن','ث','ر','خ','ج','س'] };
 
+  const MUSCLE_GROUPS = ['chest_triceps', 'back_biceps', 'shoulders_abs', 'legs'];
+  const MUSCLE_LABELS = {
+    en: { chest_triceps: 'Chest & Triceps', back_biceps: 'Back & Biceps', shoulders_abs: 'Shoulders & Abs', legs: 'Legs' },
+    ar: { chest_triceps: 'صدر وترايسبس', back_biceps: 'ظهر وبايسبس', shoulders_abs: 'كتف وبطن', legs: 'تمارين الرجلين' }
+  };
+
   const STRINGS = {
     en: {
       eyebrow: 'Attendance tracker',
@@ -393,7 +440,14 @@
       monthArchived: 'Month archived', monthRestored: 'Month restored',
       pauseTitle: 'Pause periods', pauseHint: "Add a break (injury, travel, etc.) — those days won't count against your target.",
       addPause: 'Add pause', removePause: 'Remove pause', pauseInvalid: 'End date must be after start date',
-      noPauses: 'No pauses added'
+      noPauses: 'No pauses added',
+      workoutLogTitle: 'Workout log', workoutLogEmpty: 'Mark a day as attended first to log its workout.',
+      muscleGroupLabel: 'Muscle group', chooseMuscle: 'Choose muscle group',
+      addExercise: '+ Add exercise', removeExercise: 'Remove exercise',
+      machinePlaceholder: 'Machine / exercise', weightPlaceholder: 'Weight (kg)', repsPlaceholder: 'Reps',
+      saveWorkout: 'Save workout', workoutSaved: 'Workout saved', notLogged: 'Not logged yet',
+      logTodayWorkout: "+ Log today's workout",
+      exercisesCount: n => `${n} exercise${n === 1 ? '' : 's'}`
     },
     ar: {
       eyebrow: 'تتبّع الحضور',
@@ -428,7 +482,14 @@
       monthArchived: 'تم أرشفة الشهر', monthRestored: 'تم استرجاع الشهر',
       pauseTitle: 'فترات التوقف', pauseHint: 'أضف فترة توقف (إصابة، سفر، إلخ) — الأيام دي مش هتتحسب على هدفك.',
       addPause: 'إضافة توقف', removePause: 'حذف فترة التوقف', pauseInvalid: 'تاريخ النهاية لازم يكون بعد تاريخ البداية',
-      noPauses: 'مفيش فترات توقف مضافة'
+      noPauses: 'مفيش فترات توقف مضافة',
+      workoutLogTitle: 'سجل التمرين', workoutLogEmpty: 'سجّل حضورك في يوم الأول عشان تقدر تضيف تفاصيل تمرينه.',
+      muscleGroupLabel: 'العضلة المستهدفة', chooseMuscle: 'اختار العضلة',
+      addExercise: '+ إضافة تمرين', removeExercise: 'حذف التمرين',
+      machinePlaceholder: 'الجهاز / التمرين', weightPlaceholder: 'الوزن (كجم)', repsPlaceholder: 'العدات',
+      saveWorkout: 'حفظ التمرين', workoutSaved: 'اتحفظ التمرين', notLogged: 'لسه متسجلش',
+      logTodayWorkout: '+ سجّل تمرين النهاردة',
+      exercisesCount: n => `${n} تمرين`
     }
   };
   function t(key){ return STRINGS[state.lang][key]; }
@@ -450,11 +511,35 @@
     } catch(e){ return {lang:'en', months:[defaultMonth()]}; }
   }
   function defaultMonth(){
-    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[]};
+    return {id: uid(), start:'2026-08-09', end:'2026-09-08', gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[], workoutLogs:{}};
   }
   function normalizeBreak(b){
     if(!b || typeof b.start !== 'string' || typeof b.end !== 'string') return null;
     return {id: typeof b.id === 'string' ? b.id : uid(), start: b.start, end: b.end < b.start ? b.start : b.end};
+  }
+  function normalizeExercise(e){
+    if(!e || typeof e !== 'object') return null;
+    const ex = {
+      machine: typeof e.machine === 'string' ? e.machine : '',
+      weight: typeof e.weight === 'number' ? e.weight : 0,
+      reps: typeof e.reps === 'number' ? e.reps : 0
+    };
+    return (ex.machine || ex.weight || ex.reps) ? ex : null;
+  }
+  function normalizeWorkoutLog(w){
+    if(!w || typeof w !== 'object') return null;
+    const muscleGroup = MUSCLE_GROUPS.includes(w.muscleGroup) ? w.muscleGroup : '';
+    const exercises = Array.isArray(w.exercises) ? w.exercises.map(normalizeExercise).filter(Boolean) : [];
+    return (muscleGroup || exercises.length) ? {muscleGroup, exercises} : null;
+  }
+  function normalizeWorkoutLogs(logs){
+    if(!logs || typeof logs !== 'object') return {};
+    const out = {};
+    for(const dateStr of Object.keys(logs)){
+      const normalized = normalizeWorkoutLog(logs[dateStr]);
+      if(normalized) out[dateStr] = normalized;
+    }
+    return out;
   }
   function normalizeMonth(m){
     return {
@@ -466,7 +551,8 @@
       weeklyTarget: typeof m.weeklyTarget === 'number' ? m.weeklyTarget : 4,
       sessions: Array.isArray(m.sessions) ? m.sessions : [],
       archived: typeof m.archived === 'boolean' ? m.archived : false,
-      breaks: Array.isArray(m.breaks) ? m.breaks.map(normalizeBreak).filter(Boolean) : []
+      breaks: Array.isArray(m.breaks) ? m.breaks.map(normalizeBreak).filter(Boolean) : [],
+      workoutLogs: normalizeWorkoutLogs(m.workoutLogs)
     };
   }
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -511,6 +597,10 @@
     const d2 = new Date(end + 'T00:00:00').toLocaleDateString(locale, {day:'numeric', month:'short'});
     return `${d1} – ${d2}`;
   }
+  function formatDateShort(dateStr){
+    const locale = state.lang === 'ar' ? 'ar-EG' : 'en-US';
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, {day:'numeric', month:'short'});
+  }
 
   function pausedDateSet(m, dates){
     const set = new Set();
@@ -539,7 +629,7 @@
     const last = months[months.length - 1];
     const start = addDays(last.end, 1);
     const end = addDays(start, 29);
-    const newMonth = {id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[]};
+    const newMonth = {id: uid(), start, end, gymFee:0, trainerFee:0, weeklyTarget:4, sessions:[], archived:false, breaks:[], workoutLogs:{}};
     months.push(newMonth);
     selectedMonthId = newMonth.id;
     persist();
@@ -594,6 +684,121 @@
     renderComparison();
   }
 
+  function workoutSummaryText(log){
+    if(!log) return t('notLogged');
+    const muscleLabel = log.muscleGroup ? MUSCLE_LABELS[state.lang][log.muscleGroup] : '';
+    const exCount = log.exercises.length;
+    const parts = [];
+    if(muscleLabel) parts.push(muscleLabel);
+    if(exCount > 0) parts.push(t('exercisesCount')(exCount));
+    return parts.length ? parts.join(' · ') : t('notLogged');
+  }
+
+  function buildExerciseRow(ex){
+    const row = document.createElement('div');
+    row.className = 'wd-exercise-row';
+    row.innerHTML = `
+      <input type="text" class="wd-machine" placeholder="${t('machinePlaceholder')}" value="${ex.machine || ''}" />
+      <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${ex.weight || ''}" />
+      <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${ex.reps || ''}" />
+      <button type="button" class="wd-remove-exercise" aria-label="${t('removeExercise')}">×</button>
+    `;
+    row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
+    return row;
+  }
+
+  function renderWorkoutLog(m, container){
+    const dates = buildDateRange(m.start, m.end);
+    const attended = m.sessions.filter(d => dates.includes(d)).slice().sort().reverse();
+    container.innerHTML = '';
+    if(attended.length === 0){
+      container.innerHTML = `<p class="workout-log-empty">${t('workoutLogEmpty')}</p>`;
+      return;
+    }
+    attended.forEach(dateStr => {
+      const log = m.workoutLogs[dateStr] || null;
+
+      const details = document.createElement('details');
+      details.className = 'workout-day';
+      details.dataset.date = dateStr;
+
+      const summary = document.createElement('summary');
+      const dateSpan = document.createElement('span');
+      dateSpan.className = 'workout-day-date';
+      dateSpan.textContent = formatDateShort(dateStr);
+      const summarySpan = document.createElement('span');
+      summarySpan.className = 'workout-day-summary';
+      summarySpan.textContent = workoutSummaryText(log);
+      summary.appendChild(dateSpan);
+      summary.appendChild(summarySpan);
+
+      const body = document.createElement('div');
+      body.className = 'workout-day-body';
+
+      const muscleField = document.createElement('label');
+      muscleField.className = 'wd-field';
+      const muscleCaption = document.createElement('span');
+      muscleCaption.textContent = t('muscleGroupLabel');
+      const select = document.createElement('select');
+      select.className = 'wd-muscle';
+      select.innerHTML = `<option value="">${t('chooseMuscle')}</option>` +
+        MUSCLE_GROUPS.map(k => `<option value="${k}"${log && log.muscleGroup === k ? ' selected' : ''}>${MUSCLE_LABELS[state.lang][k]}</option>`).join('');
+      muscleField.appendChild(muscleCaption);
+      muscleField.appendChild(select);
+      body.appendChild(muscleField);
+
+      const exercisesWrap = document.createElement('div');
+      exercisesWrap.className = 'wd-exercises';
+      const initialExercises = (log && log.exercises.length) ? log.exercises : [{machine:'', weight:'', reps:''}];
+      initialExercises.forEach(ex => exercisesWrap.appendChild(buildExerciseRow(ex)));
+      body.appendChild(exercisesWrap);
+
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'wd-add-exercise';
+      addBtn.textContent = t('addExercise');
+      addBtn.addEventListener('click', () => exercisesWrap.appendChild(buildExerciseRow({machine:'', weight:'', reps:''})));
+      body.appendChild(addBtn);
+
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.className = 'wd-save';
+      saveBtn.textContent = t('saveWorkout');
+      saveBtn.addEventListener('click', () => {
+        const muscleGroup = select.value;
+        const exercises = [...exercisesWrap.querySelectorAll('.wd-exercise-row')].map(row => ({
+          machine: row.querySelector('.wd-machine').value.trim(),
+          weight: parseFloat(row.querySelector('.wd-weight').value) || 0,
+          reps: parseInt(row.querySelector('.wd-reps').value, 10) || 0
+        })).filter(ex => ex.machine || ex.weight || ex.reps);
+        if(!muscleGroup && exercises.length === 0){
+          delete m.workoutLogs[dateStr];
+        } else {
+          m.workoutLogs[dateStr] = {muscleGroup, exercises};
+        }
+        persist();
+        summarySpan.textContent = workoutSummaryText(m.workoutLogs[dateStr] || null);
+        showToast(t('workoutSaved'));
+      });
+      body.appendChild(saveBtn);
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      container.appendChild(details);
+    });
+  }
+
+  function openWorkoutDetailsFor(dateStr){
+    const section = document.querySelector('.workout-log-section');
+    if(!section) return;
+    section.open = true;
+    const dayDetails = section.querySelector(`.workout-day[data-date="${dateStr}"]`);
+    if(dayDetails){
+      dayDetails.open = true;
+      dayDetails.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+  }
+
   function archiveMonth(id){
     const activeCount = state.months.filter(m => !m.archived).length;
     if(activeCount <= 1){ showToast(t('atLeastOneActive')); return; }
@@ -633,6 +838,11 @@
     updateRow(monthId, dateStr);
     updateMonthDynamic(monthId);
     renderComparison();
+    const ref = monthRefs[monthId];
+    if(ref){
+      const workoutListEl = ref.card.querySelector('.workout-log-list');
+      if(workoutListEl) renderWorkoutLog(m, workoutListEl);
+    }
   }
 
   function saveAttendance(monthId){
@@ -727,6 +937,7 @@
 
   function refreshQuickLog(){
     const btn = document.getElementById('btnQuickLog');
+    const workoutBtn = document.getElementById('btnLogWorkout');
     const today = todayISO();
     const m = state.months.find(x => !x.archived && buildDateRange(x.start, x.end).includes(today));
     if(!m){
@@ -734,6 +945,8 @@
       btn.textContent = t('quickLogNone');
       btn.classList.remove('is-logged');
       btn.onclick = null;
+      workoutBtn.classList.add('hidden');
+      workoutBtn.onclick = null;
       return;
     }
     btn.disabled = false;
@@ -749,6 +962,9 @@
         refreshQuickLog();
       }
     };
+    workoutBtn.classList.toggle('hidden', !logged);
+    workoutBtn.textContent = t('logTodayWorkout');
+    workoutBtn.onclick = logged ? () => openWorkoutDetailsFor(today) : null;
   }
 
   function renderComparison(){
@@ -919,6 +1135,11 @@
             <button type="button" class="btn-share">${t('shareSummary')}</button>
           </div>
         </details>
+
+        <details class="workout-log-section">
+          <summary>${t('workoutLogTitle')}</summary>
+          <div class="workout-log-list"></div>
+        </details>
       `;
 
       const ring = card.querySelector('.count-ring');
@@ -1011,6 +1232,8 @@
       card.querySelector('.input-start').addEventListener('change', e => updateMonthDate(m.id, 'start', e.target.value));
       card.querySelector('.input-end').addEventListener('change', e => updateMonthDate(m.id, 'end', e.target.value));
       card.querySelector('.month-delete').addEventListener('click', () => archiveMonth(m.id));
+
+      renderWorkoutLog(m, card.querySelector('.workout-log-list'));
 
       container.appendChild(card);
 
