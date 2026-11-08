@@ -247,13 +247,20 @@
   .wd-field{ display:flex; flex-direction:column; gap:5px; font-size:11px; color:var(--steel); font-weight:600; }
   .wd-field select{ border:1px solid var(--line); background:var(--surface); border-radius:9px; padding:9px 10px;
                      font-size:13px; color:var(--ink); font-family:var(--font-ui); }
-  .wd-exercises{ display:flex; flex-direction:column; gap:8px; }
-  .wd-exercise-row{ display:flex; gap:6px; align-items:center; }
-  .wd-exercise-row .wd-machine{ flex:2; min-width:0; }
-  .wd-exercise-row .wd-weight, .wd-exercise-row .wd-reps{ flex:1; min-width:0; }
-  .wd-exercise-row input{ border:1px solid var(--line); background:var(--surface); border-radius:9px; padding:8px 9px;
-                           font-size:12.5px; color:var(--ink); font-family:var(--font-ui); width:100%; box-sizing:border-box; }
-  .wd-exercise-row input::placeholder{ color:var(--steel); }
+  .wd-exercises{ display:flex; flex-direction:column; gap:12px; }
+  .wd-exercise-row{ display:flex; flex-direction:column; gap:6px; background:var(--surface); border:1px solid var(--line);
+                     border-radius:11px; padding:10px; }
+  .wd-exercise-main{ display:flex; gap:6px; align-items:center; }
+  .wd-exercise-main .wd-exercise-select{ flex:2; min-width:0; }
+  .wd-exercise-main .wd-custom-name{ flex:2; min-width:0; }
+  .wd-exercise-select, .wd-custom-name, .wd-exercise-numbers input{
+    border:1px solid var(--line); background:var(--paper); border-radius:9px; padding:8px 9px;
+    font-size:12.5px; color:var(--ink); font-family:var(--font-ui); width:100%; box-sizing:border-box; }
+  .wd-exercise-numbers{ display:flex; gap:6px; }
+  .wd-exercise-numbers input{ flex:1; min-width:0; }
+  .wd-custom-name::placeholder, .wd-exercise-numbers input::placeholder{ color:var(--steel); }
+  .wd-howto{ font-size:11px; color:var(--steel); margin:0; line-height:1.4; }
+  .wd-last-stat{ font-size:11px; color:var(--accent); font-weight:600; margin:0; }
   .wd-remove-exercise{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
                width:26px; height:26px; line-height:1; font-size:15px; cursor:pointer; display:flex; align-items:center;
                justify-content:center; flex-shrink:0; }
@@ -406,6 +413,58 @@
     ar: { chest_triceps: 'صدر وترايسبس', back_biceps: 'ظهر وبايسبس', shoulders_abs: 'كتف وبطن', legs: 'تمارين الرجلين' }
   };
 
+  const EXERCISES = [
+    { id:'lat_pulldown', group:'back_biceps',
+      name:{ en:'Lat Pulldown', ar:'سحب أمامي (لات بول داون)' },
+      howTo:{ en:'Pull the bar down to chest level, squeeze your shoulder blades together.', ar:'اسحب القبضة لتحت لحد مستوى الصدر واضغط لوحي الكتف على بعض.' } },
+    { id:'seated_row', group:'back_biceps',
+      name:{ en:'Seated Cable Row', ar:'تجديف جالس (كابل)' },
+      howTo:{ en:'Pull the handle to your waist, keep your back straight.', ar:'اسحب المقبض لحد وسطك وحافظ على ظهرك مستقيم.' } },
+    { id:'bicep_curl_machine', group:'back_biceps',
+      name:{ en:'Bicep Curl Machine', ar:'جهاز البايسبس' },
+      howTo:{ en:'Curl the handles up slowly, control the weight on the way down.', ar:'ارفع المقابض لفوق ببطء وتحكّم في الوزن وانت بتنزّله.' } },
+    { id:'assisted_pullup', group:'back_biceps',
+      name:{ en:'Assisted Pull-up Machine', ar:'جهاز العقلة المساعد' },
+      howTo:{ en:'Pull your body up until your chin clears the bar.', ar:'اسحب جسمك لفوق لحد ما دقنك يعدّي العارضة.' } },
+
+    { id:'chest_press_machine', group:'chest_triceps',
+      name:{ en:'Chest Press Machine', ar:'جهاز الضغط على الصدر' },
+      howTo:{ en:"Push the handles forward until arms extend, don't lock your elbows.", ar:'ادفع المقابض لقدام لحد ما دراعك تفرد من غير ما تقفل المرفق خالص.' } },
+    { id:'pec_deck', group:'chest_triceps',
+      name:{ en:'Pec Deck (Chest Fly)', ar:'جهاز الفراشة (الصدر)' },
+      howTo:{ en:'Bring your arms together in front of your chest in a hugging motion.', ar:'قرّب دراعيك قدام صدرك بحركة شبه العناق.' } },
+    { id:'tricep_pushdown', group:'chest_triceps',
+      name:{ en:'Tricep Pushdown', ar:'كابل ترايسبس' },
+      howTo:{ en:'Push the bar down until arms are straight, keep elbows close to your body.', ar:'ادفع القبضة لتحت لحد ما دراعك تفرد وخلّي مرفقك قريب من جسمك.' } },
+    { id:'cable_fly', group:'chest_triceps',
+      name:{ en:'Cable Fly', ar:'كابل فراشة' },
+      howTo:{ en:'Bring the handles together in front of you in an arc motion.', ar:'قرّب المقابض لبعض قدامك بحركة نص دايرة.' } },
+
+    { id:'shoulder_press_machine', group:'shoulders_abs',
+      name:{ en:'Shoulder Press Machine', ar:'جهاز الكتف' },
+      howTo:{ en:'Push the handles straight up above your head.', ar:'ادفع المقابض لفوق فوق دماغك على طول.' } },
+    { id:'lateral_raise_machine', group:'shoulders_abs',
+      name:{ en:'Lateral Raise Machine', ar:'جهاز رفرفة جانبية' },
+      howTo:{ en:'Raise your arms out to the sides up to shoulder height.', ar:'ارفع دراعيك لبرا لحد مستوى الكتف.' } },
+    { id:'abs_crunch_machine', group:'shoulders_abs',
+      name:{ en:'Abs Crunch Machine', ar:'جهاز البطن' },
+      howTo:{ en:"Crunch forward, squeezing your abs, not pulling with your neck.", ar:'اتقوّس لقدام واضغط على البطن من غير ما تشد برقبتك.' } },
+
+    { id:'leg_press', group:'legs',
+      name:{ en:'Leg Press', ar:'جهاز ضغط الرجل' },
+      howTo:{ en:"Push the platform away until legs are almost straight, don't lock your knees.", ar:'ادفع المنصة لحد ما رجلك تقرب تتفرد من غير ما تقفل الركبة.' } },
+    { id:'leg_extension', group:'legs',
+      name:{ en:'Leg Extension', ar:'جهاز تمديد الرجل (الفخذ الأمامي)' },
+      howTo:{ en:'Extend your legs up until straight, then lower with control.', ar:'فرد رجلك لفوق لحد ما تستقيم وبعدين ارجعها ببطء.' } },
+    { id:'leg_curl', group:'legs',
+      name:{ en:'Leg Curl', ar:'جهاز ثني الرجل (الفخذ الخلفي)' },
+      howTo:{ en:'Curl your legs toward your glutes, then lower with control.', ar:'اثني رجلك لحد مؤخرتك وبعدين ارجعها ببطء.' } },
+    { id:'calf_raise_machine', group:'legs',
+      name:{ en:'Calf Raise Machine', ar:'جهاز السمانة' },
+      howTo:{ en:'Push up onto your toes, then lower your heels below the platform.', ar:'ادفع بجسمك لفوق على صوابعك وبعدين انزل كعبك تحت المنصة.' } }
+  ];
+  const EXERCISES_BY_ID = Object.fromEntries(EXERCISES.map(e => [e.id, e]));
+
   const STRINGS = {
     en: {
       eyebrow: 'Attendance tracker',
@@ -444,10 +503,11 @@
       workoutLogTitle: 'Workout log', workoutLogEmpty: 'Mark a day as attended first to log its workout.',
       muscleGroupLabel: 'Muscle group', chooseMuscle: 'Choose muscle group',
       addExercise: '+ Add exercise', removeExercise: 'Remove exercise',
-      machinePlaceholder: 'Machine / exercise', weightPlaceholder: 'Weight (kg)', repsPlaceholder: 'Reps',
+      weightPlaceholder: 'Weight (kg)', repsPlaceholder: 'Reps',
       saveWorkout: 'Save workout', workoutSaved: 'Workout saved', notLogged: 'Not logged yet',
       logTodayWorkout: "+ Log today's workout",
-      exercisesCount: n => `${n} exercise${n === 1 ? '' : 's'}`
+      chooseExercise: 'Choose exercise', otherExercise: 'Other', customNamePlaceholder: 'Exercise name',
+      lastStat: (w, r, d) => `Last time: ${w}kg × ${r} reps (${d})`, noHistory: 'No history yet for this exercise'
     },
     ar: {
       eyebrow: 'تتبّع الحضور',
@@ -486,10 +546,11 @@
       workoutLogTitle: 'سجل التمرين', workoutLogEmpty: 'سجّل حضورك في يوم الأول عشان تقدر تضيف تفاصيل تمرينه.',
       muscleGroupLabel: 'العضلة المستهدفة', chooseMuscle: 'اختار العضلة',
       addExercise: '+ إضافة تمرين', removeExercise: 'حذف التمرين',
-      machinePlaceholder: 'الجهاز / التمرين', weightPlaceholder: 'الوزن (كجم)', repsPlaceholder: 'العدات',
+      weightPlaceholder: 'الوزن (كجم)', repsPlaceholder: 'العدات',
       saveWorkout: 'حفظ التمرين', workoutSaved: 'اتحفظ التمرين', notLogged: 'لسه متسجلش',
       logTodayWorkout: '+ سجّل تمرين النهاردة',
-      exercisesCount: n => `${n} تمرين`
+      chooseExercise: 'اختار التمرين', otherExercise: 'تمرين تاني', customNamePlaceholder: 'اسم التمرين',
+      lastStat: (w, r, d) => `آخر مرة: ${w} كجم × ${r} عدة (${d})`, noHistory: 'لسه معملتش التمرين ده قبل كده'
     }
   };
   function t(key){ return STRINGS[state.lang][key]; }
@@ -519,12 +580,18 @@
   }
   function normalizeExercise(e){
     if(!e || typeof e !== 'object') return null;
+    const exerciseId = typeof e.exerciseId === 'string' && EXERCISES_BY_ID[e.exerciseId] ? e.exerciseId : '';
     const ex = {
-      machine: typeof e.machine === 'string' ? e.machine : '',
+      exerciseId,
+      customName: typeof e.customName === 'string' ? e.customName : (!exerciseId && typeof e.machine === 'string' ? e.machine : ''),
       weight: typeof e.weight === 'number' ? e.weight : 0,
       reps: typeof e.reps === 'number' ? e.reps : 0
     };
-    return (ex.machine || ex.weight || ex.reps) ? ex : null;
+    return (ex.exerciseId || ex.customName || ex.weight || ex.reps) ? ex : null;
+  }
+  function exerciseDisplayName(ex){
+    if(ex.exerciseId && EXERCISES_BY_ID[ex.exerciseId]) return EXERCISES_BY_ID[ex.exerciseId].name[state.lang];
+    return ex.customName || t('otherExercise');
   }
   function normalizeWorkoutLog(w){
     if(!w || typeof w !== 'object') return null;
@@ -687,22 +754,86 @@
   function workoutSummaryText(log){
     if(!log) return t('notLogged');
     const muscleLabel = log.muscleGroup ? MUSCLE_LABELS[state.lang][log.muscleGroup] : '';
-    const exCount = log.exercises.length;
+    const uniqueNames = [...new Set(log.exercises.map(exerciseDisplayName))];
     const parts = [];
     if(muscleLabel) parts.push(muscleLabel);
-    if(exCount > 0) parts.push(t('exercisesCount')(exCount));
+    if(uniqueNames.length > 0){
+      const shown = uniqueNames.slice(0, 2);
+      const extra = uniqueNames.length > 2 ? ` +${uniqueNames.length - 2}` : '';
+      parts.push(shown.join(', ') + extra);
+    }
     return parts.length ? parts.join(' · ') : t('notLogged');
   }
 
-  function buildExerciseRow(ex){
+  function lastExerciseStat(exerciseId, excludeDateStr){
+    let bestDate = null, bestEntries = null;
+    state.months.forEach(mo => {
+      Object.keys(mo.workoutLogs).forEach(dateStr => {
+        if(dateStr === excludeDateStr) return;
+        const matches = mo.workoutLogs[dateStr].exercises.filter(e => e.exerciseId === exerciseId);
+        if(matches.length && (!bestDate || dateStr > bestDate)){
+          bestDate = dateStr;
+          bestEntries = matches;
+        }
+      });
+    });
+    if(!bestDate) return null;
+    const last = bestEntries[bestEntries.length - 1];
+    return {date: bestDate, weight: last.weight, reps: last.reps};
+  }
+
+  function exerciseOptionsHTML(selectedId){
+    let html = `<option value="">${t('chooseExercise')}</option>`;
+    MUSCLE_GROUPS.forEach(g => {
+      const inGroup = EXERCISES.filter(e => e.group === g);
+      if(!inGroup.length) return;
+      html += `<optgroup label="${MUSCLE_LABELS[state.lang][g]}">`;
+      html += inGroup.map(e => `<option value="${e.id}"${selectedId === e.id ? ' selected' : ''}>${e.name[state.lang]}</option>`).join('');
+      html += `</optgroup>`;
+    });
+    html += `<option value="other"${selectedId === 'other' ? ' selected' : ''}>${t('otherExercise')}</option>`;
+    return html;
+  }
+
+  function updateLastStat(statEl, howToEl, exerciseId, excludeDateStr){
+    if(!exerciseId || exerciseId === 'other'){
+      statEl.textContent = '';
+      howToEl.textContent = '';
+      return;
+    }
+    const stat = lastExerciseStat(exerciseId, excludeDateStr);
+    statEl.textContent = stat ? t('lastStat')(stat.weight, stat.reps, formatDateShort(stat.date)) : t('noHistory');
+    const exerciseDef = EXERCISES_BY_ID[exerciseId];
+    howToEl.textContent = exerciseDef ? exerciseDef.howTo[state.lang] : '';
+  }
+
+  function buildExerciseRow(ex, excludeDateStr){
     const row = document.createElement('div');
     row.className = 'wd-exercise-row';
+    const selectedId = ex.exerciseId || (ex.customName ? 'other' : '');
     row.innerHTML = `
-      <input type="text" class="wd-machine" placeholder="${t('machinePlaceholder')}" value="${ex.machine || ''}" />
-      <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${ex.weight || ''}" />
-      <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${ex.reps || ''}" />
-      <button type="button" class="wd-remove-exercise" aria-label="${t('removeExercise')}">×</button>
+      <div class="wd-exercise-main">
+        <select class="wd-exercise-select">${exerciseOptionsHTML(selectedId)}</select>
+        <input type="text" class="wd-custom-name${selectedId === 'other' ? '' : ' hidden'}" placeholder="${t('customNamePlaceholder')}" value="${ex.customName || ''}" />
+        <button type="button" class="wd-remove-exercise" aria-label="${t('removeExercise')}">×</button>
+      </div>
+      <p class="wd-howto"></p>
+      <p class="wd-last-stat"></p>
+      <div class="wd-exercise-numbers">
+        <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${ex.weight || ''}" />
+        <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${ex.reps || ''}" />
+      </div>
     `;
+    const selectEl = row.querySelector('.wd-exercise-select');
+    const customInput = row.querySelector('.wd-custom-name');
+    const statEl = row.querySelector('.wd-last-stat');
+    const howToEl = row.querySelector('.wd-howto');
+    selectEl.addEventListener('change', () => {
+      customInput.classList.toggle('hidden', selectEl.value !== 'other');
+      if(selectEl.value === 'other') customInput.focus();
+      updateLastStat(statEl, howToEl, selectEl.value, excludeDateStr);
+    });
+    updateLastStat(statEl, howToEl, selectedId, excludeDateStr);
     row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
     return row;
   }
@@ -749,15 +880,15 @@
 
       const exercisesWrap = document.createElement('div');
       exercisesWrap.className = 'wd-exercises';
-      const initialExercises = (log && log.exercises.length) ? log.exercises : [{machine:'', weight:'', reps:''}];
-      initialExercises.forEach(ex => exercisesWrap.appendChild(buildExerciseRow(ex)));
+      const initialExercises = (log && log.exercises.length) ? log.exercises : [{exerciseId:'', customName:'', weight:'', reps:''}];
+      initialExercises.forEach(ex => exercisesWrap.appendChild(buildExerciseRow(ex, dateStr)));
       body.appendChild(exercisesWrap);
 
       const addBtn = document.createElement('button');
       addBtn.type = 'button';
       addBtn.className = 'wd-add-exercise';
       addBtn.textContent = t('addExercise');
-      addBtn.addEventListener('click', () => exercisesWrap.appendChild(buildExerciseRow({machine:'', weight:'', reps:''})));
+      addBtn.addEventListener('click', () => exercisesWrap.appendChild(buildExerciseRow({exerciseId:'', customName:'', weight:'', reps:''}, dateStr)));
       body.appendChild(addBtn);
 
       const saveBtn = document.createElement('button');
@@ -766,11 +897,15 @@
       saveBtn.textContent = t('saveWorkout');
       saveBtn.addEventListener('click', () => {
         const muscleGroup = select.value;
-        const exercises = [...exercisesWrap.querySelectorAll('.wd-exercise-row')].map(row => ({
-          machine: row.querySelector('.wd-machine').value.trim(),
-          weight: parseFloat(row.querySelector('.wd-weight').value) || 0,
-          reps: parseInt(row.querySelector('.wd-reps').value, 10) || 0
-        })).filter(ex => ex.machine || ex.weight || ex.reps);
+        const exercises = [...exercisesWrap.querySelectorAll('.wd-exercise-row')].map(row => {
+          const selectVal = row.querySelector('.wd-exercise-select').value;
+          return {
+            exerciseId: (selectVal && selectVal !== 'other') ? selectVal : '',
+            customName: selectVal === 'other' ? row.querySelector('.wd-custom-name').value.trim() : '',
+            weight: parseFloat(row.querySelector('.wd-weight').value) || 0,
+            reps: parseInt(row.querySelector('.wd-reps').value, 10) || 0
+          };
+        }).filter(ex => ex.exerciseId || ex.customName || ex.weight || ex.reps);
         if(!muscleGroup && exercises.length === 0){
           delete m.workoutLogs[dateStr];
         } else {
