@@ -259,6 +259,7 @@
   .wd-exercise-numbers{ display:flex; gap:6px; }
   .wd-exercise-numbers input{ flex:1; min-width:0; }
   .wd-custom-name::placeholder, .wd-exercise-numbers input::placeholder{ color:var(--steel); }
+  .wd-photo{ width:100%; max-height:200px; object-fit:cover; border-radius:9px; display:block; }
   .wd-howto{ font-size:11px; color:var(--steel); margin:0; line-height:1.4; }
   .wd-last-stat{ font-size:11px; color:var(--accent); font-weight:600; margin:0; }
   .wd-remove-exercise{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
@@ -414,7 +415,7 @@
   };
 
   const EXERCISES = [
-    { id:'lat_pulldown', group:'back_biceps',
+    { id:'lat_pulldown', group:'back_biceps', image:'exercises/lat-pulldown.jpg',
       name:{ en:'Lat Pulldown', ar:'سحب أمامي (لات بول داون)' },
       howTo:{ en:'Pull the bar down to chest level, squeeze your shoulder blades together.', ar:'اسحب القبضة لتحت لحد مستوى الصدر واضغط لوحي الكتف على بعض.' } },
     { id:'seated_row', group:'back_biceps',
@@ -795,16 +796,26 @@
     return html;
   }
 
-  function updateLastStat(statEl, howToEl, exerciseId, excludeDateStr){
+  function updateLastStat(statEl, howToEl, photoEl, exerciseId, excludeDateStr){
     if(!exerciseId || exerciseId === 'other'){
       statEl.textContent = '';
       howToEl.textContent = '';
+      photoEl.classList.add('hidden');
+      photoEl.removeAttribute('src');
       return;
     }
     const stat = lastExerciseStat(exerciseId, excludeDateStr);
     statEl.textContent = stat ? t('lastStat')(stat.weight, stat.reps, formatDateShort(stat.date)) : t('noHistory');
     const exerciseDef = EXERCISES_BY_ID[exerciseId];
     howToEl.textContent = exerciseDef ? exerciseDef.howTo[state.lang] : '';
+    if(exerciseDef && exerciseDef.image){
+      photoEl.src = exerciseDef.image;
+      photoEl.alt = exerciseDef.name[state.lang];
+      photoEl.classList.remove('hidden');
+    } else {
+      photoEl.classList.add('hidden');
+      photoEl.removeAttribute('src');
+    }
   }
 
   function buildExerciseRow(ex, excludeDateStr){
@@ -817,6 +828,7 @@
         <input type="text" class="wd-custom-name${selectedId === 'other' ? '' : ' hidden'}" placeholder="${t('customNamePlaceholder')}" value="${ex.customName || ''}" />
         <button type="button" class="wd-remove-exercise" aria-label="${t('removeExercise')}">×</button>
       </div>
+      <img class="wd-photo hidden" alt="" />
       <p class="wd-howto"></p>
       <p class="wd-last-stat"></p>
       <div class="wd-exercise-numbers">
@@ -828,12 +840,13 @@
     const customInput = row.querySelector('.wd-custom-name');
     const statEl = row.querySelector('.wd-last-stat');
     const howToEl = row.querySelector('.wd-howto');
+    const photoEl = row.querySelector('.wd-photo');
     selectEl.addEventListener('change', () => {
       customInput.classList.toggle('hidden', selectEl.value !== 'other');
       if(selectEl.value === 'other') customInput.focus();
-      updateLastStat(statEl, howToEl, selectEl.value, excludeDateStr);
+      updateLastStat(statEl, howToEl, photoEl, selectEl.value, excludeDateStr);
     });
-    updateLastStat(statEl, howToEl, selectedId, excludeDateStr);
+    updateLastStat(statEl, howToEl, photoEl, selectedId, excludeDateStr);
     row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
     return row;
   }
