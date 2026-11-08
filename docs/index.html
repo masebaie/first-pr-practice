@@ -253,21 +253,23 @@
   .wd-exercise-main{ display:flex; gap:6px; align-items:center; }
   .wd-exercise-main .wd-exercise-select{ flex:2; min-width:0; }
   .wd-exercise-main .wd-custom-name{ flex:2; min-width:0; }
-  .wd-exercise-select, .wd-custom-name, .wd-exercise-numbers input{
+  .wd-exercise-select, .wd-custom-name, .wd-set-row input{
     border:1px solid var(--line); background:var(--paper); border-radius:9px; padding:8px 9px;
     font-size:12.5px; color:var(--ink); font-family:var(--font-ui); width:100%; box-sizing:border-box; }
-  .wd-exercise-numbers{ display:flex; gap:6px; }
-  .wd-exercise-numbers input{ flex:1; min-width:0; }
-  .wd-custom-name::placeholder, .wd-exercise-numbers input::placeholder{ color:var(--steel); }
+  .wd-custom-name::placeholder, .wd-set-row input::placeholder{ color:var(--steel); }
   .wd-photo{ width:100%; max-height:200px; object-fit:cover; border-radius:9px; display:block; }
   .wd-howto{ font-size:11px; color:var(--steel); margin:0; line-height:1.4; }
   .wd-last-stat{ font-size:11px; color:var(--accent); font-weight:600; margin:0; }
-  .wd-remove-exercise{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
+  .wd-sets{ display:flex; flex-direction:column; gap:6px; }
+  .wd-set-row{ display:flex; gap:6px; align-items:center; }
+  .wd-set-row .wd-weight, .wd-set-row .wd-reps{ flex:1; min-width:0; }
+  .wd-set-row .wd-note{ flex:2; min-width:0; }
+  .wd-remove-exercise, .wd-remove-set{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
                width:26px; height:26px; line-height:1; font-size:15px; cursor:pointer; display:flex; align-items:center;
                justify-content:center; flex-shrink:0; }
   .wd-add-exercise{ appearance:none; border:1.5px dashed var(--line); background:transparent; color:var(--steel);
       border-radius:9px; padding:9px; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font-ui); }
-  .wd-repeat-set{ appearance:none; border:none; background:var(--accent-tint); color:var(--accent);
+  .wd-add-set{ appearance:none; border:none; background:var(--accent-tint); color:var(--accent);
       border-radius:9px; padding:8px; font-size:11.5px; font-weight:700; cursor:pointer; font-family:var(--font-ui); }
   .wd-save{ appearance:none; border:none; border-radius:11px; padding:11px; font-size:13px;
       font-weight:700; cursor:pointer; background:var(--primary); color:#fff; font-family:var(--font-ui); }
@@ -511,7 +513,8 @@
       logTodayWorkout: "+ Log today's workout",
       chooseExercise: 'Choose exercise', otherExercise: 'Other', customNamePlaceholder: 'Exercise name',
       lastStat: (w, r, d) => `Last time: ${w}kg × ${r} reps (${d})`, noHistory: 'No history yet for this exercise',
-      repeatSet: '+ Add another set'
+      repeatSet: '+ Add another set',
+      notePlaceholder: 'Note (optional)', removeSet: 'Remove set'
     },
     ar: {
       eyebrow: 'تتبّع الحضور',
@@ -555,7 +558,8 @@
       logTodayWorkout: '+ سجّل تمرين النهاردة',
       chooseExercise: 'اختار التمرين', otherExercise: 'تمرين تاني', customNamePlaceholder: 'اسم التمرين',
       lastStat: (w, r, d) => `آخر مرة: ${w} كجم × ${r} عدة (${d})`, noHistory: 'لسه معملتش التمرين ده قبل كده',
-      repeatSet: '+ إضافة جولة تانية لنفس التمرين'
+      repeatSet: '+ إضافة جولة تانية لنفس التمرين',
+      notePlaceholder: 'ملاحظة (اختياري)', removeSet: 'حذف الجولة'
     }
   };
   function t(key){ return STRINGS[state.lang][key]; }
@@ -583,16 +587,28 @@
     if(!b || typeof b.start !== 'string' || typeof b.end !== 'string') return null;
     return {id: typeof b.id === 'string' ? b.id : uid(), start: b.start, end: b.end < b.start ? b.start : b.end};
   }
+  function normalizeSet(s){
+    if(!s || typeof s !== 'object') return null;
+    const set = {
+      weight: typeof s.weight === 'number' ? s.weight : 0,
+      reps: typeof s.reps === 'number' ? s.reps : 0,
+      note: typeof s.note === 'string' ? s.note : ''
+    };
+    return (set.weight || set.reps || set.note) ? set : null;
+  }
   function normalizeExercise(e){
     if(!e || typeof e !== 'object') return null;
     const exerciseId = typeof e.exerciseId === 'string' && EXERCISES_BY_ID[e.exerciseId] ? e.exerciseId : '';
-    const ex = {
-      exerciseId,
-      customName: typeof e.customName === 'string' ? e.customName : (!exerciseId && typeof e.machine === 'string' ? e.machine : ''),
-      weight: typeof e.weight === 'number' ? e.weight : 0,
-      reps: typeof e.reps === 'number' ? e.reps : 0
-    };
-    return (ex.exerciseId || ex.customName || ex.weight || ex.reps) ? ex : null;
+    const customName = typeof e.customName === 'string' ? e.customName : (!exerciseId && typeof e.machine === 'string' ? e.machine : '');
+    let sets;
+    if(Array.isArray(e.sets)){
+      sets = e.sets.map(normalizeSet).filter(Boolean);
+    } else {
+      const legacy = normalizeSet({weight: e.weight, reps: e.reps, note: ''});
+      sets = legacy ? [legacy] : [];
+    }
+    const ex = {exerciseId, customName, sets};
+    return (ex.exerciseId || ex.customName || ex.sets.length) ? ex : null;
   }
   function exerciseDisplayName(ex){
     if(ex.exerciseId && EXERCISES_BY_ID[ex.exerciseId]) return EXERCISES_BY_ID[ex.exerciseId].name[state.lang];
@@ -771,20 +787,19 @@
   }
 
   function lastExerciseStat(exerciseId, excludeDateStr){
-    let bestDate = null, bestEntries = null;
+    let bestDate = null, bestSet = null;
     state.months.forEach(mo => {
       Object.keys(mo.workoutLogs).forEach(dateStr => {
         if(dateStr === excludeDateStr) return;
-        const matches = mo.workoutLogs[dateStr].exercises.filter(e => e.exerciseId === exerciseId);
-        if(matches.length && (!bestDate || dateStr > bestDate)){
+        const entry = mo.workoutLogs[dateStr].exercises.find(e => e.exerciseId === exerciseId);
+        if(entry && entry.sets.length && (!bestDate || dateStr > bestDate)){
           bestDate = dateStr;
-          bestEntries = matches;
+          bestSet = entry.sets[entry.sets.length - 1];
         }
       });
     });
     if(!bestDate) return null;
-    const last = bestEntries[bestEntries.length - 1];
-    return {date: bestDate, weight: last.weight, reps: last.reps};
+    return {date: bestDate, weight: bestSet.weight, reps: bestSet.reps};
   }
 
   function exerciseOptionsHTML(selectedId){
@@ -822,6 +837,19 @@
     }
   }
 
+  function buildSetRow(set){
+    const row = document.createElement('div');
+    row.className = 'wd-set-row';
+    row.innerHTML = `
+      <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${set.weight || ''}" />
+      <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${set.reps || ''}" />
+      <input type="text" class="wd-note" placeholder="${t('notePlaceholder')}" value="${set.note || ''}" />
+      <button type="button" class="wd-remove-set" aria-label="${t('removeSet')}">×</button>
+    `;
+    row.querySelector('.wd-remove-set').addEventListener('click', () => row.remove());
+    return row;
+  }
+
   function buildExerciseRow(ex, excludeDateStr){
     const row = document.createElement('div');
     row.className = 'wd-exercise-row';
@@ -835,33 +863,31 @@
       <img class="wd-photo hidden" alt="" />
       <p class="wd-howto"></p>
       <p class="wd-last-stat"></p>
-      <div class="wd-exercise-numbers">
-        <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${ex.weight || ''}" />
-        <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${ex.reps || ''}" />
-      </div>
-      <button type="button" class="wd-repeat-set${selectedId && selectedId !== 'other' ? '' : ' hidden'}">${t('repeatSet')}</button>
+      <div class="wd-sets"></div>
+      <button type="button" class="wd-add-set${selectedId ? '' : ' hidden'}">${t('repeatSet')}</button>
     `;
     const selectEl = row.querySelector('.wd-exercise-select');
     const customInput = row.querySelector('.wd-custom-name');
     const statEl = row.querySelector('.wd-last-stat');
     const howToEl = row.querySelector('.wd-howto');
     const photoEl = row.querySelector('.wd-photo');
-    const repeatBtn = row.querySelector('.wd-repeat-set');
+    const setsWrap = row.querySelector('.wd-sets');
+    const addSetBtn = row.querySelector('.wd-add-set');
+
+    const initialSets = (ex.sets && ex.sets.length) ? ex.sets : [{weight:'', reps:'', note:''}];
+    initialSets.forEach(set => setsWrap.appendChild(buildSetRow(set)));
+
     selectEl.addEventListener('change', () => {
       customInput.classList.toggle('hidden', selectEl.value !== 'other');
       if(selectEl.value === 'other') customInput.focus();
       updateLastStat(statEl, howToEl, photoEl, selectEl.value, excludeDateStr);
-      repeatBtn.classList.toggle('hidden', !selectEl.value);
+      addSetBtn.classList.toggle('hidden', !selectEl.value);
     });
     updateLastStat(statEl, howToEl, photoEl, selectedId, excludeDateStr);
     row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
-    repeatBtn.addEventListener('click', () => {
-      const newRow = buildExerciseRow({
-        exerciseId: selectEl.value !== 'other' ? selectEl.value : '',
-        customName: selectEl.value === 'other' ? customInput.value.trim() : '',
-        weight: '', reps: ''
-      }, excludeDateStr);
-      row.after(newRow);
+    addSetBtn.addEventListener('click', () => {
+      const newRow = buildSetRow({weight:'', reps:'', note:''});
+      setsWrap.appendChild(newRow);
       newRow.querySelector('.wd-weight').focus();
     });
     return row;
@@ -909,7 +935,7 @@
 
       const exercisesWrap = document.createElement('div');
       exercisesWrap.className = 'wd-exercises';
-      const initialExercises = (log && log.exercises.length) ? log.exercises : [{exerciseId:'', customName:'', weight:'', reps:''}];
+      const initialExercises = (log && log.exercises.length) ? log.exercises : [{exerciseId:'', customName:'', sets:[]}];
       initialExercises.forEach(ex => exercisesWrap.appendChild(buildExerciseRow(ex, dateStr)));
       body.appendChild(exercisesWrap);
 
@@ -917,7 +943,7 @@
       addBtn.type = 'button';
       addBtn.className = 'wd-add-exercise';
       addBtn.textContent = t('addExercise');
-      addBtn.addEventListener('click', () => exercisesWrap.appendChild(buildExerciseRow({exerciseId:'', customName:'', weight:'', reps:''}, dateStr)));
+      addBtn.addEventListener('click', () => exercisesWrap.appendChild(buildExerciseRow({exerciseId:'', customName:'', sets:[]}, dateStr)));
       body.appendChild(addBtn);
 
       const saveBtn = document.createElement('button');
@@ -928,13 +954,17 @@
         const muscleGroup = select.value;
         const exercises = [...exercisesWrap.querySelectorAll('.wd-exercise-row')].map(row => {
           const selectVal = row.querySelector('.wd-exercise-select').value;
+          const sets = [...row.querySelectorAll('.wd-set-row')].map(setRow => ({
+            weight: parseFloat(setRow.querySelector('.wd-weight').value) || 0,
+            reps: parseInt(setRow.querySelector('.wd-reps').value, 10) || 0,
+            note: setRow.querySelector('.wd-note').value.trim()
+          })).filter(s => s.weight || s.reps || s.note);
           return {
             exerciseId: (selectVal && selectVal !== 'other') ? selectVal : '',
             customName: selectVal === 'other' ? row.querySelector('.wd-custom-name').value.trim() : '',
-            weight: parseFloat(row.querySelector('.wd-weight').value) || 0,
-            reps: parseInt(row.querySelector('.wd-reps').value, 10) || 0
+            sets
           };
-        }).filter(ex => ex.exerciseId || ex.customName || ex.weight || ex.reps);
+        }).filter(ex => ex.exerciseId || ex.customName || ex.sets.length);
         if(!muscleGroup && exercises.length === 0){
           delete m.workoutLogs[dateStr];
         } else {
