@@ -96,3 +96,31 @@ https://masebaie.github.io/first-pr-practice/expressions/
 
 On iPhone: open it in Safari → Share → "Add to Home Screen". On Android:
 Chrome → ⋮ → "Install app".
+
+## Vault (خزنتي)
+
+`docs/vault/` is an installable, Arabic (RTL) password vault for the phone:
+
+- Every account is a card with its fields (username, password, PIN, …); one
+  tap copies a value, and secret fields stay masked until you tap 👁️.
+- Add, edit, and delete accounts, with any number of fields each, a category,
+  and a strong-password generator.
+- Search plus colour-coded category filters, in the gym tracker's palette
+  (slate, emerald, and the violet→pink→cyan gradient), light and dark.
+- Data is encrypted on the device with a master password (PBKDF2 + AES-256-GCM)
+  and never leaves it. The app locks itself after 3 minutes idle or when you
+  leave it for 30 seconds.
+- Import a plain JSON list of accounts on first run (encrypted right away),
+  and export or restore an encrypted backup.
+- Works offline.
+
+**No account data is stored in this repo**; the app ships empty.
+
+Live at:
+
+```
+https://masebaie.github.io/first-pr-practice/vault/
+```
+
+On iPhone: open it in Safari → Share → "Add to Home Screen". On Android:
+Chrome → ⋮ → "Install app".
