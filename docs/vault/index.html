@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>خزنتي</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="خزنتي">
+<meta name="description" content="خزنة باسوردات مشفّرة على موبايلك: انسخ اسم المستخدم والباسورد بضغطة.">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'none'; base-uri 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Same palette as the gym tracker: slate paper, emerald green, and the violet→pink→cyan gradient. */
+:root{
+  --bg:#F8FAFC; --surface:#FFFFFF; --surface-2:#F1F5F9;
+  --ink:#0F172A; --ink-soft:#475569; --ink-faint:#64748B;
+  --accent:#059669; --accent-soft:rgba(16,185,129,.14);
+  --warn:#DC2626; --warn-soft:rgba(220,38,38,.10);
+  --border:#E2E8F0;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 22px -16px rgba(15,23,42,.14);
+  --grad:linear-gradient(120deg,#7C3AED,#EC4899,#06B6D4);
+  --grad-glow:rgba(124,58,237,.45);
+  --display:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;
+  --body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1220; --surface:#1A2333; --surface-2:#212B40;
+    --ink:#E2E8F0; --ink-soft:#94A3B8; --ink-faint:#7C8AA0;
+    --accent:#34D399; --accent-soft:rgba(52,211,153,.16);
+    --warn:#F87171; --warn-soft:rgba(248,113,113,.14);
+    --border:rgba(226,232,240,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 26px -18px rgba(0,0,0,.55);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#1A2333; --surface-2:#212B40;
+  --ink:#E2E8F0; --ink-soft:#94A3B8; --ink-faint:#7C8AA0;
+  --accent:#34D399; --accent-soft:rgba(52,211,153,.16);
+  --warn:#F87171; --warn-soft:rgba(248,113,113,.14);
+  --border:rgba(226,232,240,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 26px -18px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding:env(safe-area-inset-top,0) 0 calc(env(safe-area-inset-bottom,0) + 100px)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+.ltr{direction:ltr;unicode-bidi:isolate}
+
+/* ---------- buttons & inputs ---------- */
+.btn{border:1px solid var(--border);background:var(--surface);color:var(--ink);border-radius:14px;padding:12px 16px;font-weight:600;font-size:15px}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--grad);color:#fff;border-color:transparent;font-weight:700;box-shadow:0 10px 22px -10px var(--grad-glow)}
+.btn.danger{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.btn.block{width:100%}
+.inp{width:100%;height:50px;padding:0 14px;border-radius:14px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink);font-size:16px;outline:none}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+select.inp{appearance:none}
+
+/* ---------- lock screen ---------- */
+#lock{min-height:100vh;display:grid;place-items:center;padding:20px 16px}
+.lockbox{width:100%;max-width:400px;text-align:center}
+.lockhero{border-radius:26px;padding:30px 20px 24px;color:#fff;background:radial-gradient(380px 240px at 0% 100%,rgba(255,255,255,.2),transparent 70%),var(--grad);box-shadow:0 18px 40px -16px var(--grad-glow);margin-bottom:18px}
+.lockhero img{width:72px;height:72px;border-radius:20px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
+.lockhero h1{margin:12px 0 2px;font-family:var(--display);font-size:30px}
+.lockhero p{margin:0;opacity:.85;font-size:14px}
+.lockbox .inp{margin-bottom:10px;text-align:center}
+.err{color:var(--warn);font-size:13.5px;min-height:22px;margin-top:8px;font-weight:600}
+.link{background:none;border:0;color:var(--ink-soft);margin-top:6px;font-size:14px;text-decoration:underline;text-underline-offset:4px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;margin:14px 0 0;border-radius:22px;padding:18px 18px 18px;color:#fff;
+  background:radial-gradient(380px 240px at 0% 100%,rgba(255,255,255,.18),transparent 70%),var(--grad);box-shadow:0 14px 30px -14px var(--grad-glow)}
+.hero::after{content:"🔐";position:absolute;inset-inline-start:10px;bottom:-28px;font-size:110px;opacity:.12;pointer-events:none}
+.top{display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;margin-inline-end:auto}
+.brand img{width:42px;height:42px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.brand h1{margin:0;font-family:var(--display);font-size:24px}
+.brand small{display:block;font-size:12.5px;opacity:.8}
+.icon-btn{width:42px;height:42px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);display:grid;place-items:center;color:#fff;font-size:18px}
+.icon-btn:active{transform:scale(.95)}
+
+/* ---------- search & chips ---------- */
+.search{position:sticky;top:0;z-index:5;padding:12px 0 8px;background:linear-gradient(var(--bg) 82%,transparent)}
+.search label{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 14px;height:52px;box-shadow:var(--shadow)}
+.search label:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:16px;height:100%}
+.search input::placeholder{color:var(--ink-faint)}
+.chips{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--border);background:var(--surface);color:var(--ink-soft);border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:600}
+.chip i{font-style:normal;display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-inline-end:6px;vertical-align:1px}
+.chip[aria-pressed="true"]{background:var(--c);border-color:transparent;color:#fff;box-shadow:0 6px 14px -6px var(--c)}
+.chip[aria-pressed="true"] i{background:#fff}
+.chip.all[aria-pressed="true"]{background:var(--grad);box-shadow:0 6px 14px -6px var(--grad-glow)}
+.count{color:var(--ink-faint);font-size:13px;margin:6px 2px 10px}
+
+/* ---------- cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+@media (max-width:640px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.card::before{content:"";position:absolute;inset-block:14px;inset-inline-end:0;width:4px;border-radius:4px;background:var(--c)}
+.chead{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.av{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-weight:700;font-size:15px;color:#fff;background:var(--c);flex:none;font-family:var(--body)}
+.ctitle{flex:1;min-width:0}
+.ctitle b{display:block;font-size:16.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:start}
+.ctitle span{font-size:12px;color:var(--c);font-weight:700}
+.edit{width:38px;height:38px;border-radius:11px;border:1px solid transparent;background:transparent;color:var(--ink-faint);font-size:16px}
+.edit:active,.edit:hover{background:var(--surface-2)}
+.fields{padding:0 12px 12px;display:flex;flex-direction:column;gap:6px}
+.f{display:flex;align-items:center;gap:4px;background:var(--surface-2);border-radius:12px;padding:6px 6px 6px 6px}
+.f .fl{flex:1;min-width:0;padding-inline-start:6px;cursor:pointer}
+.f .lbl{font-size:11.5px;color:var(--ink-faint);font-weight:600}
+.f .val{font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:right}
+.f .val.mask{letter-spacing:3px;color:var(--ink-soft)}
+.mini{width:40px;height:40px;border-radius:11px;border:0;background:transparent;color:var(--ink-faint);font-size:16px;flex:none;display:grid;place-items:center}
+.mini:active{background:var(--surface)}
+.mini.copy{background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--c);font-size:18px;font-weight:700}
+.mini.copy:active{background:var(--c);color:#fff}
+.empty{text-align:center;color:var(--ink-faint);padding:50px 10px;line-height:2}
+
+.fab{position:fixed;bottom:calc(env(safe-area-inset-bottom,0) + 20px);inset-inline-start:50%;transform:translateX(50%);height:56px;padding:0 26px;border-radius:18px;border:0;font-weight:700;font-size:16px;
+  background:var(--grad);color:#fff;box-shadow:0 12px 28px -8px var(--grad-glow);z-index:6;white-space:nowrap}
+.fab:active{transform:translateX(50%) scale(.97)}
+
+/* ---------- sheets ---------- */
+.ov{position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.ov.show{display:flex}
+@media (min-width:640px){.ov{align-items:center}}
+.sheet{width:100%;max-width:560px;max-height:92vh;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:20px 16px calc(env(safe-area-inset-bottom,0) + 18px)}
+@media (min-width:640px){.sheet{border-radius:24px}}
+.sheet h2{margin:0 0 12px;font-family:var(--display);font-size:22px}
+.lab{font-size:12.5px;color:var(--ink-faint);font-weight:600;margin:10px 0 6px;display:block}
+.frow{display:grid;grid-template-columns:1fr 1.5fr 40px 40px;gap:6px;align-items:center;margin-bottom:8px}
+.frow .inp{height:44px;padding:0 10px;font-size:15px}
+.tog{width:40px;height:44px;border-radius:11px;border:1px solid var(--border);background:var(--surface-2);color:var(--ink-faint)}
+.tog.on{border-color:var(--accent);background:var(--accent-soft)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .grow{flex:1}
+.menu .btn{width:100%;margin-bottom:8px;text-align:start}
+.note{font-size:13px;color:var(--ink-soft);line-height:1.8;background:var(--surface-2);border-radius:14px;padding:12px 14px;margin:6px 0 12px}
+
+body.away #app,body.away .ov{visibility:hidden}
+.meter{height:6px;border-radius:6px;background:var(--surface-2);overflow:hidden;margin:-4px 0 10px}
+.meter i{display:block;height:100%;width:0;transition:.2s}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0) + 90px);transform:translateX(-50%) translateY(16px);opacity:0;pointer-events:none;
+  background:var(--ink);color:var(--bg);font-weight:700;padding:11px 20px;border-radius:999px;transition:.2s;z-index:50;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- LOCK / SETUP -->
+<section id="lock">
+  <div class="lockbox">
+    <div class="lockhero">
+      <img src="icons/icon-192.png" alt="">
+      <h1>خزنتي</h1>
+      <p id="lockMsg">…</p>
+    </div>
+    <input id="pw1" class="inp ltr" type="password" placeholder="الباسورد الرئيسي" autocomplete="current-password">
+    <div class="meter" id="meter" hidden><i></i></div>
+    <input id="pw2" class="inp ltr" type="password" placeholder="أكّد الباسورد" autocomplete="new-password" hidden>
+    <button id="lockBtn" class="btn primary block">فتح</button>
+    <div id="lockErr" class="err"></div>
+    <button id="importFirst" class="link" hidden>📥 عندي ملف بياناتي / نسخة احتياطية</button>
+    <button id="cancelImport" class="link" hidden>رجوع</button>
+  </div>
+</section>
+
+<!-- APP -->
+<main id="app" class="wrap" hidden>
+  <div class="hero">
+    <div class="top">
+      <div class="brand"><img src="icons/icon-192.png" alt=""><div><h1>خزنتي</h1><small>اضغط ⧉ وانسخ على طول</small></div></div>
+      <button class="icon-btn" id="menuBtn" aria-label="الإعدادات">⚙️</button>
+      <button class="icon-btn" id="lockNow" aria-label="قفل">🔒</button>
+    </div>
+  </div>
+  <div class="search">
+    <label><span aria-hidden="true">🔎</span><input id="q" type="search" placeholder="ابحث عن حساب…" autocomplete="off"></label>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="grid" id="grid"></div>
+  <button class="fab" id="addBtn">＋ حساب جديد</button>
+</main>
+
+<!-- EDITOR -->
+<div class="ov" id="edOv">
+  <div class="sheet">
+    <h2 id="edTitle">حساب جديد</h2>
+    <label class="lab" for="edName">اسم الحساب</label>
+    <input id="edName" class="inp" placeholder="مثلاً: Netflix">
+    <label class="lab" for="edCat">التصنيف</label>
+    <select id="edCat" class="inp"></select>
+    <label class="lab">البيانات · 🔒 يعني تتخبّى زي الباسورد</label>
+    <div id="edFields"></div>
+    <div class="row">
+      <button class="btn grow" id="edAddField">＋ خانة</button>
+      <button class="btn grow" id="edGen">🎲 باسورد قوي</button>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn danger" id="edDel">حذف</button>
+      <span class="grow"></span>
+      <button class="btn" id="edCancel">إلغاء</button>
+      <button class="btn primary" id="edSave">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div class="ov" id="menuOv">
+  <div class="sheet menu">
+    <h2>الإعدادات</h2>
+    <button class="btn" id="mExport">⬇️ تنزيل نسخة احتياطية (مشفّرة)</button>
+    <button class="btn" id="mImport">⬆️ استيراد ملف / نسخة احتياطية</button>
+    <button class="btn" id="mChange">🔑 تغيير الباسورد الرئيسي</button>
+    <button class="btn" id="mTheme">🌓 فاتح / غامق</button>
+    <button class="btn danger" id="mReset">🗑️ مسح كل البيانات من الجهاز ده</button>
+    <div class="note">بياناتك متشفّرة بـ AES‑256 ومفتاح مشتق من الباسورد الرئيسي (600 ألف دورة PBKDF2)، ومحفوظة على الموبايل ده بس، ومفيش أي حاجة بتتبعت لأي سيرفر. محدش يقدر يفتحها من غير الباسورد الرئيسي، ولا أنا ولا GitHub. ولو نسيته مفيش أي طريقة ترجّعها، فاكتبه في مكان آمن وخُد نسخة احتياطية كل فترة.<br>الخزنة بتقفل لوحدها بعد 3 دقايق، والشاشة بتستخبى لما تخرج من الأبلكيشن، والحاجة اللي نسختها بتتمسح من الحافظة بعد 45 ثانية.</div>
+    <button class="btn block" id="mClose">إغلاق</button>
+  </div>
+</div>
+<input type="file" id="fileIn" accept=".json,application/json,text/plain" hidden>
+<div id="toast" role="status"></div>
+
+<script>
+(()=>{
+/* ===================== Categories ===================== */
+const CATS={
+  telecom:{n:"اتصالات",c:"#06B6D4"}, gov:{n:"حكومي",c:"#059669"}, travel:{n:"سفر",c:"#3B82F6"},
+  social:{n:"سوشيال",c:"#EC4899"}, shop:{n:"تسوّق",c:"#F97316"}, money:{n:"دفع وبنوك",c:"#10B981"},
+  fun:{n:"ترفيه",c:"#8B5CF6"}, family:{n:"العيلة والدراسة",c:"#D97706"}, mail:{n:"إيميلات",c:"#EF4444"},
+  other:{n:"أخرى",c:"#64748B"}
+};
+
+/* ===================== Crypto ===================== */
+const KEY="myvault.v1", ITER=600000, OLD_ITER=310000, te=new TextEncoder(), td=new TextDecoder();
+const b64=a=>{let s="";for(const x of new Uint8Array(a))s+=String.fromCharCode(x);return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function derive(pw,salt,iter=ITER){
+  const base=await crypto.subtle.importKey("raw",te.encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function seal(key,salt,obj){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,te.encode(JSON.stringify(obj)));
+  return {v:2,it:ITER,salt:b64(salt),iv:b64(iv),ct:b64(ct)};
+}
+async function unseal(pw,blob){
+  const it=blob.it||OLD_ITER;
+  if(!Number.isInteger(it)||it<OLD_ITER||it>5e6)throw new Error("bad iter");
+  let salt=unb64(blob.salt), key=await derive(pw,salt,it);
+  const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(blob.iv)},key,unb64(blob.ct));
+  // Older/weaker vaults are re-keyed with the current settings and a fresh salt.
+  if(it!==ITER){salt=crypto.getRandomValues(new Uint8Array(16));key=await derive(pw,salt)}
+  return {key,salt,data:JSON.parse(td.decode(pt)),rekey:it!==ITER};
+}
+const readStore=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch{return null}};
+function writeStore(b){try{localStorage.setItem(KEY,JSON.stringify(b));return true}catch{toast("⚠️ مقدرتش أحفظ على الجهاز");return false}}
+
+/* ===================== State ===================== */
+let S={key:null,salt:null,data:[]}, filter="all", editing=null, revealed=new Set(), pending=null;
+const $=id=>document.getElementById(id);
+const uid=()=>Math.random().toString(36).slice(2,10);
+const persist=async()=>writeStore(await seal(S.key,S.salt,S.data));
+// Normalise imported entries (plain JSON list or {entries:[...]})
+const clean=list=>(Array.isArray(list)?list:list&&list.entries||[]).filter(x=>x&&x.name).map(x=>({
+  id:x.id||uid(),name:String(x.name),cat:CATS[x.cat]?x.cat:"other",
+  fields:(x.fields||[]).map(f=>({l:String(f.l??f.label??""),v:String(f.v??f.value??""),s:!!(f.s??f.secret)}))}));
+
+/* ===================== Master password rules ===================== */
+function strength(pw){
+  let sc=0;if(pw.length>=10)sc++;if(pw.length>=14)sc++;
+  if(/[a-z]/.test(pw)&&/[A-Z]/.test(pw))sc++;if(/\d/.test(pw))sc++;if(/[^A-Za-z0-9]/.test(pw))sc++;
+  return Math.min(sc,4);
+}
+function weakReason(pw){
+  if(pw.length<10)return "الباسورد الرئيسي لازم يكون 10 حروف على الأقل";
+  if(strength(pw)<3)return "ضعيف: اخلط حروف كبيرة وصغيرة وأرقام ورموز";
+  return "";
+}
+function updMeter(){
+  const m=$("meter");if(m.hidden)return;const sc=strength($("pw1").value);
+  m.firstElementChild.style.width=(sc/4*100)+"%";
+  m.firstElementChild.style.background=["#DC2626","#DC2626","#F59E0B","#10B981","#059669"][sc];
+}
+$("pw1").addEventListener("input",updMeter);
+
+/* ===================== Wrong-password lockout ===================== */
+const FAIL="vault.fails";
+const getFails=()=>{try{return JSON.parse(localStorage.getItem(FAIL))||{n:0,until:0}}catch{return {n:0,until:0}}};
+const setFails=f=>{try{localStorage.setItem(FAIL,JSON.stringify(f))}catch{}};
+function noteFail(){const f=getFails();f.n++;if(f.n>=5)f.until=Date.now()+Math.min(30000*2**(f.n-5),3600000);setFails(f);return f}
+
+/* ===================== Lock screen ===================== */
+// modes: unlock | setup | backup (encrypted file waiting for its password) | plain (plain file waiting for a new master password)
+let mode="unlock";
+function setMode(m){
+  mode=m;
+  const msgs={unlock:"اكتب الباسورد الرئيسي علشان تفتح",
+    setup:"أول مرة؟ اختار باسورد رئيسي واحد تفتح بيه كل حساباتك",
+    backup:"اكتب الباسورد الرئيسي بتاع النسخة الاحتياطية",
+    plain:`لقيت ${pending&&pending.data?pending.data.length:0} حساب ✓ اختار باسورد رئيسي يحميهم`};
+  $("lockMsg").textContent=msgs[m];
+  $("pw2").hidden=$("meter").hidden=!(m==="setup"||m==="plain");
+  $("lockBtn").textContent={unlock:"فتح",setup:"إنشاء خزنة فاضية",backup:"فتح النسخة",plain:"حفظ وتشفير"}[m];
+  $("importFirst").hidden=m!=="setup";
+  $("cancelImport").hidden=!(m==="backup"||m==="plain");
+  $("pw1").value=$("pw2").value="";$("lockErr").textContent="";updMeter();
+  setTimeout(()=>$("pw1").focus(),60);
+}
+function showLock(){
+  S={key:null,salt:null,data:[]};revealed.clear();pending=null;
+  document.querySelectorAll(".ov.show").forEach(o=>o.classList.remove("show"));
+  $("app").hidden=true;$("lock").hidden=false;
+  setMode(readStore()?"unlock":"setup");
+}
+async function submitLock(){
+  const pw=$("pw1").value, err=$("lockErr"); err.textContent="";
+  if(!pw)return err.textContent="اكتب الباسورد";
+  const isNew=mode==="setup"||mode==="plain";
+  if(isNew){const w=weakReason(pw);if(w)return err.textContent=w}
+  const fl=getFails();if(!isNew&&fl.until>Date.now())return err.textContent=`محاولات غلط كتير، استنى ${Math.ceil((fl.until-Date.now())/1000)} ثانية`;
+  if(isNew&&pw!==$("pw2").value)return err.textContent="الباسوردين مش زي بعض";
+  $("lockBtn").disabled=true;
+  try{
+    if(isNew){
+      const salt=crypto.getRandomValues(new Uint8Array(16));
+      S={key:await derive(pw,salt),salt,data:mode==="plain"?pending.data:[]};
+      if(!await persist())return;
+    }else if(mode==="backup"){
+      S=await unseal(pw,pending.blob);S.data=clean(S.data);await persist();
+    }else{
+      S=await unseal(pw,readStore());S.data=clean(S.data);if(S.rekey)await persist();
+    }
+    pending=null;setFails({n:0,until:0});enterApp();
+  }catch{const f=noteFail();err.textContent=f.n>=5?"الباسورد غلط. اتقفل مؤقتاً من كتر المحاولات":`الباسورد غلط (${f.n} من 5)`}
+  finally{$("lockBtn").disabled=false}
+}
+$("lockBtn").onclick=submitLock;
+["pw1","pw2"].forEach(i=>$(i).addEventListener("keydown",ev=>{if(ev.key==="Enter")submitLock()}));
+$("importFirst").onclick=()=>$("fileIn").click();
+$("cancelImport").onclick=()=>{pending=null;setMode(readStore()?"unlock":"setup")};
+function enterApp(){$("lock").hidden=true;$("app").hidden=false;render();bump();if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}
+
+/* auto-lock: 3 min idle, or 30 s after leaving the app */
+let idle,hiddenAt=0;
+function bump(){clearTimeout(idle);if(S.key)idle=setTimeout(showLock,3*60*1000)}
+["click","keydown","touchstart","scroll"].forEach(ev=>addEventListener(ev,bump,{passive:true}));
+addEventListener("pagehide",()=>document.body.classList.add("away"));
+addEventListener("pageshow",()=>document.body.classList.remove("away"));
+document.addEventListener("visibilitychange",()=>{
+  document.body.classList.toggle("away",document.hidden);
+  if(document.hidden)hiddenAt=Date.now();
+  else if(S.key&&hiddenAt&&Date.now()-hiddenAt>30000)showLock();
+});
+$("lockNow").onclick=showLock;
+
+/* ===================== File import (first run & menu) ===================== */
+$("fileIn").onchange=async ev=>{
+  const file=ev.target.files[0];ev.target.value="";if(!file)return;
+  let json;try{json=JSON.parse(await file.text())}catch{return alert("الملف ده مش مفهوم")}
+  if(json&&json.ct&&json.iv&&json.salt){ // encrypted backup
+    if(S.key&&!confirm("النسخة دي هتحل محل البيانات اللي على الجهاز دلوقتي. أكمّل؟"))return;
+    pending={blob:json};$("app").hidden=true;$("lock").hidden=false;
+    document.querySelectorAll(".ov.show").forEach(o=>o.classList.remove("show"));
+    S={key:null,salt:null,data:[]};setMode("backup");
+  }else{ // plain list
+    const data=clean(json);if(!data.length)return alert("مفيش حسابات في الملف ده");
+    if(S.key){ // already unlocked: merge
+      S.data.push(...data);await persist();render();$("menuOv").classList.remove("show");
+      toast(`اتضاف ${data.length} حساب ✓`);
+    }else{pending={data};setMode("plain")}
+  }
+};
+
+/* ===================== Render ===================== */
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const initials=n=>n.replace(/[^A-Za-z0-9؀-ۿ ]/g," ").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"#";
+const cat=x=>CATS[x.cat]||CATS.other;
+function render(){
+  const q=$("q").value.trim().toLowerCase();
+  const counts={};S.data.forEach(x=>counts[x.cat]=(counts[x.cat]||0)+1);
+  if(filter!=="all"&&!counts[filter])filter="all";
+  let ch=`<button class="chip all" aria-pressed="${filter==="all"}" data-f="all">الكل · ${S.data.length}</button>`;
+  for(const k in CATS)if(counts[k])ch+=`<button class="chip" style="--c:${CATS[k].c}" aria-pressed="${filter===k}" data-f="${k}"><i></i>${CATS[k].n} · ${counts[k]}</button>`;
+  $("chips").innerHTML=S.data.length?ch:"";
+  const list=S.data.filter(x=>(filter==="all"||x.cat===filter)&&(!q||x.name.toLowerCase().includes(q)||x.fields.some(f=>!f.s&&f.v.toLowerCase().includes(q))))
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  $("count").textContent=list.length?`${list.length} حساب`:"";
+  $("grid").innerHTML=list.length?list.map(x=>`<article class="card" style="--c:${cat(x).c}">
+      <div class="chead"><div class="av">${esc(initials(x.name))}</div>
+        <div class="ctitle"><b class="ltr">${esc(x.name)}</b><span>${esc(cat(x).n)}</span></div>
+        <button class="edit" data-edit="${x.id}" aria-label="تعديل">✏️</button></div>
+      <div class="fields">${x.fields.map((f,i)=>{const k=x.id+":"+i,hide=f.s&&!revealed.has(k);
+        return `<div class="f"><div class="fl" data-copy="${k}"><div class="lbl">${esc(f.l)}</div>
+          <div class="val ltr${hide?" mask":""}">${hide?"••••••••":esc(f.v)}</div></div>
+          ${f.s?`<button class="mini" data-eye="${k}" aria-label="إظهار">${hide?"👁️":"🙈"}</button>`:""}
+          <button class="mini copy" data-copy="${k}" aria-label="نسخ">⧉</button></div>`}).join("")}</div></article>`).join("")
+    :S.data.length?`<div class="empty">مفيش نتايج 🤷‍♂️</div>`
+    :`<div class="empty">الخزنة فاضية<br>دوس <b>＋ حساب جديد</b>، أو من ⚙️ استورد ملف بياناتك</div>`;
+}
+$("q").addEventListener("input",render);
+$("chips").addEventListener("click",ev=>{const b=ev.target.closest("[data-f]");if(b){filter=b.dataset.f;render()}});
+$("grid").addEventListener("click",ev=>{
+  const t=ev.target.closest("[data-copy],[data-eye],[data-edit]");if(!t)return;
+  if(t.dataset.edit)return openEditor(S.data.find(x=>x.id===t.dataset.edit));
+  const k=t.dataset.copy||t.dataset.eye,[id,i]=k.split(":"),x=S.data.find(z=>z.id===id),f=x&&x.fields[+i];if(!f)return;
+  if(t.dataset.eye){revealed.has(k)?revealed.delete(k):revealed.add(k);return render()}
+  copy(f.v,`اتنسخ ${f.l} ✓`);
+});
+
+/* ===================== Copy & toast ===================== */
+let clipT;
+async function copy(text,msg){
+  try{await navigator.clipboard.writeText(text)}
+  catch{const t=document.createElement("textarea");t.value=text;t.setAttribute("readonly","");t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();t.setSelectionRange(0,text.length);document.execCommand("copy");t.remove()}
+  if(navigator.vibrate)navigator.vibrate(15);
+  clearTimeout(clipT);clipT=setTimeout(()=>{if(navigator.clipboard)navigator.clipboard.writeText("").catch(()=>{})},45000);
+  toast(msg);
+}
+let tt;function toast(m){const el=$("toast");el.textContent=m;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),1600)}
+
+/* ===================== Editor ===================== */
+$("edCat").innerHTML=Object.entries(CATS).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");
+function fieldRow(f={l:"",v:"",s:false}){
+  const r=document.createElement("div");r.className="frow";
+  r.innerHTML=`<input class="inp" placeholder="Username" value="${esc(f.l)}"><input class="inp ltr" placeholder="القيمة" value="${esc(f.v)}" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <button type="button" class="tog${f.s?" on":""}" aria-label="مخفي؟">${f.s?"🔒":"🔓"}</button><button type="button" class="tog" aria-label="حذف الخانة">✕</button>`;
+  const [,,tog,del]=r.children;
+  tog.onclick=()=>{tog.classList.toggle("on");tog.textContent=tog.classList.contains("on")?"🔒":"🔓"};
+  del.onclick=()=>r.remove();
+  $("edFields").appendChild(r);return r;
+}
+function openEditor(x){
+  editing=x||null;
+  $("edTitle").textContent=x?"تعديل الحساب":"حساب جديد";
+  $("edName").value=x?x.name:"";$("edCat").value=x?x.cat:"other";$("edFields").innerHTML="";
+  (x?x.fields:[{l:"Username",v:"",s:false},{l:"Password",v:"",s:true}]).forEach(fieldRow);
+  $("edDel").hidden=!x;$("edOv").classList.add("show");
+}
+function genPw(n=16){
+  const cs="ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*?";
+  const r=crypto.getRandomValues(new Uint32Array(n));return [...r].map(v=>cs[v%cs.length]).join("");
+}
+$("addBtn").onclick=()=>openEditor();
+$("edAddField").onclick=()=>fieldRow().children[0].focus();
+$("edGen").onclick=()=>{
+  const pw=genPw(), rows=[...$("edFields").children];
+  const target=rows.find(r=>r.children[2].classList.contains("on")&&!r.children[1].value)||fieldRow({l:"Password",v:"",s:true});
+  target.children[1].value=pw;copy(pw,"باسورد جديد اتعمل واتنسخ ✓");
+};
+$("edCancel").onclick=()=>$("edOv").classList.remove("show");
+$("edSave").onclick=async()=>{
+  const name=$("edName").value.trim();if(!name){$("edName").focus();return toast("اكتب اسم الحساب")}
+  const fields=[...$("edFields").children].map(r=>({l:r.children[0].value.trim()||"Field",v:r.children[1].value,s:r.children[2].classList.contains("on")})).filter(f=>f.v!=="");
+  if(editing)Object.assign(editing,{name,cat:$("edCat").value,fields});
+  else S.data.push({id:uid(),name,cat:$("edCat").value,fields});
+  await persist();$("edOv").classList.remove("show");render();toast("اتحفظ ✓");
+};
+$("edDel").onclick=async()=>{
+  if(!editing||!confirm(`حذف "${editing.name}"؟`))return;
+  S.data=S.data.filter(x=>x!==editing);await persist();$("edOv").classList.remove("show");render();toast("اتحذف");
+};
+
+/* ===================== Menu ===================== */
+$("menuBtn").onclick=()=>$("menuOv").classList.add("show");
+$("mClose").onclick=()=>$("menuOv").classList.remove("show");
+document.querySelectorAll(".ov").forEach(o=>o.addEventListener("click",ev=>{if(ev.target===o)o.classList.remove("show")}));
+document.addEventListener("keydown",ev=>{if(ev.key==="Escape")document.querySelectorAll(".ov.show").forEach(o=>o.classList.remove("show"))});
+$("mExport").onclick=async()=>{
+  const name=`vault-backup-${new Date().toISOString().slice(0,10)}.json`;
+  const file=new File([JSON.stringify(readStore())],name,{type:"application/json"});
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"نسخة خزنتي"});return}}catch(e){if(e.name==="AbortError")return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=name;a.click();toast("اتنزّلت النسخة ✓");
+};
+$("mImport").onclick=()=>$("fileIn").click();
+$("mChange").onclick=async()=>{
+  const p=prompt("الباسورد الرئيسي الجديد (10 حروف على الأقل، حروف كبيرة وصغيرة وأرقام ورموز):");if(!p)return;
+  const w=weakReason(p);if(w)return alert(w);
+  if(prompt("أكّد الباسورد الجديد:")!==p)return alert("مش زي بعض");
+  S.salt=crypto.getRandomValues(new Uint8Array(16));S.key=await derive(p,S.salt);await persist();toast("الباسورد اتغيّر ✓");
+};
+const applyTheme=t=>{if(t)document.documentElement.dataset.theme=t;else delete document.documentElement.dataset.theme};
+try{applyTheme(localStorage.getItem("vault.theme"))}catch{}
+$("mTheme").onclick=()=>{
+  const dark=document.documentElement.dataset.theme?document.documentElement.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  const t=dark?"light":"dark";applyTheme(t);try{localStorage.setItem("vault.theme",t)}catch{}
+};
+$("mReset").onclick=()=>{
+  if(!confirm("متأكد؟ كل الحسابات هتتمسح من الجهاز ده (خد نسخة احتياطية الأول)."))return;
+  try{localStorage.removeItem(KEY)}catch{}showLock();
+};
+
+showLock();
+if("serviceWorker" in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
+</script>
+</body>
+</html>
