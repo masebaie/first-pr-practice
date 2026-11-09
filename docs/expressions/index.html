@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>تعبيراتي</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="تعبيراتي">
+<meta name="description" content="قاموسك الشخصي للتعبيرات الإنجليزية ومعناها بالعربي: أضف، عدّل، امسح، وابحث.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap">
+<style>
+/* Same palette as the gym tracker: slate paper, emerald green, and the violet→pink→cyan gradient for the hero and main actions. */
+:root{
+  --bg:#F8FAFC; --surface:#FFFFFF; --surface-2:#F1F5F9;
+  --ink:#0F172A; --ink-soft:#475569; --ink-faint:#64748B;
+  --accent:#059669; --accent-ink:#FFFFFF; --accent-soft:rgba(16,185,129,.14);
+  --gold:#D97706; --gold-soft:rgba(16,185,129,.18);
+  --warn:#DC2626; --warn-soft:rgba(220,38,38,.10);
+  --border:#E2E8F0;
+  --shadow:0 1px 2px rgba(15,23,42,.04),0 10px 22px -16px rgba(15,23,42,.14);
+  --grad:linear-gradient(120deg,#7C3AED,#EC4899,#06B6D4);
+  --grad-glow:rgba(124,58,237,.45);
+  --display:"Reem Kufi","IBM Plex Sans Arabic",sans-serif;
+  --body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --en:"Fraunces",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B1220; --surface:#1A2333; --surface-2:#212B40;
+    --ink:#E2E8F0; --ink-soft:#94A3B8; --ink-faint:#7C8AA0;
+    --accent:#34D399; --accent-ink:#0B1220; --accent-soft:rgba(52,211,153,.16);
+    --gold:#FBBF24; --gold-soft:rgba(52,211,153,.24);
+    --warn:#F87171; --warn-soft:rgba(248,113,113,.14);
+    --border:rgba(226,232,240,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 26px -18px rgba(0,0,0,.55);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B1220; --surface:#1A2333; --surface-2:#212B40;
+    --ink:#E2E8F0; --ink-soft:#94A3B8; --ink-faint:#7C8AA0;
+    --accent:#34D399; --accent-ink:#0B1220; --accent-soft:rgba(52,211,153,.16);
+    --gold:#FBBF24; --gold-soft:rgba(52,211,153,.24);
+    --warn:#F87171; --warn-soft:rgba(248,113,113,.14);
+    --border:rgba(226,232,240,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 26px -18px rgba(0,0,0,.55);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding:env(safe-area-inset-top,0) 0 calc(env(safe-area-inset-bottom,0) + 96px)}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+
+/* Hero */
+.hero{position:relative;overflow:hidden;margin:14px 0 0;border-radius:22px;padding:22px 20px 20px;color:#F2F7F4;
+  background:radial-gradient(380px 240px at 0% 100%,rgba(255,255,255,.18),transparent 70%),var(--grad);
+  box-shadow:0 14px 30px -14px var(--grad-glow)}
+.hero::after{content:"Aa";position:absolute;inset-inline-start:14px;bottom:-34px;font-family:var(--en);font-style:italic;font-size:150px;line-height:1;color:rgba(255,255,255,.12);pointer-events:none}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:40px;height:40px;border-radius:11px;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.brand h1{margin:0;font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:.2px}
+.brand small{display:block;font-size:12.5px;opacity:.75;font-weight:500}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);display:grid;place-items:center;color:#F2F7F4}
+.icon-btn:active{transform:scale(.95)}
+.icon-btn svg{width:20px;height:20px}
+.stats{display:flex;gap:10px;margin-top:18px;position:relative;z-index:1}
+.stat{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font-family:var(--display);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:12.5px;opacity:.78}
+.stat.gold b{color:#FEF08A}
+
+/* Search */
+.search{position:sticky;top:0;z-index:5;padding:12px 0 10px;background:linear-gradient(var(--bg) 78%,transparent)}
+.search label{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:0 14px;height:52px;box-shadow:var(--shadow)}
+.search label:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search svg{width:20px;height:20px;color:var(--ink-faint);flex:none}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:16px;color:var(--ink);height:100%}
+.search input::placeholder{color:var(--ink-faint)}
+.search input::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+.clear{border:0;background:var(--surface-2);border-radius:50%;width:26px;height:26px;display:grid;place-items:center;color:var(--ink-soft);flex:none}
+.chips{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--border);background:var(--surface);color:var(--ink-soft);border-radius:999px;padding:6px 14px;font-size:13.5px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff;font-weight:700;box-shadow:0 6px 14px -6px var(--grad-glow)}
+
+/* Table (desktop) / cards (mobile) */
+.list{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:start;font-size:12.5px;font-weight:600;color:var(--ink-faint);background:var(--surface-2);padding:10px 16px;letter-spacing:.3px}
+tbody tr{border-top:1px solid var(--border);transition:background .15s}
+tbody tr:first-child{border-top:0}
+tbody tr:hover{background:color-mix(in srgb,var(--accent-soft) 45%,transparent)}
+td{padding:14px 16px;vertical-align:top}
+.en{direction:ltr;text-align:left;unicode-bidi:isolate}
+.en .phrase{font-family:var(--en);font-size:18px;font-weight:600;color:var(--ink);line-height:1.35}
+.en .ex{display:block;margin-top:4px;font-family:var(--en);font-style:italic;font-size:14px;color:var(--ink-soft)}
+.ar .meaning{font-size:16px;font-weight:600}
+.ar .note{display:block;margin-top:3px;font-size:13px;color:var(--ink-soft)}
+mark{background:var(--gold-soft);color:inherit;border-radius:4px;padding:0 2px}
+.acts{white-space:nowrap;width:1%}
+.acts button{width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--ink-faint);display:inline-grid;place-items:center}
+.acts button:hover{background:var(--surface-2);color:var(--ink)}
+.acts button.on{color:var(--gold)}
+.acts button.del:hover{background:var(--warn-soft);color:var(--warn)}
+.acts svg{width:18px;height:18px}
+th.col-en{text-align:left;direction:ltr}
+
+@media (max-width:640px){
+  .list{background:transparent;border:0;box-shadow:none;overflow:visible}
+  thead{display:none}
+  table,tbody,tr,td{display:block}
+  tbody{display:flex;flex-direction:column;gap:10px}
+  tbody tr{border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:var(--shadow);display:grid;grid-template-columns:1fr auto;grid-template-areas:"en en" "ar acts";position:relative;overflow:hidden}
+  tbody tr::before{content:"";position:absolute;inset-block:14px;inset-inline-end:0;width:3px;border-radius:3px;background:var(--accent);opacity:.7}
+  tbody tr.fav::before{background:var(--gold);opacity:1}
+  td.en{grid-area:en;padding:14px 16px 6px}
+  td.ar{grid-area:ar;padding:4px 16px 14px;align-self:end}
+  td.acts{grid-area:acts;padding:0 8px 8px;align-self:end;width:auto}
+  tbody tr:hover{background:var(--surface)}
+}
+
+.empty{text-align:center;padding:48px 20px;color:var(--ink-soft)}
+.empty .big{font-family:var(--en);font-style:italic;font-size:46px;line-height:1.1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.empty h2{font-family:var(--display);font-size:19px;margin:12px 0 4px;color:var(--ink)}
+.empty p{margin:0}
+
+/* Floating add button */
+.fab{position:fixed;inset-inline-start:50%;transform:translateX(50%);bottom:calc(env(safe-area-inset-bottom,0) + 20px);z-index:10;
+  display:flex;align-items:center;gap:8px;height:56px;padding:0 24px;border-radius:999px;border:0;background:var(--grad);color:#fff;
+  font-weight:700;font-size:16px;box-shadow:0 10px 24px -8px var(--grad-glow),0 2px 6px rgba(0,0,0,.15)}
+.fab svg{width:22px;height:22px}
+.fab:active{transform:translateX(50%) scale(.96)}
+
+/* Sheet */
+.backdrop{position:fixed;inset:0;z-index:20;background:rgba(8,16,13,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .2s}
+.backdrop.show{opacity:1}
+.sheet{position:fixed;z-index:21;inset-inline:0;bottom:0;margin:0 auto;max-width:560px;background:var(--surface);border-radius:24px 24px 0 0;
+  padding:10px 20px calc(env(safe-area-inset-bottom,0) + 20px);box-shadow:0 -10px 40px rgba(0,0,0,.25);transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1);max-height:92vh;overflow:auto}
+.sheet.show{transform:none}
+@media (min-width:641px){.sheet{bottom:auto;top:50%;border-radius:24px;transform:translateY(-40%) scale(.97);opacity:0;transition:.2s}.sheet.show{transform:translateY(-50%);opacity:1}.grab{display:none}}
+.grab{width:42px;height:5px;border-radius:5px;background:var(--border);margin:0 auto 12px}
+.sheet h2{font-family:var(--display);font-size:21px;margin:0 0 14px}
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:6px}
+.field span i{font-style:normal;font-weight:400;color:var(--ink-faint)}
+.field input,.field textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:11px 13px;outline:0;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface)}
+.field .ltr{direction:ltr;text-align:left;font-family:var(--en);font-size:17px}
+.field textarea{min-height:64px}
+.row{display:flex;gap:10px;margin-top:6px}
+.btn{flex:1;height:50px;border-radius:14px;border:1px solid var(--border);background:var(--surface-2);font-weight:600;font-size:15.5px}
+.btn.primary{background:var(--grad);border-color:transparent;color:#fff}
+.err{color:var(--warn);font-size:13px;margin:-4px 0 10px}
+.menu-list{display:flex;flex-direction:column;gap:8px}
+.menu-list button{display:flex;align-items:center;gap:12px;text-align:start;width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--border);background:var(--surface-2);font-weight:500}
+.menu-list button svg{width:20px;height:20px;color:var(--accent);flex:none}
+.menu-list button small{display:block;color:var(--ink-faint);font-size:12.5px;font-weight:400}
+.menu-list button.danger svg{color:var(--warn)}
+.hint{font-size:13px;color:var(--ink-soft);background:var(--gold-soft);border-radius:12px;padding:10px 12px;margin-top:12px}
+
+/* Toast */
+.toast{position:fixed;z-index:30;inset-inline:16px;bottom:calc(env(safe-area-inset-bottom,0) + 88px);margin:0 auto;max-width:420px;display:flex;align-items:center;gap:12px;
+  background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);transform:translateY(20px);opacity:0;pointer-events:none;transition:.2s}
+.toast.show{transform:none;opacity:1;pointer-events:auto}
+.toast span{flex:1;font-size:14.5px}
+.toast button{border:0;background:transparent;color:var(--accent);font-weight:700}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="top">
+      <div class="brand">
+        <img src="icons/icon-192.png" alt="">
+        <div><h1>تعبيراتي</h1><small>English expressions · المعنى بالعربي</small></div>
+      </div>
+      <button class="icon-btn" id="menuBtn" aria-label="الإعدادات">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>
+      </button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sTotal">0</b><span>تعبير</span></div>
+      <div class="stat gold"><b id="sFav">0</b><span>مفضّلة</span></div>
+      <div class="stat"><b id="sWeek">0</b><span>جديد الأسبوع</span></div>
+    </div>
+  </header>
+
+  <div class="search">
+    <label>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="ابحث بالإنجليزي أو بالعربي…" autocomplete="off" enterkeyhint="search">
+      <button class="clear" id="clearQ" aria-label="مسح البحث" hidden>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </label>
+    <div class="chips" role="group" aria-label="ترتيب وتصفية">
+      <button class="chip" data-f="all" aria-pressed="true">الكل</button>
+      <button class="chip" data-f="fav" aria-pressed="false">★ المفضّلة</button>
+      <button class="chip" data-s="new" aria-pressed="true">الأحدث</button>
+      <button class="chip" data-s="az" aria-pressed="false">A → Z</button>
+    </div>
+  </div>
+
+  <section class="list" id="listBox">
+    <table>
+      <thead><tr><th class="col-en">Expression</th><th>المعنى</th><th></th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+  <div class="empty" id="empty" hidden></div>
+</div>
+
+<button class="fab" id="addBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>إضافة تعبير</button>
+
+<div class="backdrop" id="backdrop" hidden></div>
+
+<form class="sheet" id="editSheet" hidden novalidate>
+  <div class="grab"></div>
+  <h2 id="editTitle">تعبير جديد</h2>
+  <label class="field"><span>التعبير بالإنجليزي</span><input class="ltr" id="fEn" dir="ltr" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="e.g. Break the ice"></label>
+  <label class="field"><span>المعنى بالعربي</span><input id="fAr" autocomplete="off" placeholder="مثلاً: يكسر الحاجز / يبدأ الكلام"></label>
+  <label class="field"><span>مثال في جملة <i>(اختياري)</i></span><textarea class="ltr" id="fEx" dir="ltr" placeholder="He told a joke to break the ice."></textarea></label>
+  <label class="field"><span>ملاحظة <i>(اختياري)</i></span><input id="fNote" autocomplete="off" placeholder="بيتقال في…"></label>
+  <p class="err" id="fErr" hidden></p>
+  <div class="row"><button type="button" class="btn" data-close>إلغاء</button><button type="submit" class="btn primary" id="saveBtn">حفظ</button></div>
+</form>
+
+<div class="sheet" id="menuSheet" hidden>
+  <div class="grab"></div>
+  <h2>الإعدادات</h2>
+  <div class="menu-list">
+    <button id="themeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><div>المظهر: <b id="themeLbl">تلقائي</b><small>فاتح / غامق / حسب الموبايل</small></div></button>
+    <button id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg><div>نسخة احتياطية<small>نزّل كل التعبيرات في ملف</small></div></button>
+    <button id="importBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 21h14"/></svg><div>استرجاع من ملف<small>يضيف التعبيرات اللي مش موجودة بس</small></div></button>
+    <button id="wipeBtn" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><div>مسح الكل<small>تقدر ترجّعها من زرار التراجع</small></div></button>
+  </div>
+  <p class="hint">📱 عشان تنزّله على الموبايل: افتحه في Safari ← زرار المشاركة ← <b>Add to Home Screen</b>. على أندرويد من Chrome ← ⋮ ← <b>Install app</b>. البيانات بتتحفظ على جهازك وبيشتغل من غير نت.</p>
+  <div class="row"><button type="button" class="btn" data-close>تمام</button></div>
+  <input type="file" id="fileIn" accept="application/json,.json" hidden>
+</div>
+
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" hidden>تراجع</button></div>
+
+<script>
+(() => {
+const KEY = 'expressions.v1', THEME_KEY = 'expressions.theme';
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); return true; } catch { return false; } }
+};
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+const SEED = [
+  ['Break the ice','يكسر الحاجز ويبدأ الكلام','He told a joke to break the ice.','في أول مقابلة أو اجتماع'],
+  ['Piece of cake','سهلة جداً / لعب عيال','The exam was a piece of cake.',''],
+  ['Hit the sack','يروح ينام','I\'m exhausted, I\'m going to hit the sack.','عامية'],
+  ['Under the weather','تعبان شوية / مش في المود','I\'m feeling a bit under the weather today.',''],
+  ['Call it a day','نكتفي بكده النهارده','We\'ve done enough, let\'s call it a day.','بتتقال في آخر الشغل']
+];
+
+let items;
+try { items = JSON.parse(store.get(KEY)); } catch { items = null; }
+if (!Array.isArray(items)) {
+  const t = Date.now();
+  items = SEED.map(([en,ar,ex,note],i) => ({ id:uid()+i, en, ar, ex, note, fav:false, created:t - i*1000 }));
+  save();
+}
+let filter = 'all', sort = 'new', editing = null, lastDeleted = null;
+
+function save(){ if(!store.set(KEY, JSON.stringify(items))) toast('مقدرتش أحفظ على الجهاز — جرّب تطلع من وضع التصفح الخفي'); }
+
+// Search normalisation: ignore case, Arabic diacritics and alef/ya/ta-marbuta variants
+const fold = s => (s||'').toLowerCase()
+  .replace(/[\u064B-\u0652\u0640]/g,'')
+  .replace(/[أإآٱ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه').replace(/ؤ/g,'و').replace(/ئ/g,'ي')
+  .replace(/’/g,"'").replace(/\s/g,' ');
+const norm = s => fold(s).replace(/ +/g,' ').trim();
+const esc = s => (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// Highlight a normalised query inside the original text, mapping folded chars back to source indices
+function hl(text, q){
+  if(!q) return esc(text);
+  const map = []; let n = '';
+  for (let i=0;i<text.length;i++){
+    for (const ch of fold(text[i])) { if (ch === ' ' && n.endsWith(' ')) continue; n += ch; map.push(i); }
+  }
+  const at = n.indexOf(q);
+  if (at < 0) return esc(text);
+  const s = map[at], e = map[at+q.length-1] + 1;
+  return esc(text.slice(0,s)) + '<mark>' + esc(text.slice(s,e)) + '</mark>' + esc(text.slice(e));
+}
+
+const ICON = {
+  speak:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>',
+  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  starOn:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>',
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>',
+  del:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>'
+};
+const canSpeak = 'speechSynthesis' in window;
+
+function render(){
+  const q = norm($('q').value);
+  let list = items.filter(x => filter !== 'fav' || x.fav);
+  if (q) list = list.filter(x => [x.en,x.ar,x.ex,x.note].some(f => norm(f).includes(q)));
+  list.sort(sort === 'az' ? (a,b) => a.en.localeCompare(b.en,'en',{sensitivity:'base'}) : (a,b) => b.created - a.created);
+
+  $('rows').innerHTML = list.map(x => `
+    <tr data-id="${x.id}" class="${x.fav?'fav':''}">
+      <td class="en"><div class="phrase">${hl(x.en,q)}</div>${x.ex?`<span class="ex">“${hl(x.ex,q)}”</span>`:''}</td>
+      <td class="ar"><div class="meaning">${hl(x.ar,q)}</div>${x.note?`<span class="note">${hl(x.note,q)}</span>`:''}</td>
+      <td class="acts">
+        ${canSpeak?`<button data-a="speak" aria-label="انطق">${ICON.speak}</button>`:''}
+        <button data-a="fav" class="${x.fav?'on':''}" aria-label="مفضّلة">${x.fav?ICON.starOn:ICON.star}</button>
+        <button data-a="edit" aria-label="تعديل">${ICON.edit}</button>
+        <button data-a="del" class="del" aria-label="مسح">${ICON.del}</button>
+      </td>
+    </tr>`).join('');
+
+  const none = list.length === 0;
+  $('listBox').hidden = none;
+  $('empty').hidden = !none;
+  if (none) {
+    $('empty').innerHTML = items.length === 0
+      ? '<div class="big">Hello!</div><h2>لسه مفيش تعبيرات</h2><p>دوس «إضافة تعبير» وابدأ قاموسك.</p>'
+      : q ? `<div class="big">?</div><h2>مفيش نتايج لـ «${esc($('q').value)}»</h2><p>جرّب كلمة تانية أو أضفه كتعبير جديد.</p>`
+          : '<div class="big">★</div><h2>مفيش مفضّلة لسه</h2><p>دوس النجمة جنب أي تعبير.</p>';
+  }
+  $('sTotal').textContent = items.length;
+  $('sFav').textContent = items.filter(x => x.fav).length;
+  const weekAgo = Date.now() - 7*864e5;
+  $('sWeek').textContent = items.filter(x => x.created >= weekAgo).length;
+}
+
+// Search
+$('q').addEventListener('input', () => { $('clearQ').hidden = !$('q').value; render(); });
+$('clearQ').addEventListener('click', () => { $('q').value=''; $('clearQ').hidden = true; render(); $('q').focus(); });
+
+// Chips
+document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+  if (c.dataset.f) { filter = c.dataset.f; document.querySelectorAll('[data-f]').forEach(b => b.setAttribute('aria-pressed', b===c)); }
+  if (c.dataset.s) { sort = c.dataset.s; document.querySelectorAll('[data-s]').forEach(b => b.setAttribute('aria-pressed', b===c)); }
+  render();
+}));
+
+// Row actions
+$('rows').addEventListener('click', e => {
+  const b = e.target.closest('button[data-a]'); if (!b) return;
+  const id = b.closest('tr').dataset.id, x = items.find(i => i.id === id); if (!x) return;
+  if (b.dataset.a === 'speak') { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(x.en); u.lang='en-US'; u.rate=.9; speechSynthesis.speak(u); }
+  if (b.dataset.a === 'fav') { x.fav = !x.fav; save(); render(); }
+  if (b.dataset.a === 'edit') openEdit(x);
+  if (b.dataset.a === 'del') {
+    const idx = items.indexOf(x); items.splice(idx,1); save(); render();
+    lastDeleted = { list:[x], idx };
+    toast(`اتمسح «${x.en}»`, true);
+  }
+});
+
+// Sheets
+let openSheetEl = null;
+function openSheet(el){
+  openSheetEl = el; $('backdrop').hidden = false; el.hidden = false;
+  requestAnimationFrame(() => { $('backdrop').classList.add('show'); el.classList.add('show'); });
+}
+function closeSheet(){
+  const el = openSheetEl; if (!el) return; openSheetEl = null;
+  $('backdrop').classList.remove('show'); el.classList.remove('show');
+  setTimeout(() => { el.hidden = true; $('backdrop').hidden = true; }, 220);
+}
+$('backdrop').addEventListener('click', closeSheet);
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', closeSheet));
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+
+function openEdit(x){
+  editing = x || null;
+  $('editTitle').textContent = x ? 'تعديل التعبير' : 'تعبير جديد';
+  $('saveBtn').textContent = x ? 'حفظ التعديل' : 'إضافة';
+  $('fEn').value = x?.en || ''; $('fAr').value = x?.ar || ''; $('fEx').value = x?.ex || ''; $('fNote').value = x?.note || '';
+  if (!x && $('q').value && !/[؀-ۿ]/.test($('q').value)) $('fEn').value = $('q').value.trim();
+  $('fErr').hidden = true;
+  openSheet($('editSheet'));
+  setTimeout(() => (x ? $('fAr') : ($('fEn').value ? $('fAr') : $('fEn'))).focus(), 260);
+}
+$('addBtn').addEventListener('click', () => openEdit(null));
+
+$('editSheet').addEventListener('submit', e => {
+  e.preventDefault();
+  const en = $('fEn').value.trim(), ar = $('fAr').value.trim(), ex = $('fEx').value.trim(), note = $('fNote').value.trim();
+  const err = m => { $('fErr').textContent = m; $('fErr').hidden = false; };
+  if (!en) return err('اكتب التعبير بالإنجليزي'), $('fEn').focus();
+  if (!ar) return err('اكتب المعنى بالعربي'), $('fAr').focus();
+  const dup = items.find(i => i !== editing && norm(i.en) === norm(en));
+  if (dup) return err(`«${dup.en}» موجود قبل كده بمعنى: ${dup.ar}`);
+  if (editing) { Object.assign(editing, { en, ar, ex, note }); toast('اتحفظ التعديل'); }
+  else { items.push({ id:uid(), en, ar, ex, note, fav:false, created:Date.now() }); toast(`اتضاف «${en}» ✓`); }
+  save(); closeSheet(); render();
+});
+
+// Toast with undo
+let toastT;
+function toast(msg, undo){
+  $('toastMsg').textContent = msg; $('toastAct').hidden = !undo;
+  $('toast').classList.add('show'); clearTimeout(toastT);
+  toastT = setTimeout(() => $('toast').classList.remove('show'), undo ? 5000 : 2200);
+}
+$('toastAct').addEventListener('click', () => {
+  if (!lastDeleted) return;
+  if (lastDeleted.all) items = lastDeleted.list; else items.splice(lastDeleted.idx, 0, ...lastDeleted.list);
+  lastDeleted = null; save(); render(); toast('رجعت ✓');
+});
+
+// Menu
+$('menuBtn').addEventListener('click', () => openSheet($('menuSheet')));
+const THEMES = { auto:'تلقائي', light:'فاتح', dark:'غامق' };
+function applyTheme(t){
+  if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+  $('themeLbl').textContent = THEMES[t];
+}
+let theme = store.get(THEME_KEY) || 'auto'; applyTheme(theme);
+$('themeBtn').addEventListener('click', () => { theme = { auto:'light', light:'dark', dark:'auto' }[theme]; store.set(THEME_KEY, theme); applyTheme(theme); });
+
+$('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify({ app:'expressions', version:1, items }, null, 2)], { type:'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `expressions-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$('importBtn').addEventListener('click', () => $('fileIn').click());
+$('fileIn').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text()); const list = Array.isArray(data) ? data : data.items;
+    if (!Array.isArray(list)) throw 0;
+    const have = new Set(items.map(i => norm(i.en))); let n = 0;
+    for (const r of list) {
+      if (!r || !r.en || !r.ar || have.has(norm(r.en))) continue;
+      items.push({ id:uid(), en:String(r.en), ar:String(r.ar), ex:String(r.ex||''), note:String(r.note||''), fav:!!r.fav, created:+r.created || Date.now() });
+      have.add(norm(r.en)); n++;
+    }
+    save(); render(); closeSheet(); toast(n ? `اتضاف ${n} تعبير من الملف` : 'كل اللي في الملف موجود عندك');
+  } catch { toast('الملف ده مش نسخة احتياطية صحيحة'); }
+});
+$('wipeBtn').addEventListener('click', () => {
+  if (!items.length) return toast('مفيش حاجة تتمسح');
+  lastDeleted = { all:true, list:items }; items = []; save(); render(); closeSheet(); toast('اتمسح كل التعبيرات', true);
+});
+
+render();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+</script>
+</body>
+</html>
