@@ -244,11 +244,11 @@ th.col-en{text-align:left;direction:ltr}
   <h2>الإعدادات</h2>
   <div class="menu-list">
     <button id="themeBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><div>المظهر: <b id="themeLbl">تلقائي</b><small>فاتح / غامق / حسب الموبايل</small></div></button>
-    <button id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg><div>نسخة احتياطية<small>نزّل كل التعبيرات في ملف</small></div></button>
+    <button id="exportBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg><div>نسخة احتياطية<small>احفظ كل التعبيرات في ملف واختار مكانه</small></div></button>
     <button id="importBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 21h14"/></svg><div>استرجاع من ملف<small>يضيف التعبيرات اللي مش موجودة بس</small></div></button>
     <button id="wipeBtn" class="danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg><div>مسح الكل<small>تقدر ترجّعها من زرار التراجع</small></div></button>
   </div>
-  <p class="hint">📱 عشان تنزّله على الموبايل: افتحه في Safari ← زرار المشاركة ← <b>Add to Home Screen</b>. على أندرويد من Chrome ← ⋮ ← <b>Install app</b>. البيانات بتتحفظ على جهازك وبيشتغل من غير نت.</p>
+  <p class="hint">📱 عشان تنزّله على الموبايل: افتحه في Safari ← زرار المشاركة ← <b>Add to Home Screen</b>. على أندرويد من Chrome ← ⋮ ← <b>Install app</b>. البيانات بتتحفظ على جهازك وبيشتغل من غير نت.<br>💾 في النسخة الاحتياطية على الآيفون اختار <b>Save to Files</b> (حفظ في الملفات) وحدّد المكان، زي iCloud Drive.</p>
   <div class="row"><button type="button" class="btn" data-close>تمام</button></div>
   <input type="file" id="fileIn" accept="application/json,.json" hidden>
 </div>
@@ -435,10 +435,30 @@ function applyTheme(t){
 let theme = store.get(THEME_KEY) || 'auto'; applyTheme(theme);
 $('themeBtn').addEventListener('click', () => { theme = { auto:'light', light:'dark', dark:'auto' }[theme]; store.set(THEME_KEY, theme); applyTheme(theme); });
 
-$('exportBtn').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify({ app:'expressions', version:1, items }, null, 2)], { type:'application/json' });
+// Backup: let the user choose where the file goes.
+// Desktop Chrome/Edge: native "Save as" dialog. iPhone/Android: share sheet ("Save to Files" lets you pick a folder).
+// Anything else: a normal download.
+$('exportBtn').addEventListener('click', async () => {
+  const name = `expressions-${new Date().toISOString().slice(0,10)}.json`;
+  const json = JSON.stringify({ app:'expressions', version:1, items }, null, 2);
+  const blob = new Blob([json], { type:'application/json' });
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  if (window.showSaveFilePicker && !coarse) {
+    try {
+      const h = await showSaveFilePicker({ suggestedName:name, types:[{ description:'Backup', accept:{ 'application/json':['.json'] } }] });
+      const w = await h.createWritable(); await w.write(blob); await w.close();
+      return toast('اتحفظت النسخة الاحتياطية ✓');
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try {
+    const file = new File([json], name, { type:'application/json' });
+    if (navigator.canShare && navigator.canShare({ files:[file] })) {
+      await navigator.share({ files:[file], title:name });
+      return;
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = `expressions-${new Date().toISOString().slice(0,10)}.json`; a.click();
+  a.download = name; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 });
 $('importBtn').addEventListener('click', () => $('fileIn').click());

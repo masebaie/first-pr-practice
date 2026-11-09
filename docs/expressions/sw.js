@@ -1,5 +1,5 @@
 // Offline support for the Expressions app: app shell is pre-cached, Google Fonts are cached on first use.
-const VERSION = 'expressions-v2';
+const VERSION = 'expressions-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
