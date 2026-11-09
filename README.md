@@ -70,3 +70,29 @@ https://masebaie.github.io/first-pr-practice/zakat/
 ```
 
 On iPhone: open it in Safari → Share → "Add to Home Screen".
+
+## Expressions app (تعبيراتي)
+
+`docs/expressions/` is an installable Arabic (RTL) web app for keeping a
+personal table of English expressions and their Arabic meanings:
+
+- Add, edit, and delete expressions (with an undo after deleting), each with
+  an optional example sentence and note.
+- Live search in English or Arabic (ignores case, diacritics, and
+  alef/ya/ta-marbuta variants) with the match highlighted.
+- Favorites, newest / A→Z sorting, and a speaker button that reads the
+  English expression aloud.
+- Same palette as the gym tracker (slate, emerald, and the violet→pink→cyan
+  gradient), with light and dark
+  themes. A table on wide screens, cards on phones.
+- Works offline and keeps data on the device only, with JSON backup and
+  restore.
+
+Live at:
+
+```
+https://masebaie.github.io/first-pr-practice/expressions/
+```
+
+On iPhone: open it in Safari → Share → "Add to Home Screen". On Android:
+Chrome → ⋮ → "Install app".
