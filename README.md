@@ -82,7 +82,8 @@ personal table of English expressions and their Arabic meanings:
   alef/ya/ta-marbuta variants) with the match highlighted.
 - Favorites, newest / A→Z sorting, and a speaker button that reads the
   English expression aloud.
-- Same teal-and-gold palette as the Mounjaro tracker, with light and dark
+- Same palette as the gym tracker (slate, emerald, and the violet→pink→cyan
+  gradient), with light and dark
   themes. A table on wide screens, cards on phones.
 - Works offline and keeps data on the device only, with JSON backup and
   restore.
