@@ -12,6 +12,8 @@
 <meta name="apple-mobile-web-app-title" content="خزنتي">
 <meta name="description" content="خزنة باسوردات مشفّرة على موبايلك: انسخ اسم المستخدم والباسورد بضغطة.">
 <meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; form-action 'none'; base-uri 'none'">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
@@ -155,6 +157,9 @@ select.inp{appearance:none}
 .menu .btn{width:100%;margin-bottom:8px;text-align:start}
 .note{font-size:13px;color:var(--ink-soft);line-height:1.8;background:var(--surface-2);border-radius:14px;padding:12px 14px;margin:6px 0 12px}
 
+body.away #app,body.away .ov{visibility:hidden}
+.meter{height:6px;border-radius:6px;background:var(--surface-2);overflow:hidden;margin:-4px 0 10px}
+.meter i{display:block;height:100%;width:0;transition:.2s}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0) + 90px);transform:translateX(-50%) translateY(16px);opacity:0;pointer-events:none;
   background:var(--ink);color:var(--bg);font-weight:700;padding:11px 20px;border-radius:999px;transition:.2s;z-index:50;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -171,6 +176,7 @@ select.inp{appearance:none}
       <p id="lockMsg">…</p>
     </div>
     <input id="pw1" class="inp ltr" type="password" placeholder="الباسورد الرئيسي" autocomplete="current-password">
+    <div class="meter" id="meter" hidden><i></i></div>
     <input id="pw2" class="inp ltr" type="password" placeholder="أكّد الباسورد" autocomplete="new-password" hidden>
     <button id="lockBtn" class="btn primary block">فتح</button>
     <div id="lockErr" class="err"></div>
@@ -229,7 +235,7 @@ select.inp{appearance:none}
     <button class="btn" id="mChange">🔑 تغيير الباسورد الرئيسي</button>
     <button class="btn" id="mTheme">🌓 فاتح / غامق</button>
     <button class="btn danger" id="mReset">🗑️ مسح كل البيانات من الجهاز ده</button>
-    <div class="note">بياناتك متشفّرة (AES‑256) ومحفوظة على الموبايل ده بس، ومحدش غيرك يقدر يقراها من غير الباسورد الرئيسي. لو نسيته مفيش طريقة ترجّعها، فخُد نسخة احتياطية كل فترة. الخزنة بتقفل لوحدها بعد 3 دقايق أو لما تقفل الأبلكيشن.</div>
+    <div class="note">بياناتك متشفّرة بـ AES‑256 ومفتاح مشتق من الباسورد الرئيسي (600 ألف دورة PBKDF2)، ومحفوظة على الموبايل ده بس، ومفيش أي حاجة بتتبعت لأي سيرفر. محدش يقدر يفتحها من غير الباسورد الرئيسي، ولا أنا ولا GitHub. ولو نسيته مفيش أي طريقة ترجّعها، فاكتبه في مكان آمن وخُد نسخة احتياطية كل فترة.<br>الخزنة بتقفل لوحدها بعد 3 دقايق، والشاشة بتستخبى لما تخرج من الأبلكيشن، والحاجة اللي نسختها بتتمسح من الحافظة بعد 45 ثانية.</div>
     <button class="btn block" id="mClose">إغلاق</button>
   </div>
 </div>
@@ -247,22 +253,26 @@ const CATS={
 };
 
 /* ===================== Crypto ===================== */
-const KEY="myvault.v1", ITER=310000, te=new TextEncoder(), td=new TextDecoder();
+const KEY="myvault.v1", ITER=600000, OLD_ITER=310000, te=new TextEncoder(), td=new TextDecoder();
 const b64=a=>{let s="";for(const x of new Uint8Array(a))s+=String.fromCharCode(x);return btoa(s)};
 const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function derive(pw,salt){
+async function derive(pw,salt,iter=ITER){
   const base=await crypto.subtle.importKey("raw",te.encode(pw),"PBKDF2",false,["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:ITER,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:iter,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
 }
 async function seal(key,salt,obj){
   const iv=crypto.getRandomValues(new Uint8Array(12));
   const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,te.encode(JSON.stringify(obj)));
-  return {v:1,salt:b64(salt),iv:b64(iv),ct:b64(ct)};
+  return {v:2,it:ITER,salt:b64(salt),iv:b64(iv),ct:b64(ct)};
 }
 async function unseal(pw,blob){
-  const salt=unb64(blob.salt), key=await derive(pw,salt);
+  const it=blob.it||OLD_ITER;
+  if(!Number.isInteger(it)||it<OLD_ITER||it>5e6)throw new Error("bad iter");
+  let salt=unb64(blob.salt), key=await derive(pw,salt,it);
   const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(blob.iv)},key,unb64(blob.ct));
-  return {key,salt,data:JSON.parse(td.decode(pt))};
+  // Older/weaker vaults are re-keyed with the current settings and a fresh salt.
+  if(it!==ITER){salt=crypto.getRandomValues(new Uint8Array(16));key=await derive(pw,salt)}
+  return {key,salt,data:JSON.parse(td.decode(pt)),rekey:it!==ITER};
 }
 const readStore=()=>{try{return JSON.parse(localStorage.getItem(KEY))}catch{return null}};
 function writeStore(b){try{localStorage.setItem(KEY,JSON.stringify(b));return true}catch{toast("⚠️ مقدرتش أحفظ على الجهاز");return false}}
@@ -277,6 +287,30 @@ const clean=list=>(Array.isArray(list)?list:list&&list.entries||[]).filter(x=>x&
   id:x.id||uid(),name:String(x.name),cat:CATS[x.cat]?x.cat:"other",
   fields:(x.fields||[]).map(f=>({l:String(f.l??f.label??""),v:String(f.v??f.value??""),s:!!(f.s??f.secret)}))}));
 
+/* ===================== Master password rules ===================== */
+function strength(pw){
+  let sc=0;if(pw.length>=10)sc++;if(pw.length>=14)sc++;
+  if(/[a-z]/.test(pw)&&/[A-Z]/.test(pw))sc++;if(/\d/.test(pw))sc++;if(/[^A-Za-z0-9]/.test(pw))sc++;
+  return Math.min(sc,4);
+}
+function weakReason(pw){
+  if(pw.length<10)return "الباسورد الرئيسي لازم يكون 10 حروف على الأقل";
+  if(strength(pw)<3)return "ضعيف: اخلط حروف كبيرة وصغيرة وأرقام ورموز";
+  return "";
+}
+function updMeter(){
+  const m=$("meter");if(m.hidden)return;const sc=strength($("pw1").value);
+  m.firstElementChild.style.width=(sc/4*100)+"%";
+  m.firstElementChild.style.background=["#DC2626","#DC2626","#F59E0B","#10B981","#059669"][sc];
+}
+$("pw1").addEventListener("input",updMeter);
+
+/* ===================== Wrong-password lockout ===================== */
+const FAIL="vault.fails";
+const getFails=()=>{try{return JSON.parse(localStorage.getItem(FAIL))||{n:0,until:0}}catch{return {n:0,until:0}}};
+const setFails=f=>{try{localStorage.setItem(FAIL,JSON.stringify(f))}catch{}};
+function noteFail(){const f=getFails();f.n++;if(f.n>=5)f.until=Date.now()+Math.min(30000*2**(f.n-5),3600000);setFails(f);return f}
+
 /* ===================== Lock screen ===================== */
 // modes: unlock | setup | backup (encrypted file waiting for its password) | plain (plain file waiting for a new master password)
 let mode="unlock";
@@ -287,11 +321,11 @@ function setMode(m){
     backup:"اكتب الباسورد الرئيسي بتاع النسخة الاحتياطية",
     plain:`لقيت ${pending&&pending.data?pending.data.length:0} حساب ✓ اختار باسورد رئيسي يحميهم`};
   $("lockMsg").textContent=msgs[m];
-  $("pw2").hidden=!(m==="setup"||m==="plain");
+  $("pw2").hidden=$("meter").hidden=!(m==="setup"||m==="plain");
   $("lockBtn").textContent={unlock:"فتح",setup:"إنشاء خزنة فاضية",backup:"فتح النسخة",plain:"حفظ وتشفير"}[m];
   $("importFirst").hidden=m!=="setup";
   $("cancelImport").hidden=!(m==="backup"||m==="plain");
-  $("pw1").value=$("pw2").value="";$("lockErr").textContent="";
+  $("pw1").value=$("pw2").value="";$("lockErr").textContent="";updMeter();
   setTimeout(()=>$("pw1").focus(),60);
 }
 function showLock(){
@@ -304,7 +338,8 @@ async function submitLock(){
   const pw=$("pw1").value, err=$("lockErr"); err.textContent="";
   if(!pw)return err.textContent="اكتب الباسورد";
   const isNew=mode==="setup"||mode==="plain";
-  if(isNew&&pw.length<6)return err.textContent="خليه 6 حروف على الأقل";
+  if(isNew){const w=weakReason(pw);if(w)return err.textContent=w}
+  const fl=getFails();if(!isNew&&fl.until>Date.now())return err.textContent=`محاولات غلط كتير، استنى ${Math.ceil((fl.until-Date.now())/1000)} ثانية`;
   if(isNew&&pw!==$("pw2").value)return err.textContent="الباسوردين مش زي بعض";
   $("lockBtn").disabled=true;
   try{
@@ -313,12 +348,12 @@ async function submitLock(){
       S={key:await derive(pw,salt),salt,data:mode==="plain"?pending.data:[]};
       if(!await persist())return;
     }else if(mode==="backup"){
-      S=await unseal(pw,pending.blob);S.data=clean(S.data);writeStore(pending.blob);
+      S=await unseal(pw,pending.blob);S.data=clean(S.data);await persist();
     }else{
-      S=await unseal(pw,readStore());S.data=clean(S.data);
+      S=await unseal(pw,readStore());S.data=clean(S.data);if(S.rekey)await persist();
     }
-    pending=null;enterApp();
-  }catch{err.textContent="الباسورد غلط"}
+    pending=null;setFails({n:0,until:0});enterApp();
+  }catch{const f=noteFail();err.textContent=f.n>=5?"الباسورد غلط. اتقفل مؤقتاً من كتر المحاولات":`الباسورد غلط (${f.n} من 5)`}
   finally{$("lockBtn").disabled=false}
 }
 $("lockBtn").onclick=submitLock;
@@ -331,7 +366,10 @@ function enterApp(){$("lock").hidden=true;$("app").hidden=false;render();bump();
 let idle,hiddenAt=0;
 function bump(){clearTimeout(idle);if(S.key)idle=setTimeout(showLock,3*60*1000)}
 ["click","keydown","touchstart","scroll"].forEach(ev=>addEventListener(ev,bump,{passive:true}));
+addEventListener("pagehide",()=>document.body.classList.add("away"));
+addEventListener("pageshow",()=>document.body.classList.remove("away"));
 document.addEventListener("visibilitychange",()=>{
+  document.body.classList.toggle("away",document.hidden);
   if(document.hidden)hiddenAt=Date.now();
   else if(S.key&&hiddenAt&&Date.now()-hiddenAt>30000)showLock();
 });
@@ -392,10 +430,12 @@ $("grid").addEventListener("click",ev=>{
 });
 
 /* ===================== Copy & toast ===================== */
+let clipT;
 async function copy(text,msg){
   try{await navigator.clipboard.writeText(text)}
   catch{const t=document.createElement("textarea");t.value=text;t.setAttribute("readonly","");t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();t.setSelectionRange(0,text.length);document.execCommand("copy");t.remove()}
   if(navigator.vibrate)navigator.vibrate(15);
+  clearTimeout(clipT);clipT=setTimeout(()=>{if(navigator.clipboard)navigator.clipboard.writeText("").catch(()=>{})},45000);
   toast(msg);
 }
 let tt;function toast(m){const el=$("toast");el.textContent=m;el.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>el.classList.remove("show"),1600)}
@@ -455,8 +495,8 @@ $("mExport").onclick=async()=>{
 };
 $("mImport").onclick=()=>$("fileIn").click();
 $("mChange").onclick=async()=>{
-  const p=prompt("الباسورد الرئيسي الجديد (6 حروف على الأقل):");if(!p)return;
-  if(p.length<6)return alert("قصير أوي");
+  const p=prompt("الباسورد الرئيسي الجديد (10 حروف على الأقل، حروف كبيرة وصغيرة وأرقام ورموز):");if(!p)return;
+  const w=weakReason(p);if(w)return alert(w);
   if(prompt("أكّد الباسورد الجديد:")!==p)return alert("مش زي بعض");
   S.salt=crypto.getRandomValues(new Uint8Array(16));S.key=await derive(p,S.salt);await persist();toast("الباسورد اتغيّر ✓");
 };

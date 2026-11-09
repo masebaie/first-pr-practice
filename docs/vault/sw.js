@@ -1,5 +1,5 @@
 // Offline support for the Vault app: app shell is pre-cached, Google Fonts are cached on first use.
-const VERSION = 'vault-v1';
+const VERSION = 'vault-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {

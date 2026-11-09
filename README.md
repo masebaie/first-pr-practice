@@ -107,9 +107,15 @@ Chrome → ⋮ → "Install app".
   and a strong-password generator.
 - Search plus colour-coded category filters, in the gym tracker's palette
   (slate, emerald, and the violet→pink→cyan gradient), light and dark.
-- Data is encrypted on the device with a master password (PBKDF2 + AES-256-GCM)
-  and never leaves it. The app locks itself after 3 minutes idle or when you
-  leave it for 30 seconds.
+- Data is encrypted on the device with a master password (PBKDF2-SHA256 with
+  600,000 iterations + AES-256-GCM) and never leaves it; a Content Security
+  Policy blocks the page from sending anything to other servers.
+- The master password must be strong (10+ characters, mixing upper and lower
+  case, digits, and symbols). Five wrong attempts trigger an increasing
+  lockout.
+- Locks after 3 minutes idle or 30 seconds away; the screen is hidden while
+  the app is in the background, and copied values are cleared from the
+  clipboard after 45 seconds.
 - Import a plain JSON list of accounts on first run (encrypted right away),
   and export or restore an encrypted backup.
 - Works offline.
