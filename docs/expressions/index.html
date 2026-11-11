@@ -76,6 +76,16 @@ button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:tra
 .icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);display:grid;place-items:center;color:#F2F7F4}
 .icon-btn:active{transform:scale(.95)}
 .icon-btn svg{width:20px;height:20px}
+.top-acts{display:flex;gap:8px;align-items:center}
+.brand small,.stat span{white-space:nowrap}
+@media (max-width:400px){.brand small{display:none}.stat{padding:10px}.stat span{font-size:12px}}
+.install{height:40px;padding:0 14px;border-radius:12px;border:0;background:#fff;color:#4C1D95;font-weight:700;font-size:14px;white-space:nowrap;flex:none;display:flex;align-items:center;gap:6px;box-shadow:0 6px 16px -6px rgba(0,0,0,.35)}
+.install svg{width:18px;height:18px}
+.install:active{transform:scale(.96)}
+.steps{list-style:none;margin:0 0 14px;padding:0;display:flex;flex-direction:column;gap:10px;counter-reset:st}
+.steps li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--surface-2);border:1px solid var(--border);font-size:15px;counter-increment:st}
+.steps li::before{content:counter(st);flex:none;width:28px;height:28px;border-radius:50%;background:var(--grad);color:#fff;font-weight:700;display:grid;place-items:center;font-size:14px}
+.steps li svg{width:22px;height:22px;color:#2563EB;flex:none;margin-inline-start:auto}
 .stats{display:flex;gap:10px;margin-top:18px;position:relative;z-index:1}
 .stat{flex:1;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:10px 12px}
 .stat b{display:block;font-family:var(--display);font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -186,11 +196,14 @@ th.col-en{text-align:left;direction:ltr}
     <div class="top">
       <div class="brand">
         <img src="icons/icon-192.png" alt="">
-        <div><h1>تعبيراتي</h1><small>English expressions · المعنى بالعربي</small></div>
+        <div><h1>تعبيراتي</h1><small>English · بالعربي</small></div>
       </div>
+      <div class="top-acts">
+      <button class="install" id="installBtn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg>تثبيت</button>
       <button class="icon-btn" id="menuBtn" aria-label="الإعدادات">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></svg>
       </button>
+      </div>
     </div>
     <div class="stats">
       <div class="stat"><b id="sTotal">0</b><span>تعبير</span></div>
@@ -251,6 +264,18 @@ th.col-en{text-align:left;direction:ltr}
   <p class="hint">📱 عشان تنزّله على الموبايل: افتحه في Safari ← زرار المشاركة ← <b>Add to Home Screen</b>. على أندرويد من Chrome ← ⋮ ← <b>Install app</b>. البيانات بتتحفظ على جهازك وبيشتغل من غير نت.<br>💾 في النسخة الاحتياطية على الآيفون اختار <b>Save to Files</b> (حفظ في الملفات) وحدّد المكان، زي iCloud Drive.</p>
   <div class="row"><button type="button" class="btn" data-close>تمام</button></div>
   <input type="file" id="fileIn" accept="application/json,.json" hidden>
+</div>
+
+<div class="sheet" id="iosSheet" hidden>
+  <div class="grab"></div>
+  <h2>ثبّت «تعبيراتي» على الشاشة الرئيسية</h2>
+  <ol class="steps">
+    <li>دوس <b>⋯</b> تحت جنب العنوان، وبعدين <b>Share</b> (أو زرار المشاركة)<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg></li>
+    <li>انزل واختار <b>Add to Home Screen</b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg></li>
+    <li>دوس <b>Add</b> فوق على اليمين</li>
+  </ol>
+  <p class="hint" style="margin-top:0">الآيفون مش بيسمح لأي موقع إنه يتثبّت لوحده، لازم الخطوات دي مرة واحدة بس. ⚠️ التطبيق اللي على الشاشة الرئيسية بيبدأ فاضي: خد <b>نسخة احتياطية</b> من هنا الأول، وبعدين افتحه واعمل <b>استرجاع من ملف</b>.</p>
+  <div class="row"><button type="button" class="btn primary" data-close>فهمت</button></div>
 </div>
 
 <div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastAct" hidden>تراجع</button></div>
@@ -479,6 +504,24 @@ $('fileIn').addEventListener('change', async e => {
 $('wipeBtn').addEventListener('click', () => {
   if (!items.length) return toast('مفيش حاجة تتمسح');
   lastDeleted = { all:true, list:items }; items = []; save(); render(); closeSheet(); toast('اتمسح كل التعبيرات', true);
+});
+
+// Install: one tap on Android/desktop Chrome (beforeinstallprompt); step-by-step sheet on iPhone/iPad Safari.
+const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let deferredPrompt = null;
+if (!standalone && isIOS) $('installBtn').hidden = false;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; if (!standalone) $('installBtn').hidden = false; });
+window.addEventListener('appinstalled', () => { $('installBtn').hidden = true; deferredPrompt = null; toast('اتثبّت التطبيق ✓'); });
+$('installBtn').addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    if (outcome === 'accepted') $('installBtn').hidden = true;
+    return;
+  }
+  openSheet($('iosSheet'));
 });
 
 render();
