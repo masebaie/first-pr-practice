@@ -266,16 +266,10 @@
   .wd-photo{ width:100%; max-height:340px; object-fit:contain; background:var(--paper); border-radius:9px; display:block; }
   .wd-howto{ font-size:11px; color:var(--steel); margin:0; line-height:1.4; }
   .wd-last-stat{ font-size:11px; color:var(--accent); font-weight:600; margin:0; }
-  .wd-best-stat{ font-size:11px; color:var(--gold); font-weight:700; margin:0; }
   .wd-sets{ display:flex; flex-direction:column; gap:6px; }
   .wd-set-row{ display:flex; gap:6px; align-items:center; }
-  .wd-weight-wrap{ position:relative; flex:1; min-width:0; }
-  .wd-weight-wrap .wd-weight{ width:100%; }
-  .wd-set-row .wd-reps{ flex:1; min-width:0; }
+  .wd-set-row .wd-weight, .wd-set-row .wd-reps{ flex:1; min-width:0; }
   .wd-set-row .wd-note{ flex:2; min-width:0; }
-  .wd-pr-badge{ position:absolute; top:-9px; inset-inline-start:6px; background:var(--gold); color:#fff;
-    font-size:9px; font-weight:800; padding:1px 6px; border-radius:999px; letter-spacing:0.01em;
-    box-shadow:var(--shadow); white-space:nowrap; }
   .wd-remove-exercise, .wd-remove-set{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
                width:26px; height:26px; line-height:1; font-size:15px; cursor:pointer; display:flex; align-items:center;
                justify-content:center; flex-shrink:0; }
@@ -328,6 +322,33 @@
           padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600;
           opacity:0; transform:translate(-50%,8px); pointer-events:none; transition:opacity .2s ease, transform .2s ease; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
+
+  .records-btn{ appearance:none; width:100%; border:1.5px solid var(--gold); background:var(--gold-tint); color:var(--gold);
+        border-radius:14px; padding:13px; font-size:13.5px; font-weight:700; cursor:pointer; min-height:46px;
+        display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:var(--font-ui); }
+  .records-btn:focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+  .records-overlay{ position:fixed; inset:0; background:rgba(15,23,42,0.5); z-index:40;
+        display:flex; align-items:flex-end; justify-content:center; }
+  .records-overlay.hidden{ display:none; }
+  .records-panel{ background:var(--paper); width:100%; max-width:480px; max-height:85vh; overflow-y:auto;
+        border-radius:20px 20px 0 0; padding:16px 18px calc(18px + env(safe-area-inset-bottom)); box-shadow:var(--shadow); }
+  .records-head{ display:flex; align-items:center; justify-content:space-between; gap:10px;
+        position:sticky; top:0; background:var(--paper); padding-bottom:8px; margin-bottom:4px; }
+  .records-head h2{ margin:0; font-family:var(--font-display); font-size:18px; font-weight:800; }
+  .records-close{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
+        width:28px; height:28px; min-height:0; line-height:1; font-size:16px; cursor:pointer; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; }
+  .records-group-title{ font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--steel);
+        font-weight:700; margin:16px 0 8px; }
+  .records-group-title:first-child{ margin-top:0; }
+  .record-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .record-row:last-child{ border-bottom:none; }
+  .record-photo, .record-photo-placeholder{ width:42px; height:42px; border-radius:9px; flex-shrink:0; background:var(--surface-2); }
+  .record-photo{ object-fit:cover; }
+  .record-info{ flex:1; min-width:0; }
+  .record-name{ font-size:13px; font-weight:700; color:var(--ink); margin:0; }
+  .record-value{ font-size:12px; color:var(--gold); font-weight:700; margin:2px 0 0; }
+  .record-empty{ font-size:12px; color:var(--steel); margin:2px 0 0; }
 
   @media (prefers-reduced-motion:reduce){
     .day-cell, .count-ring, .toast, .month-days summary::before, .archived summary::before{ transition:none; }
@@ -384,7 +405,18 @@
   <section class="quick-log">
     <button id="btnQuickLog" type="button" class="quick-log-btn"></button>
     <button id="btnLogWorkout" type="button" class="log-workout-btn hidden"></button>
+    <button id="btnRecords" type="button" class="records-btn"></button>
   </section>
+
+  <div id="recordsOverlay" class="records-overlay hidden">
+    <div class="records-panel">
+      <div class="records-head">
+        <h2 id="recordsTitle"></h2>
+        <button type="button" id="btnCloseRecords" class="records-close" aria-label="Close">×</button>
+      </div>
+      <div id="recordsList"></div>
+    </div>
+  </div>
 
   <div id="monthsContainer"></div>
   <button id="btnAddMonth" class="btn-add" type="button">+ Add new month</button>
@@ -540,10 +572,10 @@
       logTodayWorkout: "+ Log today's workout",
       chooseExercise: 'Choose exercise', otherExercise: 'Other', customNamePlaceholder: 'Exercise name',
       lastStat: (w, r, d) => `Last time: ${w}kg × ${r} reps (${d})`, noHistory: 'No history yet for this exercise',
-      bestStat: (w, r, d) => `🏆 Personal record: ${w}kg × ${r} reps (${d})`,
-      newRecord: '🔥 New record!',
       repeatSet: '+ Add another set',
-      notePlaceholder: 'Note (optional)', removeSet: 'Remove set'
+      notePlaceholder: 'Note (optional)', removeSet: 'Remove set',
+      recordsBtn: '🏆 My Records', recordsTitle: '🏆 My Records',
+      recordValue: (w, r, d) => `${w}kg × ${r} reps · ${d}`, recordNone: 'No record yet'
     },
     ar: {
       eyebrow: 'تتبّع الحضور',
@@ -587,10 +619,10 @@
       logTodayWorkout: '+ سجّل تمرين النهاردة',
       chooseExercise: 'اختار التمرين', otherExercise: 'تمرين تاني', customNamePlaceholder: 'اسم التمرين',
       lastStat: (w, r, d) => `آخر مرة: ${w} كجم × ${r} عدة (${d})`, noHistory: 'لسه معملتش التمرين ده قبل كده',
-      bestStat: (w, r, d) => `🏆 الرقم القياسي: ${w} كجم × ${r} عدة (${d})`,
-      newRecord: '🔥 رقم قياسي جديد!',
       repeatSet: '+ إضافة جولة تانية لنفس التمرين',
-      notePlaceholder: 'ملاحظة (اختياري)', removeSet: 'حذف الجولة'
+      notePlaceholder: 'ملاحظة (اختياري)', removeSet: 'حذف الجولة',
+      recordsBtn: '🏆 أرقامي القياسية', recordsTitle: '🏆 أرقامي القياسية',
+      recordValue: (w, r, d) => `${w} كجم × ${r} عدة · ${d}`, recordNone: 'لسه معملتش التمرين ده'
     }
   };
   function t(key){ return STRINGS[state.lang][key]; }
@@ -865,23 +897,16 @@
     return html;
   }
 
-  function updateLastStat(statEl, bestStatEl, howToEl, photoEl, setsWrap, exerciseId, excludeDateStr){
+  function updateLastStat(statEl, howToEl, photoEl, exerciseId, excludeDateStr){
     if(!exerciseId || exerciseId === 'other'){
       statEl.textContent = '';
-      bestStatEl.textContent = '';
       howToEl.textContent = '';
       photoEl.classList.add('hidden');
       photoEl.removeAttribute('src');
-      delete setsWrap.dataset.bestWeight;
-      refreshSetsPRBadges(setsWrap);
       return;
     }
     const stat = lastExerciseStat(exerciseId, excludeDateStr);
     statEl.textContent = stat ? t('lastStat')(stat.weight, stat.reps, formatDateShort(stat.date)) : t('noHistory');
-    const best = bestExerciseStat(exerciseId, excludeDateStr);
-    bestStatEl.textContent = best ? t('bestStat')(best.weight, best.reps, formatDateShort(best.date)) : '';
-    setsWrap.dataset.bestWeight = String(best ? best.weight : 0);
-    refreshSetsPRBadges(setsWrap);
     const exerciseDef = EXERCISES_BY_ID[exerciseId];
     howToEl.textContent = exerciseDef ? exerciseDef.howTo[state.lang] : '';
     if(exerciseDef && exerciseDef.image){
@@ -892,22 +917,6 @@
       photoEl.classList.add('hidden');
       photoEl.removeAttribute('src');
     }
-  }
-
-  function updatePRBadge(setRow){
-    const setsWrap = setRow.closest('.wd-sets');
-    const weightInput = setRow.querySelector('.wd-weight');
-    const prBadge = setRow.querySelector('.wd-pr-badge');
-    if(!setsWrap || !weightInput || !prBadge) return;
-    const hasBest = setsWrap.dataset.bestWeight !== undefined;
-    const bestWeight = hasBest ? parseFloat(setsWrap.dataset.bestWeight) : NaN;
-    const weight = parseFloat(weightInput.value);
-    const isPR = hasBest && weight > 0 && weight > bestWeight;
-    prBadge.classList.toggle('hidden', !isPR);
-  }
-
-  function refreshSetsPRBadges(setsWrap){
-    setsWrap.querySelectorAll('.wd-set-row').forEach(updatePRBadge);
   }
 
   function repsOptionsHTML(selected){
@@ -925,15 +934,11 @@
     const row = document.createElement('div');
     row.className = 'wd-set-row';
     row.innerHTML = `
-      <div class="wd-weight-wrap">
-        <span class="wd-pr-badge hidden">${t('newRecord')}</span>
-        <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${set.weight || ''}" />
-      </div>
+      <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${set.weight || ''}" />
       <select class="wd-reps">${repsOptionsHTML(set.reps)}</select>
       <input type="text" class="wd-note" placeholder="${t('notePlaceholder')}" value="${set.note || ''}" />
       <button type="button" class="wd-remove-set" aria-label="${t('removeSet')}">×</button>
     `;
-    row.querySelector('.wd-weight').addEventListener('input', () => updatePRBadge(row));
     row.querySelector('.wd-remove-set').addEventListener('click', () => row.remove());
     return row;
   }
@@ -951,14 +956,12 @@
       <img class="wd-photo hidden" alt="" />
       <p class="wd-howto"></p>
       <p class="wd-last-stat"></p>
-      <p class="wd-best-stat"></p>
       <div class="wd-sets"></div>
       <button type="button" class="wd-add-set${selectedId ? '' : ' hidden'}">${t('repeatSet')}</button>
     `;
     const selectEl = row.querySelector('.wd-exercise-select');
     const customInput = row.querySelector('.wd-custom-name');
     const statEl = row.querySelector('.wd-last-stat');
-    const bestStatEl = row.querySelector('.wd-best-stat');
     const howToEl = row.querySelector('.wd-howto');
     const photoEl = row.querySelector('.wd-photo');
     const setsWrap = row.querySelector('.wd-sets');
@@ -970,10 +973,10 @@
     selectEl.addEventListener('change', () => {
       customInput.classList.toggle('hidden', selectEl.value !== 'other');
       if(selectEl.value === 'other') customInput.focus();
-      updateLastStat(statEl, bestStatEl, howToEl, photoEl, setsWrap, selectEl.value, excludeDateStr);
+      updateLastStat(statEl, howToEl, photoEl, selectEl.value, excludeDateStr);
       addSetBtn.classList.toggle('hidden', !selectEl.value);
     });
-    updateLastStat(statEl, bestStatEl, howToEl, photoEl, setsWrap, selectedId, excludeDateStr);
+    updateLastStat(statEl, howToEl, photoEl, selectedId, excludeDateStr);
     row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
     addSetBtn.addEventListener('click', () => {
       const newRow = buildSetRow({weight:'', reps:'', note:''});
@@ -1315,7 +1318,41 @@
     document.getElementById('btnExport').textContent = t('downloadBackup');
     document.querySelector('label[for="importFile"]').textContent = t('restoreBackup');
     document.querySelector('#comparisonSection h2').textContent = t('comparisonTitle');
+    document.getElementById('btnRecords').textContent = t('recordsBtn');
+    document.getElementById('recordsTitle').textContent = t('recordsTitle');
     document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('is-active', b.dataset.lang === state.lang));
+  }
+
+  function renderRecords(){
+    const listEl = document.getElementById('recordsList');
+    listEl.innerHTML = '';
+    MUSCLE_GROUPS.forEach(g => {
+      const inGroup = EXERCISES.filter(e => e.group === g);
+      if(!inGroup.length) return;
+      const title = document.createElement('p');
+      title.className = 'records-group-title';
+      title.textContent = MUSCLE_LABELS[state.lang][g];
+      listEl.appendChild(title);
+      inGroup.forEach(ex => {
+        const best = bestExerciseStat(ex.id, null);
+        const row = document.createElement('div');
+        row.className = 'record-row';
+        const photoHtml = ex.image
+          ? `<img class="record-photo" src="${ex.image}" alt="" />`
+          : `<div class="record-photo-placeholder"></div>`;
+        const valueHtml = best
+          ? `<p class="record-value">🏆 ${t('recordValue')(best.weight, best.reps, formatDateShort(best.date))}</p>`
+          : `<p class="record-empty">${t('recordNone')}</p>`;
+        row.innerHTML = `
+          ${photoHtml}
+          <div class="record-info">
+            <p class="record-name">${ex.name[state.lang]}</p>
+            ${valueHtml}
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    });
   }
 
   function renderMonthTabs(active){
@@ -1542,6 +1579,17 @@
 
   document.getElementById('btnAddMonth').addEventListener('click', addMonth);
 
+  document.getElementById('btnRecords').addEventListener('click', () => {
+    renderRecords();
+    document.getElementById('recordsOverlay').classList.remove('hidden');
+  });
+  document.getElementById('btnCloseRecords').addEventListener('click', () => {
+    document.getElementById('recordsOverlay').classList.add('hidden');
+  });
+  document.getElementById('recordsOverlay').addEventListener('click', (e) => {
+    if(e.target.id === 'recordsOverlay') e.target.classList.add('hidden');
+  });
+
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       if(state.lang === btn.dataset.lang) return;
@@ -1550,6 +1598,7 @@
       applyLangAttrs();
       applyStaticStrings();
       renderAll();
+      if(!document.getElementById('recordsOverlay').classList.contains('hidden')) renderRecords();
     });
   });
 
