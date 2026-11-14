@@ -30,6 +30,8 @@
     --primary-glow:rgba(16,185,129,0.35);
     --accent:#2563EB;
     --accent-tint:rgba(37,99,235,0.08);
+    --gold:#B45309;
+    --gold-tint:rgba(180,83,9,0.10);
     --shadow:0 1px 2px rgba(15,23,42,0.04), 0 10px 22px -16px rgba(15,23,42,0.12);
     --font-display: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
     --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Tahoma, Arial, sans-serif;
@@ -49,6 +51,8 @@
       --primary-glow:rgba(52,211,153,0.40);
       --accent:#60A5FA;
       --accent-tint:rgba(96,165,250,0.16);
+      --gold:#FBBF24;
+      --gold-tint:rgba(251,191,36,0.16);
       --shadow:0 1px 2px rgba(0,0,0,0.3), 0 14px 26px -18px rgba(0,0,0,0.55);
     }
   }
@@ -65,6 +69,8 @@
     --primary-glow:rgba(52,211,153,0.40);
     --accent:#60A5FA;
     --accent-tint:rgba(96,165,250,0.16);
+    --gold:#FBBF24;
+    --gold-tint:rgba(251,191,36,0.16);
     --shadow:0 1px 2px rgba(0,0,0,0.3), 0 14px 26px -18px rgba(0,0,0,0.55);
   }
   *{ box-sizing:border-box; }
@@ -253,17 +259,23 @@
   .wd-exercise-main{ display:flex; gap:6px; align-items:center; }
   .wd-exercise-main .wd-exercise-select{ flex:2; min-width:0; }
   .wd-exercise-main .wd-custom-name{ flex:2; min-width:0; }
-  .wd-exercise-select, .wd-custom-name, .wd-set-row input{
+  .wd-exercise-select, .wd-custom-name, .wd-set-row input, .wd-set-row select{
     border:1px solid var(--line); background:var(--paper); border-radius:9px; padding:8px 9px;
     font-size:12.5px; color:var(--ink); font-family:var(--font-ui); width:100%; box-sizing:border-box; }
   .wd-custom-name::placeholder, .wd-set-row input::placeholder{ color:var(--steel); }
   .wd-photo{ width:100%; max-height:340px; object-fit:contain; background:var(--paper); border-radius:9px; display:block; }
   .wd-howto{ font-size:11px; color:var(--steel); margin:0; line-height:1.4; }
   .wd-last-stat{ font-size:11px; color:var(--accent); font-weight:600; margin:0; }
+  .wd-best-stat{ font-size:11px; color:var(--gold); font-weight:700; margin:0; }
   .wd-sets{ display:flex; flex-direction:column; gap:6px; }
   .wd-set-row{ display:flex; gap:6px; align-items:center; }
-  .wd-set-row .wd-weight, .wd-set-row .wd-reps{ flex:1; min-width:0; }
+  .wd-weight-wrap{ position:relative; flex:1; min-width:0; }
+  .wd-weight-wrap .wd-weight{ width:100%; }
+  .wd-set-row .wd-reps{ flex:1; min-width:0; }
   .wd-set-row .wd-note{ flex:2; min-width:0; }
+  .wd-pr-badge{ position:absolute; top:-9px; inset-inline-start:6px; background:var(--gold); color:#fff;
+    font-size:9px; font-weight:800; padding:1px 6px; border-radius:999px; letter-spacing:0.01em;
+    box-shadow:var(--shadow); white-space:nowrap; }
   .wd-remove-exercise, .wd-remove-set{ appearance:none; border:none; background:var(--line); color:var(--ink); border-radius:50%;
                width:26px; height:26px; line-height:1; font-size:15px; cursor:pointer; display:flex; align-items:center;
                justify-content:center; flex-shrink:0; }
@@ -528,6 +540,8 @@
       logTodayWorkout: "+ Log today's workout",
       chooseExercise: 'Choose exercise', otherExercise: 'Other', customNamePlaceholder: 'Exercise name',
       lastStat: (w, r, d) => `Last time: ${w}kg × ${r} reps (${d})`, noHistory: 'No history yet for this exercise',
+      bestStat: (w, r, d) => `🏆 Personal record: ${w}kg × ${r} reps (${d})`,
+      newRecord: '🔥 New record!',
       repeatSet: '+ Add another set',
       notePlaceholder: 'Note (optional)', removeSet: 'Remove set'
     },
@@ -573,6 +587,8 @@
       logTodayWorkout: '+ سجّل تمرين النهاردة',
       chooseExercise: 'اختار التمرين', otherExercise: 'تمرين تاني', customNamePlaceholder: 'اسم التمرين',
       lastStat: (w, r, d) => `آخر مرة: ${w} كجم × ${r} عدة (${d})`, noHistory: 'لسه معملتش التمرين ده قبل كده',
+      bestStat: (w, r, d) => `🏆 الرقم القياسي: ${w} كجم × ${r} عدة (${d})`,
+      newRecord: '🔥 رقم قياسي جديد!',
       repeatSet: '+ إضافة جولة تانية لنفس التمرين',
       notePlaceholder: 'ملاحظة (اختياري)', removeSet: 'حذف الجولة'
     }
@@ -817,6 +833,25 @@
     return {date: bestDate, weight: bestSet.weight, reps: bestSet.reps};
   }
 
+  function bestExerciseStat(exerciseId, excludeDateStr){
+    let best = null, bestDate = null;
+    state.months.forEach(mo => {
+      Object.keys(mo.workoutLogs).forEach(dateStr => {
+        if(dateStr === excludeDateStr) return;
+        const entry = mo.workoutLogs[dateStr].exercises.find(e => e.exerciseId === exerciseId);
+        if(!entry) return;
+        entry.sets.forEach(s => {
+          if(!best || s.weight > best.weight){
+            best = {weight: s.weight, reps: s.reps};
+            bestDate = dateStr;
+          }
+        });
+      });
+    });
+    if(!best) return null;
+    return {date: bestDate, weight: best.weight, reps: best.reps};
+  }
+
   function exerciseOptionsHTML(selectedId){
     let html = `<option value="">${t('chooseExercise')}</option>`;
     MUSCLE_GROUPS.forEach(g => {
@@ -830,16 +865,23 @@
     return html;
   }
 
-  function updateLastStat(statEl, howToEl, photoEl, exerciseId, excludeDateStr){
+  function updateLastStat(statEl, bestStatEl, howToEl, photoEl, setsWrap, exerciseId, excludeDateStr){
     if(!exerciseId || exerciseId === 'other'){
       statEl.textContent = '';
+      bestStatEl.textContent = '';
       howToEl.textContent = '';
       photoEl.classList.add('hidden');
       photoEl.removeAttribute('src');
+      delete setsWrap.dataset.bestWeight;
+      refreshSetsPRBadges(setsWrap);
       return;
     }
     const stat = lastExerciseStat(exerciseId, excludeDateStr);
     statEl.textContent = stat ? t('lastStat')(stat.weight, stat.reps, formatDateShort(stat.date)) : t('noHistory');
+    const best = bestExerciseStat(exerciseId, excludeDateStr);
+    bestStatEl.textContent = best ? t('bestStat')(best.weight, best.reps, formatDateShort(best.date)) : '';
+    setsWrap.dataset.bestWeight = String(best ? best.weight : 0);
+    refreshSetsPRBadges(setsWrap);
     const exerciseDef = EXERCISES_BY_ID[exerciseId];
     howToEl.textContent = exerciseDef ? exerciseDef.howTo[state.lang] : '';
     if(exerciseDef && exerciseDef.image){
@@ -850,6 +892,22 @@
       photoEl.classList.add('hidden');
       photoEl.removeAttribute('src');
     }
+  }
+
+  function updatePRBadge(setRow){
+    const setsWrap = setRow.closest('.wd-sets');
+    const weightInput = setRow.querySelector('.wd-weight');
+    const prBadge = setRow.querySelector('.wd-pr-badge');
+    if(!setsWrap || !weightInput || !prBadge) return;
+    const hasBest = setsWrap.dataset.bestWeight !== undefined;
+    const bestWeight = hasBest ? parseFloat(setsWrap.dataset.bestWeight) : NaN;
+    const weight = parseFloat(weightInput.value);
+    const isPR = hasBest && weight > 0 && weight > bestWeight;
+    prBadge.classList.toggle('hidden', !isPR);
+  }
+
+  function refreshSetsPRBadges(setsWrap){
+    setsWrap.querySelectorAll('.wd-set-row').forEach(updatePRBadge);
   }
 
   function repsOptionsHTML(selected){
@@ -867,11 +925,15 @@
     const row = document.createElement('div');
     row.className = 'wd-set-row';
     row.innerHTML = `
-      <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${set.weight || ''}" />
+      <div class="wd-weight-wrap">
+        <span class="wd-pr-badge hidden">${t('newRecord')}</span>
+        <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${set.weight || ''}" />
+      </div>
       <select class="wd-reps">${repsOptionsHTML(set.reps)}</select>
       <input type="text" class="wd-note" placeholder="${t('notePlaceholder')}" value="${set.note || ''}" />
       <button type="button" class="wd-remove-set" aria-label="${t('removeSet')}">×</button>
     `;
+    row.querySelector('.wd-weight').addEventListener('input', () => updatePRBadge(row));
     row.querySelector('.wd-remove-set').addEventListener('click', () => row.remove());
     return row;
   }
@@ -889,12 +951,14 @@
       <img class="wd-photo hidden" alt="" />
       <p class="wd-howto"></p>
       <p class="wd-last-stat"></p>
+      <p class="wd-best-stat"></p>
       <div class="wd-sets"></div>
       <button type="button" class="wd-add-set${selectedId ? '' : ' hidden'}">${t('repeatSet')}</button>
     `;
     const selectEl = row.querySelector('.wd-exercise-select');
     const customInput = row.querySelector('.wd-custom-name');
     const statEl = row.querySelector('.wd-last-stat');
+    const bestStatEl = row.querySelector('.wd-best-stat');
     const howToEl = row.querySelector('.wd-howto');
     const photoEl = row.querySelector('.wd-photo');
     const setsWrap = row.querySelector('.wd-sets');
@@ -906,10 +970,10 @@
     selectEl.addEventListener('change', () => {
       customInput.classList.toggle('hidden', selectEl.value !== 'other');
       if(selectEl.value === 'other') customInput.focus();
-      updateLastStat(statEl, howToEl, photoEl, selectEl.value, excludeDateStr);
+      updateLastStat(statEl, bestStatEl, howToEl, photoEl, setsWrap, selectEl.value, excludeDateStr);
       addSetBtn.classList.toggle('hidden', !selectEl.value);
     });
-    updateLastStat(statEl, howToEl, photoEl, selectedId, excludeDateStr);
+    updateLastStat(statEl, bestStatEl, howToEl, photoEl, setsWrap, selectedId, excludeDateStr);
     row.querySelector('.wd-remove-exercise').addEventListener('click', () => row.remove());
     addSetBtn.addEventListener('click', () => {
       const newRow = buildSetRow({weight:'', reps:'', note:''});
