@@ -849,12 +849,23 @@
     }
   }
 
+  function repsOptionsHTML(selected){
+    const n = parseInt(selected, 10) || 0;
+    let opts = [];
+    for(let i = 10; i <= 40; i++) opts.push(i);
+    if(n && !opts.includes(n)) opts.push(n);
+    opts.sort((a,b) => a - b);
+    let html = `<option value="">${t('repsPlaceholder')}</option>`;
+    html += opts.map(i => `<option value="${i}"${n === i ? ' selected' : ''}>${i}</option>`).join('');
+    return html;
+  }
+
   function buildSetRow(set){
     const row = document.createElement('div');
     row.className = 'wd-set-row';
     row.innerHTML = `
       <input type="number" inputmode="decimal" step="0.5" min="0" class="wd-weight" placeholder="${t('weightPlaceholder')}" value="${set.weight || ''}" />
-      <input type="number" inputmode="numeric" min="0" class="wd-reps" placeholder="${t('repsPlaceholder')}" value="${set.reps || ''}" />
+      <select class="wd-reps">${repsOptionsHTML(set.reps)}</select>
       <input type="text" class="wd-note" placeholder="${t('notePlaceholder')}" value="${set.note || ''}" />
       <button type="button" class="wd-remove-set" aria-label="${t('removeSet')}">×</button>
     `;
