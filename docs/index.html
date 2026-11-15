@@ -922,7 +922,7 @@
   function repsOptionsHTML(selected){
     const n = parseInt(selected, 10) || 0;
     let opts = [];
-    for(let i = 10; i <= 40; i++) opts.push(i);
+    for(let i = 5; i <= 40; i++) opts.push(i);
     if(n && !opts.includes(n)) opts.push(n);
     opts.sort((a,b) => a - b);
     let html = `<option value="">${t('repsPlaceholder')}</option>`;
