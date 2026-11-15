@@ -349,6 +349,7 @@
   .record-name{ font-size:13px; font-weight:700; color:var(--ink); margin:0; }
   .record-value{ font-size:12px; color:var(--gold); font-weight:700; margin:2px 0 0; }
   .record-empty{ font-size:12px; color:var(--steel); margin:2px 0 0; }
+  .record-note{ font-size:11px; color:var(--steel); margin:2px 0 0; font-style:italic; }
 
   @media (prefers-reduced-motion:reduce){
     .day-cell, .count-ring, .toast, .month-days summary::before, .archived summary::before{ transition:none; }
@@ -877,14 +878,14 @@
         if(!entry) return;
         entry.sets.forEach(s => {
           if(!best || s.weight > best.weight){
-            best = {weight: s.weight, reps: s.reps};
+            best = {weight: s.weight, reps: s.reps, note: s.note};
             bestDate = dateStr;
           }
         });
       });
     });
     if(!best) return null;
-    return {date: bestDate, weight: best.weight, reps: best.reps};
+    return {date: bestDate, weight: best.weight, reps: best.reps, note: best.note};
   }
 
   function exerciseOptionsHTML(selectedId){
@@ -1353,6 +1354,12 @@
             ${valueHtml}
           </div>
         `;
+        if(best && best.note){
+          const noteEl = document.createElement('p');
+          noteEl.className = 'record-note';
+          noteEl.textContent = best.note;
+          row.querySelector('.record-info').appendChild(noteEl);
+        }
         listEl.appendChild(row);
       });
     });
