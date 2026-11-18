@@ -877,7 +877,8 @@
         const entry = mo.workoutLogs[dateStr].exercises.find(e => e.exerciseId === exerciseId);
         if(!entry) return;
         entry.sets.forEach(s => {
-          if(!best || s.weight > best.weight){
+          const isBetter = !best || s.weight > best.weight || (s.weight === best.weight && s.reps > best.reps);
+          if(isBetter){
             best = {weight: s.weight, reps: s.reps, note: s.note};
             bestDate = dateStr;
           }
